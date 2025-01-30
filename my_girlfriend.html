@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Girlfriend</title>
-   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
             text-align: center;
             background: #ffe6f2;
             margin: 0;
@@ -19,6 +19,9 @@
             display: flex;
             align-items: center;
             color: white;
+            font-size: 20px;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
         .menu i {
             font-size: 24px;
@@ -34,6 +37,7 @@
             background: #ff99cc;
             padding-top: 50px;
             transition: 0.3s;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
         }
         .sidebar .option {
             display: block;
@@ -45,30 +49,47 @@
             border-bottom: 1px solid #ff66b2;
             transition: 0.3s;
         }
-        .sidebar .option:hover {
+        .sidebar .option:hover,
+        .sidebar .option.active {
             background: #ff3385;
+            font-weight: bold;
+            color: white;
         }
         .sidebar.active {
             left: 0;
         }
         .content {
-            margin-top: 20px;
+            margin-top: 50px;
             padding: 20px;
+            text-align: center;
         }
-        #anniversary, #about-khin {
+        .section {
             font-size: 24px;
             font-weight: bold;
             color: #ff3385;
-            background: #fff;
-            padding: 15px;
-            border-radius: 10px;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
             display: inline-block;
             box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+            width: 80%;
+            max-width: 500px;
+            transition: 0.3s;
+            opacity: 1;
+            transform: scale(1);
+        }
+        .section.hidden {
+            opacity: 0;
+            transform: scale(0.9);
+            display: none;
+        }
+        #anniversary {
+            background: linear-gradient(135deg, #ff66b2, #ff3385);
+            color: white;
         }
         #about-khin {
-            font-size: 18px;
-            color: #333;
-            display: none;
+            background: linear-gradient(135deg, #ff99cc, #ff66b2);
+            color: white;
         }
     </style>
 </head>
@@ -80,15 +101,15 @@
     </div>
 
     <div class="sidebar" id="sidebar">
-        <div class="option" onclick="showContent('anniversary')">Anniversary</div>
-        <div class="option" onclick="showContent('about-khin')">About Khin</div>
+        <div class="option active" onclick="showContent('anniversary', this)">Anniversary</div>
+        <div class="option" onclick="showContent('about-khin', this)">About Khin</div>
     </div>
 
     <div class="content">
-        <div id="anniversary">
+        <div id="anniversary" class="section">
             🎉 Our Anniversary: <strong>January 28, 2025</strong> ❤️  
         </div>
-        <div id="about-khin">
+        <div id="about-khin" class="section hidden">
             🌸 Khin is the most beautiful girl in the world! She is 18 years old, and her smile is like sunshine.  
             Every moment with her is special, and she brightens up my life with her kindness and love. 💖  
         </div>
@@ -99,10 +120,13 @@
             document.getElementById("sidebar").classList.toggle("active");
         }
 
-        function showContent(section) {
-            document.getElementById('anniversary').style.display = 'none';
-            document.getElementById('about-khin').style.display = 'none';
-            document.getElementById(section).style.display = 'block';
+        function showContent(section, element) {
+            document.querySelectorAll('.section').forEach(el => el.classList.add('hidden'));
+            document.getElementById(section).classList.remove('hidden');
+
+            document.querySelectorAll('.option').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+
             toggleSidebar();
         }
     </script>
