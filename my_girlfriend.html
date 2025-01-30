@@ -12,6 +12,7 @@
             background: #ffe6f2;
             margin: 0;
             padding: 0;
+            transition: filter 0.3s;
         }
         .menu {
             background: #ff66b2;
@@ -34,10 +35,11 @@
             top: 0;
             width: 250px;
             height: 100%;
-            background: #ff99cc;
+            background: rgba(255, 153, 204, 0.95); /* Soft transparent effect */
             padding-top: 50px;
-            transition: 0.3s;
+            transition: 0.3s ease-in-out;
             box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
         }
         .sidebar .option {
             display: block;
@@ -62,6 +64,10 @@
             margin-top: 50px;
             padding: 20px;
             text-align: center;
+            transition: filter 0.3s ease-in-out;
+        }
+        .blur {
+            filter: blur(3px); /* Apply blur effect when sidebar is active */
         }
         .section {
             font-size: 24px;
@@ -105,7 +111,7 @@
         <div class="option" onclick="showContent('about-khin', this)">About Khin</div>
     </div>
 
-    <div class="content">
+    <div class="content" id="content">
         <div id="anniversary" class="section">
             🎉 Our Anniversary: <strong>January 28, 2025</strong> ❤️  
         </div>
@@ -117,7 +123,11 @@
 
     <script>
         function toggleSidebar() {
-            document.getElementById("sidebar").classList.toggle("active");
+            const sidebar = document.getElementById("sidebar");
+            const content = document.getElementById("content");
+
+            sidebar.classList.toggle("active");
+            content.classList.toggle("blur");
         }
 
         function showContent(section, element) {
