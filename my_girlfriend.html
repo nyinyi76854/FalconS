@@ -17,39 +17,45 @@
             background: #ff66b2;
             padding: 15px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
             color: white;
         }
         .menu i {
             font-size: 24px;
             cursor: pointer;
+            margin-right: 10px;
         }
-        .menu-options {
-            display: flex;
-            justify-content: center;
-            margin-top: 20px;
-        }
-        .option {
-            padding: 15px 25px;
-            margin: 5px;
+        .sidebar {
+            position: fixed;
+            left: -250px;
+            top: 0;
+            width: 250px;
+            height: 100%;
             background: #ff99cc;
-            border-radius: 15px;
-            cursor: pointer;
-            font-size: 18px;
-            font-weight: bold;
+            padding-top: 50px;
             transition: 0.3s;
         }
-        .option:hover, .option.active {
-            background: #ff3385;
+        .sidebar .option {
+            display: block;
+            padding: 15px;
+            font-size: 18px;
             color: white;
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+            text-align: left;
+            cursor: pointer;
+            border-bottom: 1px solid #ff66b2;
+            transition: 0.3s;
+        }
+        .sidebar .option:hover {
+            background: #ff3385;
+        }
+        .sidebar.active {
+            left: 0;
         }
         .content {
             margin-top: 20px;
             padding: 20px;
         }
-        #anniversary {
+        #anniversary, #about-khin {
             font-size: 24px;
             font-weight: bold;
             color: #ff3385;
@@ -62,23 +68,19 @@
         #about-khin {
             font-size: 18px;
             color: #333;
-            background: #fff;
-            padding: 15px;
-            border-radius: 10px;
-            display: inline-block;
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+            display: none;
         }
     </style>
 </head>
 <body>
 
     <div class="menu">
-        <i class="fas fa-bars"></i>
+        <i class="fas fa-bars" onclick="toggleSidebar()"></i>
         <span>My Girlfriend</span>
     </div>
 
-    <div class="menu-options">
-        <div class="option active" onclick="showContent('anniversary')">Anniversary</div>
+    <div class="sidebar" id="sidebar">
+        <div class="option" onclick="showContent('anniversary')">Anniversary</div>
         <div class="option" onclick="showContent('about-khin')">About Khin</div>
     </div>
 
@@ -86,20 +88,22 @@
         <div id="anniversary">
             🎉 Our Anniversary: <strong>January 28, 2025</strong> ❤️  
         </div>
-        <div id="about-khin" style="display: none;">
+        <div id="about-khin">
             🌸 Khin is the most beautiful girl in the world! She is 18 years old, and her smile is like sunshine.  
             Every moment with her is special, and she brightens up my life with her kindness and love. 💖  
         </div>
     </div>
 
     <script>
+        function toggleSidebar() {
+            document.getElementById("sidebar").classList.toggle("active");
+        }
+
         function showContent(section) {
             document.getElementById('anniversary').style.display = 'none';
             document.getElementById('about-khin').style.display = 'none';
-            document.querySelectorAll('.option').forEach(el => el.classList.remove('active'));
-
             document.getElementById(section).style.display = 'block';
-            event.target.classList.add('active');
+            toggleSidebar();
         }
     </script>
 
