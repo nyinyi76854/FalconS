@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Girlfriend</title>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ffe6f2;
+            text-align: center;
+        }
+        .menu {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .menu button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .menu button.active {
+            background-color: #ff4da6;
+            color: white;
+            font-weight: bold;
+        }
+        .menu button:hover {
+            background-color: #ff80bf;
+        }
+        .content {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 15px;
+            background: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            display: none;
+        }
+        #anniversary {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ff3385;
+            border: 2px dashed #ff3385;
+            padding: 15px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <i class="fas fa-bars" style="font-size: 30px; cursor: pointer;"></i>
+    <div class="menu">
+        <button id="btnAnniversary" onclick="showSection('anniversary')" class="active">Anniversary</button>
+        <button id="btnAbout" onclick="showSection('about')">About Khin</button>
+    </div>
+    <div id="anniversary" class="content" style="display: block;">
+        <p>💕 Our Special Day: <strong>January 28, 2025</strong> 💕</p>
+    </div>
+    <div id="about" class="content">
+        <p>🌸 Khin is the most beautiful girl. She has an amazing smile that brightens my world. She is 18 years old and has a kind heart that makes every moment with her special. 💖</p>
+    </div>
+    <script>
+        function showSection(section) {
+            document.getElementById('anniversary').style.display = 'none';
+            document.getElementById('about').style.display = 'none';
+            document.getElementById('btnAnniversary').classList.remove('active');
+            document.getElementById('btnAbout').classList.remove('active');
+            
+            document.getElementById(section).style.display = 'block';
+            if (section === 'anniversary') {
+                document.getElementById('btnAnniversary').classList.add('active');
+            } else {
+                document.getElementById('btnAbout').classList.add('active');
+            }
+        }
+    </script>
+</body>
+</html>
