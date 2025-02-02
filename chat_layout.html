@@ -432,11 +432,7 @@
         function goBack() {
             window.location.href = "maininterface.html";
         }
-fetchAndDisplayName(partnerEmail); 
-    fetchAndDisplayAge(partnerEmail); 
-    fetchAndDisplayRegion(partnerEmail); 
-    fetchAndDisplayUsername(partnerEmail); 
-    fetchAndDisplayGender(partnerEmail);
+
         function fetchAndDisplayName(email) {
     const namesRef = firestore.collection("names");
     namesRef.where("email", "==", email).get().then((snapshot) => {
@@ -800,7 +796,11 @@ function loadMessages() {
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         });
 }
-
+fetchAndDisplayName(partnerEmail); 
+    fetchAndDisplayAge(partnerEmail); 
+    fetchAndDisplayRegion(partnerEmail); 
+    fetchAndDisplayUsername(partnerEmail); 
+    fetchAndDisplayGender(partnerEmail);
 function selectMessage(messageId, messageDiv) {
     // Toggle the 'selected' class
     if (messageDiv.classList.contains("selected")) {
