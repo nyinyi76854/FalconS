@@ -54,7 +54,7 @@
             justify-content: center;
             align-items: center;
             overflow: hidden;
-            background-color: black; /* Set background to black */
+            background-color: white; /* Set background to white */
             font-family: Arial, sans-serif;
         }
 
@@ -72,7 +72,7 @@
 
         /* Loading text */
         .loading-text {
-            color: white; /* Updated text color to white for contrast */
+            color: black; /* Text color should contrast with the white background */
             font-size: 1.2rem;
             margin-bottom: 10px;
         }
@@ -81,7 +81,7 @@
         .progress-bar {
             width: 80%;
             height: 10px;
-            background-color: #444; /* Darker gray for contrast with black background */
+            background-color: #ddd; /* Lighter gray for contrast */
             border-radius: 5px;
             overflow: hidden;
             margin: 0 auto;
@@ -99,7 +99,7 @@
 <body onload="checkAuthState(); startProgressBar();">
     <div class="container">
         <!-- Centered image -->
-        <img id="splashImage" src="assets/echo.png" alt="Splash Image">
+        <img id="splashImage" src="convo.png" alt="Splash Image">
         
         <!-- Loading text -->
         <div class="loading-text">Loading...</div>
