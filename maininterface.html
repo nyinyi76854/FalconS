@@ -1725,21 +1725,23 @@ function loadUserProfile(userEmail) {
         });
     }
 
-    // Fetch and display the age
     function fetchAndDisplayAge(email) {
-        const usersRef = firestore.collection("users");
-        usersRef.where("email", "==", email).get().then((snapshot) => {
-            let age = "Unknown";
+    const agesRef = firestore.collection("ages");  // Reference to the 'ages' collection
+    agesRef.where("email", "==", email).get().then((snapshot) => {
+        let age = "Unknown";
 
-            snapshot.forEach((doc) => {
-                age = doc.get("age") || "Unknown";
-            });
+        snapshot.forEach((doc) => {
+            const birthdate = doc.get("birthdate");
 
-            document.getElementById("userAge").innerText = age;
-        }).catch((error) => {
-            console.error("Error fetching age:", error);
+            // If a birthdate is found, calculate the age
+            
         });
-    }
+
+        document.getElementById("userAge").innerText = age;
+    }).catch((error) => {
+        console.error("Error fetching age:", error);
+    });
+}
 
     // Fetch and display the region
     function fetchAndDisplayRegion(email) {
