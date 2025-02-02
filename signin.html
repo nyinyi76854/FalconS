@@ -16,7 +16,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(to bottom right, #4facfe, #00f2fe);
+            background: #ffffff; /* White Background */
             overflow: hidden;
             color: #333;
         }
@@ -29,7 +29,13 @@
             max-width: 400px;
             padding: 30px;
             text-align: center;
+            position: relative;
             animation: fadeIn 1s ease;
+        }
+
+        .logo {
+            width: 120px;
+            margin-bottom: 20px;
         }
 
         h2 {
@@ -44,10 +50,12 @@
             justify-content: center;
             width: 100%;
             padding: 12px;
-            background: white;
-            border: 2px solid #ddd;
+            background: #4facfe;
+            border: none;
             border-radius: 8px;
             font-size: 16px;
+            color: white;
+            font-weight: bold;
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
         }
@@ -75,6 +83,20 @@
             margin-top: 10px;
         }
 
+        .footer {
+            margin-top: 30px;
+            font-size: 14px;
+            color: #777;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .footer img {
+            width: 80px;
+            margin-top: 5px;
+        }
+
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -89,6 +111,7 @@
 </head>
 <body>
     <div class="container">
+        <img src="convo.png" class="logo" alt="Convo Logo">
         <h2>Sign In to Falcon S</h2>
         <button class="google-btn" id="googleSignInBtn">
             Continue with Google
@@ -97,6 +120,10 @@
         <div class="android-message" id="androidMessage">
             Go to Android Application first and Sign up with Google.
             <img src="https://upload.wikimedia.org/wikipedia/commons/d/d7/Android_robot.svg" class="android-logo" alt="Android Logo">
+        </div>
+        <div class="footer">
+            <span>Owned by</span>
+            <img src="genix.png" alt="Genix Logo">
         </div>
     </div>
 
@@ -120,11 +147,10 @@
         document.getElementById("googleSignInBtn").addEventListener("click", function() {
             const provider = new firebase.auth.GoogleAuthProvider();
 
-            // Use signInWithPopup instead of signInWithRedirect for better flow
             auth.signInWithPopup(provider)
                 .then((result) => {
                     const user = result.user;
-                    checkUserInDatabase(user.email); // Pass the user's email to check in Firestore
+                    checkUserInDatabase(user.email);
                 })
                 .catch(error => {
                     document.getElementById("error-message").textContent = "Error: " + error.message;
@@ -132,13 +158,12 @@
         });
 
         function checkUserInDatabase(email) {
-            // Query Firestore where the 'email' field matches the user's email
             db.collection("users").where("email", "==", email).get()
                 .then((querySnapshot) => {
                     if (!querySnapshot.empty) {
-                        window.location.href = "maininterface.html";  // Redirect if user exists
+                        window.location.href = "maininterface.html";
                     } else {
-                        document.getElementById("androidMessage").style.display = "block"; // Show message if user is not found
+                        document.getElementById("androidMessage").style.display = "block";
                     }
                 })
                 .catch(error => {
