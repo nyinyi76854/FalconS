@@ -97,6 +97,36 @@
     margin-left: 8px; /* Space between text and logo */
 }
 
+.animated-text {
+    position: absolute;
+    left: 10%;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 200px;
+    font-size: 18px;
+    font-weight: bold;
+    animation: fadeInText 2s infinite alternate;
+}
+
+.animated-text p {
+    color: hsl(calc(360 * var(--rand)), 80%, 50%);
+    opacity: 0;
+    animation: slideIn 6s infinite;
+    font-family: 'Poppins', sans-serif;
+    text-align: left;
+}
+
+.animated-text p:nth-child(1) { animation-delay: 0s; }
+.animated-text p:nth-child(2) { animation-delay: 1s; }
+.animated-text p:nth-child(3) { animation-delay: 2s; }
+.animated-text p:nth-child(4) { animation-delay: 3s; }
+.animated-text p:nth-child(5) { animation-delay: 4s; }
+
+@keyframes slideIn {
+    0% { opacity: 0; transform: translateX(-30px); }
+    50% { opacity: 1; transform: translateX(0); }
+    100% { opacity: 0; }
+}
 
         @keyframes fadeIn {
             from {
@@ -127,6 +157,13 @@
             <img src="genix.png" alt="Genix Logo">
         </div>
     </div>
+<div class="animated-text">
+    <p>Falcon S is a powerful messaging app.</p>
+    <p>Stay connected with friends and family.</p>
+    <p>End-to-end encryption ensures privacy.</p>
+    <p>Fast. Secure. Reliable.</p>
+    <p>Express yourself with rich media sharing.</p>
+</div>
 
     <script>
         // ✅ Firebase Configuration
