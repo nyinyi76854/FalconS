@@ -1733,7 +1733,7 @@ function loadUserProfile(userEmail) {
 
         snapshot.forEach((doc) => {
             const timestamp = doc.get("timestamp") || 0;
-            const age = doc.get("age");
+            const age = doc.get("birthdate");
 
             if (timestamp > lastTimestamp && age) {
                 lastTimestamp = timestamp;
