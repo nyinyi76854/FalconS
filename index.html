@@ -54,7 +54,7 @@
             justify-content: center;
             align-items: center;
             overflow: hidden;
-            background-color: white; /* Updated to white */
+            background-color: white; /* Set background to white */
             font-family: Arial, sans-serif;
         }
 
@@ -72,31 +72,20 @@
 
         /* Loading text */
         .loading-text {
-            color: black; /* Updated text color to black for contrast */
+            color: black; /* Text color set to black */
             font-size: 1.2rem;
             margin-bottom: 10px;
         }
 
-        /* Progress bar styling */
-        .progress-bar {
-            width: 80%;
-            height: 10px;
-            background-color: #ddd; /* Light gray for contrast with white background */
-            border-radius: 5px;
-            overflow: hidden;
-            margin: 0 auto;
-        }
-
-        /* Progress indicator */
-        .progress {
-            height: 100%;
-            width: 0%;
-            background-color: #4caf50;
-            transition: width 5s;
+        /* Progress text */
+        .progress-text {
+            color: black;
+            font-size: 1.5rem;
+            margin-top: 20px;
         }
     </style>
 </head>
-<body onload="checkAuthState(); startProgressBar();">
+<body onload="checkAuthState(); startProgress();">
     <div class="container">
         <!-- Centered image -->
         <img id="splashImage" src="convo.png" alt="Splash Image">
@@ -104,19 +93,24 @@
         <!-- Loading text -->
         <div class="loading-text">Loading...</div>
 
-        <!-- Progress bar -->
-        <div class="progress-bar">
-            <div class="progress"></div>
-        </div>
+        <!-- Progress percentage -->
+        <div class="progress-text" id="progressText">0%</div>
     </div>
 
     <script>
-        // Function to animate progress bar
-        function startProgressBar() {
-            const progress = document.querySelector('.progress');
-            setTimeout(() => {
-                progress.style.width = '100%';
-            }, 100); // Start the animation right after loading
+        // Function to animate progress percentage from 1 to 100
+        function startProgress() {
+            let progress = 0;
+            const progressText = document.getElementById("progressText");
+
+            const interval = setInterval(() => {
+                if (progress < 100) {
+                    progress++;
+                    progressText.innerText = progress + "%"; // Update percentage text
+                } else {
+                    clearInterval(interval); // Stop the interval when progress reaches 100
+                }
+            }, 50); // Update progress every 50 milliseconds
         }
     </script>
 </body>
