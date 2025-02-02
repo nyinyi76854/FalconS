@@ -1,0 +1,31 @@
+{
+  "name": "Echo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^29.1.0",
+    "electron-builder": "^23.0.0"
+  },
+  "dependencies": {
+    "firebase": "^10.8.1"
+  },
+  "build": {
+    "appId": "com.echo.app",
+    "productName": "Echo",
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "assets/echo.ico"
+    },
+    "publish": null
+  }
+}

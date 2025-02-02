@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Group Chat</title>
+<style>
+    html, body {
+        height: 100%;
+        margin: 0;
+        font-family: 'Arial', sans-serif;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f0f4f8; /* Light background color */
+    }
+
+    body {
+        display: flex;
+        flex-direction: column;
+        width: 80vw;
+        height: 90vh;
+        box-sizing: border-box;
+        padding: 20px;
+        background-color: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .header {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        justify-content: space-between;
+        width: 100%;
+        margin-bottom: 15px;
+    }
+
+    .header img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+    }
+
+    .header h2 {
+        font-size: 22px;
+        color: #333;
+        margin: 0;
+        font-weight: bold;
+    }
+
+    .header i {
+        color: #333;
+        font-size: 20px;
+        cursor: pointer;
+    }
+
+    .chat-container {
+        display: flex;
+        flex-direction: column;
+        background: #f9f9f9;
+        border-radius: 8px;
+        width: 100%;
+        height: 100%;
+        overflow-y: auto;
+        padding: 10px;
+        gap: 10px;
+    }
+
+    .input-container {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        padding: 12px;
+        background-color: #f1f1f1;
+        border-radius: 30px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    #messageInput {
+        flex-grow: 1;
+        padding: 12px 18px;
+        border: 1px solid #ccc;
+        border-radius: 25px;
+        font-size: 14px;
+        outline: none;
+        background-color: #fff;
+        transition: border 0.3s ease;
+    }
+
+    #messageInput:focus {
+        border-color: #5a5a5a;
+    }
+
+    #folderButton, #sendButton {
+        border: none;
+        border-radius: 50%;
+        padding: 12px;
+        font-size: 18px;
+        color: white;
+        cursor: pointer;
+        margin-left: 10px;
+        transition: background 0.3s ease;
+    }
+
+    #folderButton {
+        background-color: #ff6f61; /* Folder button with a soft red */
+    }
+
+    #sendButton {
+        background-color: #4caf50; /* Send button with a green color */
+        display: none;
+    }
+
+    #folderButton:hover, #sendButton:hover {
+        transform: scale(1.1);
+    }
+
+    #folderButton:active, #sendButton:active {
+        transform: scale(1);
+    }
+
+    #messageInput:not(:empty) + #folderButton {
+        display: none;
+    }
+
+    #messageInput:not(:empty) + #folderButton + #sendButton {
+        display: inline-block;
+    }
+
+    .message {
+        max-width: 75%;
+        padding: 12px;
+        border-radius: 20px;
+        font-size: 14px;
+        word-wrap: break-word;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        margin-top: 10px;
+        transition: all 0.3s ease;
+    }
+
+    .sent {
+        align-self: flex-end;
+        background-color: #d1ffd6;
+        color: #333;
+    }
+
+    .received {
+        align-self: flex-start;
+        background-color: #e2e2e2;
+        color: #333;
+    }
+
+    .message img, .message video {
+        max-width: 100%;
+        border-radius: 8px;
+        margin-top: 8px;
+    }
+
+    @media (max-width: 768px) {
+        body {
+            width: 90vw;
+            height: 95vh;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 10px;
+        }
+
+        #messageInput {
+            font-size: 13px;
+        }
+
+        #sendButton, #folderButton {
+            font-size: 16px;
+            padding: 10px;
+        }
+    }
+</style>
+
+<!-- Add Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+<body>
+    <div class="header">
+        <i class="fas fa-arrow-left" id="backButton"></i>
+        <img id="groupProfilePhoto" src="group.jpg" alt="Group Profile">
+        <h2 id="groupName">Group Name</h2>
+        <i class="fas fa-users" id="viewMembersButton" style="cursor: pointer;"></i>
+    </div>
+
+    <div class="chat-container" id="chatContainer"></div>
+
+    <div class="input-container">
+        <input type="text" id="messageInput" placeholder="Type a message">
+        <button id="folderButton" class="fas fa-folder-open"></button>
+        <button id="sendButton" class="fas fa-paper-plane"></button>
+    </div>
+</body>
+
+
+
+    <!-- Firebase JS SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+    <script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyBcTEVvxXmv5N8dJav4xNDRy5hXZRjVeM4",
+        authDomain: "chatflow-59776.firebaseapp.com",
+        databaseURL: "https://chatflow-59776-default-rtdb.firebaseio.com",
+        projectId: "chatflow-59776",
+        storageBucket: "chatflow-59776.appspot.com",
+        messagingSenderId: "549003131640",
+        appId: "1:549003131640:web:3f4a7b8cef4c0d8a2b990d",
+        measurementId: "G-V2180PR5CR"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const firestore = firebase.firestore();
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const groupId = urlParams.get('groupId');
+    const groupName = urlParams.get('groupName');
+    document.getElementById('groupName').textContent = groupName;
+document.getElementById("groupProfilePhoto").style.cursor = "pointer";
+
+document.getElementById("groupProfilePhoto").addEventListener("click", () => {
+    if (groupId && groupName) {
+        // Redirect to upload_group_profile.html with both groupId and groupName as query parameters
+        window.location.href = `upload_group_profile.html?groupId=${encodeURIComponent(groupId)}&groupName=${encodeURIComponent(groupName)}`;
+    } else {
+        alert("Group ID is missing!");
+    }
+});
+
+    function loadGroupProfilePhoto(groupId) {
+        const profileRef = firestore.collection("groupprofile");
+        profileRef.where("groupId", "==", groupId).get().then(querySnapshot => {
+            let latestPhotoUrl = "group.jpg";
+            let latestTimestamp = 0;
+
+            querySnapshot.forEach(doc => {
+                const timestamp = doc.get("timestamp");
+                const photoUrl = doc.get("photoUrl");
+                if (timestamp && timestamp > latestTimestamp) {
+                    latestTimestamp = timestamp;
+                    latestPhotoUrl = photoUrl;
+                }
+            });
+
+            document.getElementById("groupProfilePhoto").src = latestPhotoUrl;
+        }).catch(error => {
+            console.error("Error fetching group profile photo:", error.message);
+        });
+    }
+    loadGroupProfilePhoto(groupId);
+
+    document.getElementById('backButton').addEventListener('click', () => {
+        window.location.href = 'maininterface.html';
+    });
+
+    const folderButton = document.getElementById('folderButton');
+    const messageInput = document.getElementById("messageInput");
+    const sendButton = document.getElementById("sendButton");
+    const fileInput = document.createElement('input');
+
+    fileInput.type = 'file';
+    fileInput.accept = 'image/*, video/*'; // Allow image and video files
+
+    // Initial visibility setup
+    folderButton.style.display = 'block';
+    sendButton.style.display = 'none';
+
+    // Show sendButton when typing, hide when input is empty
+    messageInput.addEventListener('input', () => {
+        if (messageInput.value.trim()) {
+            sendButton.style.display = 'block';
+            folderButton.style.display = 'none';
+        } else {
+            sendButton.style.display = 'none';
+            folderButton.style.display = 'block';
+        }
+    });
+
+    // Trigger file selection dialog when folder button is clicked
+    folderButton.addEventListener('click', () => {
+        fileInput.click();
+    });
+
+    // Handle file selection
+    fileInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const user = firebase.auth().currentUser;
+            if (user) {
+                const storageRef = firebase.storage().ref();
+                const fileRef = storageRef.child(file.type.startsWith('image') ? `groupsentphotos/${file.name}` : `groupsentvideos/${file.name}`);
+                
+                // Upload file to Firebase Storage
+                fileRef.put(file).then(snapshot => {
+                    snapshot.ref.getDownloadURL().then(url => {
+                        // Send the URL as a message
+                        firestore.collection("groupchat").doc(groupId)
+                            .collection("groupmessages").add({
+                                senderEmail: user.email,
+                                text: url,
+                                sentTime: Date.now(),
+                                isRead: false
+                            })
+                            .then(() => {
+                                console.log('Message sent successfully');
+                            })
+                            .catch(error => {
+                                console.error("Error sending message: ", error.message);
+                            });
+                    }).catch(error => {
+                        console.error("Error fetching URL: ", error.message);
+                    });
+                }).catch(error => {
+                    console.error("Error uploading file: ", error.message);
+                });
+            } else {
+                alert("User not authenticated");
+            }
+        }
+    });
+
+    // Send message logic
+    sendButton.addEventListener("click", () => {
+        const messageText = messageInput.value.trim();
+        if (!messageText) return;
+
+        const user = firebase.auth().currentUser;
+        if (user) {
+            firestore.collection("groupchat").doc(groupId)
+                .collection("groupmessages").add({
+                    senderEmail: user.email,
+                    text: messageText,
+                    sentTime: Date.now(),
+                    isRead: false
+                })
+                .then(() => {
+                    messageInput.value = "";
+                    sendButton.style.display = "none";
+                    folderButton.style.display = 'block';
+                })
+                .catch(error => {
+                    console.error("Error sending message: ", error.message);
+                });
+        } else {
+            alert("User not authenticated");
+        }
+    });
+
+    function isVideoUrl(text) {
+        return text.startsWith("https://firebasestorage.googleapis.com") && text.includes("/groupsentvideos%2F");
+    }
+
+    function isImageUrl(text) {
+        return text.startsWith("https://firebasestorage.googleapis.com") && (text.includes("/groupsentphotos%2F") || text.includes("/groupsentvideos%2F"));
+    }
+
+    function loadMessages() {
+        const chatContainer = document.getElementById("chatContainer");
+        firestore.collection("groupchat").doc(groupId)
+            .collection("groupmessages").orderBy("sentTime")
+            .onSnapshot(querySnapshot => {
+                chatContainer.innerHTML = ""; // Clear current messages
+
+                querySnapshot.forEach(doc => {
+                    const data = doc.data();
+                    const messageDiv = document.createElement("div");
+                    const currentUser = firebase.auth().currentUser;
+
+                    messageDiv.classList.add("message");
+                    if (data.senderEmail === currentUser.email) {
+                        messageDiv.classList.add("sent");
+                    } else {
+                        messageDiv.classList.add("received");
+                    }
+
+                    if (isImageUrl(data.text)) {
+                        const img = document.createElement("img");
+                        img.src = data.text;
+                        messageDiv.appendChild(img);
+                    } else if (isVideoUrl(data.text)) {
+                        const video = document.createElement("video");
+                        video.src = data.text;
+                        video.controls = true;
+                        video.style.maxHeight = "200px";
+                        messageDiv.appendChild(video);
+                    } else {
+                        messageDiv.textContent = data.text;
+                    }
+                    chatContainer.appendChild(messageDiv);
+                });
+
+                chatContainer.scrollTop = chatContainer.scrollHeight; // Scroll to latest message
+            });
+    }
+    loadMessages();
+
+    document.getElementById('viewMembersButton').addEventListener('click', () => {
+        window.location.href = `view_members.html?groupId=${groupId}&groupName=${groupName}`;
+    });
+</script>
+
+</body>
+</html>
