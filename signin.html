@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign In To Echo</title>
+    <title>Sign In To Falcon S</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -52,11 +52,6 @@
             transition: transform 0.2s, box-shadow 0.2s;
         }
 
-        .google-btn img {
-            width: 24px;
-            margin-right: 10px;
-        }
-
         .google-btn:hover {
             transform: scale(1.05);
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
@@ -96,7 +91,6 @@
     <div class="container">
         <h2>Sign In to Echo</h2>
         <button class="google-btn" id="googleSignInBtn">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png" alt="Google Logo">
             Continue with Google
         </button>
         <div class="error" id="error-message"></div>
