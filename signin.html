@@ -125,19 +125,17 @@
 
         document.getElementById("googleSignInBtn").addEventListener("click", function() {
             const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithRedirect(provider);
-        });
 
-        auth.getRedirectResult()
-            .then((result) => {
-                if (result.user) {
+            // Use signInWithPopup instead of signInWithRedirect for better flow
+            auth.signInWithPopup(provider)
+                .then((result) => {
                     const user = result.user;
                     checkUserInDatabase(user.email);
-                }
-            })
-            .catch(error => {
-                document.getElementById("error-message").textContent = "Error: " + error.message;
-            });
+                })
+                .catch(error => {
+                    document.getElementById("error-message").textContent = "Error: " + error.message;
+                });
+        });
 
         function checkUserInDatabase(email) {
             db.collection("users").doc(email).get()
