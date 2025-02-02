@@ -38,7 +38,21 @@
     background-color: #e1f5fe; /* Soft blue background */
 }
 
-
+/* Sidebar styling */
+#sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 250px;  /* Width of the sidebar */
+    height: 100%;
+    background-color: #f4f4f4;
+    padding: 10px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+/* Other styling (optional) */
+#sidebar h3, #sidebar p {
+    margin: 10px 0;
+}
 .chatContainer {
     display: flex;
     flex-direction: column;
@@ -361,6 +375,14 @@
     </style>
 </head>
 <body>
+    <div id="sidebar">
+    <h3 id="userName">Loading...</h3>
+    <p id="userAge">Loading...</p>
+    <p id="userRegion">Loading...</p>
+    <p id="userUsername">Loading...</p>
+    <p id="userGender">Loading...</p>
+</div>
+
     <div class="chatContainer">
         <div id="chatHeader">
             <i id="backButton" class="fas fa-arrow-left" onclick="goBack()"></i>
@@ -410,6 +432,124 @@
         function goBack() {
             window.location.href = "maininterface.html";
         }
+fetchAndDisplayName(partnerEmail); 
+    fetchAndDisplayAge(partnerEmail); 
+    fetchAndDisplayRegion(partnerEmail); 
+    fetchAndDisplayUsername(partnerEmail); 
+    fetchAndDisplayGender(partnerEmail);
+        function fetchAndDisplayName(email) {
+    const namesRef = firestore.collection("names");
+    namesRef.where("email", "==", email).get().then((snapshot) => {
+        let lastTimestamp = 0;
+        let latestName = null;
+
+        snapshot.forEach((doc) => {
+            const timestamp = doc.get("timestamp") || 0;
+            const name = doc.get("name");
+
+            if (timestamp > lastTimestamp && name) {
+                lastTimestamp = timestamp;
+                latestName = name;
+            }
+        });
+
+        document.getElementById("userName").innerText = latestName || "No name found";
+    }).catch((error) => {
+        console.error("Error fetching name:", error);
+    });
+}
+
+function fetchAndDisplayAge(email) {
+    const agesRef = firestore.collection("ages");
+    agesRef.where("email", "==", email).get().then((snapshot) => {
+        let lastTimestamp = 0;
+        let latestAge = "Unknown";
+
+        snapshot.forEach((doc) => {
+            const timestamp = doc.get("timestamp") || 0;
+            const age = doc.get("birthdate");
+
+            if (timestamp > lastTimestamp && age) {
+                lastTimestamp = timestamp;
+                latestAge = age;
+            }
+        });
+
+        document.getElementById("userAge").innerText = latestAge || "Unknown";
+    }).catch((error) => {
+        console.error("Error fetching age:", error);
+    });
+}
+
+function fetchAndDisplayRegion(email) {
+    const locationRef = firestore.collection("locations");
+    locationRef.where("email", "==", email).get().then((snapshot) => {
+        let region = "Region not found";
+
+        snapshot.forEach((doc) => {
+            const continent = doc.get("continent");
+            const country = doc.get("country");
+            region = continent && country ? `${continent}/${country}` : "Region not found";
+        });
+
+        document.getElementById("userRegion").innerText = region;
+    }).catch((error) => {
+        console.error("Error fetching region:", error);
+    });
+}
+
+function fetchAndDisplayUsername(email) {
+    const usernameRef = firestore.collection("usernameSet");
+    usernameRef.where("email", "==", email).get().then((snapshot) => {
+        let latestUsername = null;
+        let lastTimestamp = 0;
+
+        snapshot.forEach((doc) => {
+            const timestamp = doc.get("timestamp") || 0;
+            const username = doc.get("username");
+
+            if (timestamp > lastTimestamp && username) {
+                lastTimestamp = timestamp;
+                latestUsername = username;
+            }
+        });
+
+        const usernameTextView = document.getElementById("userUsername");
+        if (latestUsername) {
+            usernameTextView.innerText = latestUsername;
+
+            usernameTextView.onclick = () => {
+                window.location.href = "SetNewUsernameActivity.html";
+            };
+
+            usernameTextView.oncontextmenu = (e) => {
+                e.preventDefault();
+                navigator.clipboard.writeText(latestUsername).then(() => {
+                    alert("Username copied to clipboard");
+                });
+            };
+        } else {
+            usernameTextView.innerText = "No username found";
+        }
+    }).catch((error) => {
+        console.error("Error fetching username:", error);
+    });
+}
+
+function fetchAndDisplayGender(email) {
+    const genderRef = firestore.collection("genders");
+    genderRef.where("email", "==", email).get().then((snapshot) => {
+        let gender = "Unknown";
+
+        snapshot.forEach((doc) => {
+            gender = doc.get("gender") || "Unknown";
+        });
+
+        document.getElementById("userGender").innerText = gender;
+    }).catch((error) => {
+        console.error("Error fetching gender:", error);
+    });
+}
 
         function loadPartnerProfilePhoto() {
             const profilesPhotoRef = firebase.firestore().collection("profilesphoto");
