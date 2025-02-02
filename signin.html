@@ -102,31 +102,19 @@
     left: 10%;
     top: 50%;
     transform: translateY(-50%);
-    width: 200px;
-    font-size: 18px;
+    font-size: 20px;
     font-weight: bold;
-    animation: fadeInText 2s infinite alternate;
-}
-
-.animated-text p {
-    color: hsl(calc(360 * var(--rand)), 80%, 50%);
-    opacity: 0;
-    animation: slideIn 6s infinite;
     font-family: 'Poppins', sans-serif;
     text-align: left;
+    color: #4facfe; /* Default color */
+    animation: fadeInText 1s ease-in-out;
 }
 
-.animated-text p:nth-child(1) { animation-delay: 0s; }
-.animated-text p:nth-child(2) { animation-delay: 1s; }
-.animated-text p:nth-child(3) { animation-delay: 2s; }
-.animated-text p:nth-child(4) { animation-delay: 3s; }
-.animated-text p:nth-child(5) { animation-delay: 4s; }
-
-@keyframes slideIn {
-    0% { opacity: 0; transform: translateX(-30px); }
-    50% { opacity: 1; transform: translateX(0); }
-    100% { opacity: 0; }
+@keyframes fadeInText {
+    0% { opacity: 0; transform: translateY(10px); }
+    100% { opacity: 1; transform: translateY(0); }
 }
+
 
         @keyframes fadeIn {
             from {
@@ -157,13 +145,8 @@
             <img src="genix.png" alt="Genix Logo">
         </div>
     </div>
-<div class="animated-text">
-    <p>Falcon S is a powerful messaging app.</p>
-    <p>Stay connected with friends and family.</p>
-    <p>End-to-end encryption ensures privacy.</p>
-    <p>Fast. Secure. Reliable.</p>
-    <p>Express yourself with rich media sharing.</p>
-</div>
+<div class="animated-text" id="animatedText"></div>
+
 
     <script>
         // ✅ Firebase Configuration
@@ -194,6 +177,33 @@
                     document.getElementById("error-message").textContent = "Error: " + error.message;
                 });
         });
+const texts = [
+    "• Falcon S is a next-gen messaging app.",
+    "• Stay connected. Anytime. Anywhere.",
+    "• Security? We've got end-to-end encryption.",
+    "• Your data. Your privacy. Your control.",
+    "• Speed. Reliability. Seamless experience.",
+    "• Share moments with rich media support.",
+    "• No ads. Just pure conversations."
+];
+
+function getRandomColor() {
+    const colors = ["#4facfe", "#ff6b6b", "#28c76f", "#e84118", "#8c7ae6"];
+    return colors[Math.floor(Math.random() * colors.length)];
+}
+
+function showRandomText() {
+    const textElement = document.getElementById("animatedText");
+    const randomText = texts[Math.floor(Math.random() * texts.length)];
+    textElement.style.color = getRandomColor();
+    textElement.textContent = randomText;
+}
+
+// Change text every 2.5 seconds
+setInterval(showRandomText, 2500);
+
+// Show first text immediately
+showRandomText();
 
         function checkUserInDatabase(email) {
             db.collection("users").where("email", "==", email).get()
