@@ -183,6 +183,65 @@ h1 {
     color: #333;
 }
 
+/* Style for the reaction button */
+.reaction-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f2f2f2;
+    padding: 8px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-size: 18px;
+    border: none;
+}
+
+.reaction-btn i {
+    font-size: 20px;
+    color: #333;
+}
+
+/* Hover effect */
+.reaction-btn:hover {
+    background-color: #ddd;
+}
+
+/* Style for the reaction options container */
+.reactions-options {
+    display: none;
+    position: absolute;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+    padding: 8px;
+    z-index: 10;
+    top: 40px;
+    left: 0;
+    white-space: nowrap;
+    display: flex;
+    gap: 8px;
+}
+
+/* Style for each reaction option */
+.reaction-option {
+    background-color: transparent;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+/* Reaction hover effect */
+.reaction-option:hover {
+    transform: scale(1.2);
+}
+
+/* Individual reaction colors */
+.reaction-option.love { color: red; }
+.reaction-option.like { color: blue; }
+.reaction-option.haha { color: orange; }
+.reaction-option.angry { color: darkred; }
 
 .cancel-btn {
     background: #dc3545;
@@ -327,64 +386,62 @@ function toggleReactions(postId, btn) {
     options.style.display = options.style.display === 'block' ? 'none' : 'block';
 }
 
-// Function to handle reacting to a post
+// Function to react to a post
 function reactToPost(postId, reactionType, btn) {
     const userEmail = firebase.auth().currentUser.email;
     const reactionsCollection = firestore.collection("postforall").doc(postId).collection("falconspostreaction");
-    
-    // Check if the user has already reacted
+
     reactionsCollection.where("reactor", "==", userEmail).get().then(snapshot => {
+        let hasReacted = false;
+        let oldReactionType = null;
+
         if (!snapshot.empty) {
-            // If user already reacted, remove the previous reaction
             snapshot.forEach(doc => {
-                doc.ref.delete();
+                hasReacted = true;
+                oldReactionType = doc.data().reactionType;
+                doc.ref.delete(); // Remove old reaction
             });
         }
 
-        // Save the new reaction
-        reactionsCollection.add({
-            reactor: userEmail,
-            reactionType: reactionType,
-            timestamp: Date.now()
-        }).then(() => {
-            // Update the UI with the new reaction
-            updateReactionIcon(postId, reactionType);
-        }).catch(error => console.error("Error saving reaction:", error));
+        if (!hasReacted || oldReactionType !== reactionType) {
+            // Add new reaction
+            reactionsCollection.add({
+                reactor: userEmail,
+                reactionType: reactionType,
+                timestamp: Date.now()
+            }).then(() => {
+                updateReactionIcon(postId, reactionType);
+                btn.closest(".reactions-options").style.display = "none"; // Hide options after reacting
+            }).catch(error => console.error("Error saving reaction:", error));
+        }
     });
 }
 
-// Function to update the reaction icon
+// Function to update reaction icon
 function updateReactionIcon(postId, reactionType) {
     const postElement = document.querySelector(`#post-${postId}`);
+    if (!postElement) return;
+
     const reactionBtn = postElement.querySelector(".reaction-btn");
     
-    // Replace the love button with the selected emoji
     let emoji = "";
     switch (reactionType) {
-        case 'love':
-            emoji = '❤️';
-            break;
-        case 'like':
-            emoji = '👍';
-            break;
-        case 'haha':
-            emoji = '😂';
-            break;
-        case 'angry':
-            emoji = '😡';
-            break;
+        case 'love': emoji = '❤️'; break;
+        case 'like': emoji = '👍'; break;
+        case 'haha': emoji = '😂'; break;
+        case 'angry': emoji = '😡'; break;
     }
+    
     reactionBtn.innerHTML = `<i class="fa">${emoji}</i>`;
 }
 
-// Function to check if the user has already reacted to the post
+// Function to check user's reaction on a post
 function checkUserReaction(postId) {
     const userEmail = firebase.auth().currentUser.email;
     const reactionsCollection = firestore.collection("postforall").doc(postId).collection("falconspostreaction");
-    
+
     reactionsCollection.where("reactor", "==", userEmail).get().then(snapshot => {
         if (!snapshot.empty) {
-            // If the user has reacted, update the reaction icon accordingly
             snapshot.forEach(doc => {
                 updateReactionIcon(postId, doc.data().reactionType);
             });
@@ -408,9 +465,10 @@ function fetchPosts() {
         postContainer.innerHTML = "";
         snapshot.forEach(doc => {
             let post = doc.data();
-            let postId = doc.id; // Get the post ID
+            let postId = doc.id;
             let postElement = document.createElement("div");
             postElement.classList.add("post");
+            postElement.id = "post-" + postId; // Add ID for better selection
 
             fetchAndDisplayName(post.poster, (displayName) => {
                 fetchProfilePhoto(post.poster, (profilePhotoUrl) => {
@@ -419,25 +477,16 @@ function fetchPosts() {
                         let descriptionContent = "";
                         let reactionsContent = `
                             <button class="reaction-btn" onclick="toggleReactions('${postId}', this)">
-                                <i class="fa fa-heart"></i> <!-- Love reaction button -->
+                                <i class="fa fa-heart"></i> 
                             </button>
                             <div class="reactions-options" style="display: none;">
-                                <button class="reaction-option" onclick="reactToPost('${postId}', 'love', this)">
-                                    ❤️ Love
-                                </button>
-                                <button class="reaction-option" onclick="reactToPost('${postId}', 'like', this)">
-                                    👍 Like
-                                </button>
-                                <button class="reaction-option" onclick="reactToPost('${postId}', 'haha', this)">
-                                    😂 Haha
-                                </button>
-                                <button class="reaction-option" onclick="reactToPost('${postId}', 'angry', this)">
-                                    😡 Angry
-                                </button>
+                                <button class="reaction-option" onclick="reactToPost('${postId}', 'love', this)">❤️ Love</button>
+                                <button class="reaction-option" onclick="reactToPost('${postId}', 'like', this)">👍 Like</button>
+                                <button class="reaction-option" onclick="reactToPost('${postId}', 'haha', this)">😂 Haha</button>
+                                <button class="reaction-option" onclick="reactToPost('${postId}', 'angry', this)">😡 Angry</button>
                             </div>
                         `;
-                        
-                        // Check if posttext is an image or video
+
                         if (isImageUrl(post.posttext)) {
                             mediaContent = `<img src="${post.posttext}" style="max-width: 100%; max-height: 400px; border-radius: 5px;">`;
                         } else if (isVideoUrl(post.posttext)) {
@@ -446,7 +495,6 @@ function fetchPosts() {
                             mediaContent = `<div class="post-text">${post.posttext}</div>`;
                         }
 
-                        // Check if description exists
                         if (post.description) {
                             descriptionContent = `
                                 <div class="post-description" style="max-height: 3.2em; overflow: hidden;">
@@ -471,7 +519,7 @@ function fetchPosts() {
                         `;
                         postContainer.appendChild(postElement);
 
-                        // Check if user has reacted to the post
+                        // Check and update user reaction
                         checkUserReaction(postId);
                     });
                 });
