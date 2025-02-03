@@ -318,8 +318,17 @@ function previewMedia(event) {
     }
 }
 
+function isVideoUrl(text) {
+    return text.startsWith("https://firebasestorage.googleapis.com") &&
+           text.includes("/socialpostvideooffalcons%2F");
+}
 
-    function fetchPosts() {
+function isImageUrl(text) {
+    return text.startsWith("https://firebasestorage.googleapis.com") &&
+           (text.includes("/socialpostimageoffalcons%2F") || text.includes("/socialpostvideooffalcons%2F"));
+}
+
+function fetchPosts() {
     firestore.collection("postforall").orderBy("timestamp", "desc").onSnapshot(snapshot => {
         postContainer.innerHTML = "";
         snapshot.forEach(doc => {
@@ -330,15 +339,26 @@ function previewMedia(event) {
             fetchAndDisplayName(post.poster, (displayName) => {
                 fetchProfilePhoto(post.poster, (profilePhotoUrl) => {
                     checkVerifiedOrNot(post.poster, (isVerified) => {
+                        let mediaContent = "";
+                        
+                        // Check if posttext is an image or video
+                        if (isImageUrl(post.posttext)) {
+                            mediaContent = `<img src="${post.posttext}" style="max-width: 100%; max-height: 400px; border-radius: 5px;">`;
+                        } else if (isVideoUrl(post.posttext)) {
+                            mediaContent = `<video src="${post.posttext}" controls style="max-width: 100%; max-height: 400px; border-radius: 5px;"></video>`;
+                        } else {
+                            mediaContent = `<div class="post-text">${post.posttext}</div>`;
+                        }
+
                         postElement.innerHTML = `
                             <div class="post-header" style="display: flex; align-items: center;">
                                 <img src="${profilePhotoUrl}" alt="Profile Photo" 
-                                    style="width: 30px; height: 30px; border-radius: 50%; margin-right: 10px;">
+                                     style="width: 30px; height: 30px; border-radius: 50%; margin-right: 10px;">
                                 <span>${displayName}</span>
                                 <img src="verification.jpg" alt="Verified" class="verified-icon" 
-                                    style="width: 16px; height: 16px; margin-left: 5px; display: ${isVerified ? 'inline' : 'none'};">
+                                     style="width: 16px; height: 16px; margin-left: 5px; display: ${isVerified ? 'inline' : 'none'};">
                             </div>
-                            <div class="post-text">${post.posttext}</div>
+                            ${mediaContent}
                             <div class="post-footer">${new Date(post.timestamp).toLocaleString()}</div>
                         `;
                         postContainer.appendChild(postElement);
