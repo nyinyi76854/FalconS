@@ -322,7 +322,75 @@ function previewMedia(event) {
     }
 }
 
+function toggleReactions(postId, btn) {
+    const options = btn.nextElementSibling;
+    options.style.display = options.style.display === 'block' ? 'none' : 'block';
+}
 
+// Function to handle reacting to a post
+function reactToPost(postId, reactionType, btn) {
+    const userEmail = firebase.auth().currentUser.email;
+    const reactionsCollection = firestore.collection("postforall").doc(postId).collection("falconspostreaction");
+    
+    // Check if the user has already reacted
+    reactionsCollection.where("reactor", "==", userEmail).get().then(snapshot => {
+        if (!snapshot.empty) {
+            // If user already reacted, remove the previous reaction
+            snapshot.forEach(doc => {
+                doc.ref.delete();
+            });
+        }
+
+        // Save the new reaction
+        reactionsCollection.add({
+            reactor: userEmail,
+            reactionType: reactionType,
+            timestamp: Date.now()
+        }).then(() => {
+            // Update the UI with the new reaction
+            updateReactionIcon(postId, reactionType);
+        }).catch(error => console.error("Error saving reaction:", error));
+    });
+}
+
+// Function to update the reaction icon
+function updateReactionIcon(postId, reactionType) {
+    const postElement = document.querySelector(`#post-${postId}`);
+    const reactionBtn = postElement.querySelector(".reaction-btn");
+    
+    // Replace the love button with the selected emoji
+    let emoji = "";
+    switch (reactionType) {
+        case 'love':
+            emoji = '❤️';
+            break;
+        case 'like':
+            emoji = '👍';
+            break;
+        case 'haha':
+            emoji = '😂';
+            break;
+        case 'angry':
+            emoji = '😡';
+            break;
+    }
+    reactionBtn.innerHTML = `<i class="fa">${emoji}</i>`;
+}
+
+// Function to check if the user has already reacted to the post
+function checkUserReaction(postId) {
+    const userEmail = firebase.auth().currentUser.email;
+    const reactionsCollection = firestore.collection("postforall").doc(postId).collection("falconspostreaction");
+    
+    reactionsCollection.where("reactor", "==", userEmail).get().then(snapshot => {
+        if (!snapshot.empty) {
+            // If the user has reacted, update the reaction icon accordingly
+            snapshot.forEach(doc => {
+                updateReactionIcon(postId, doc.data().reactionType);
+            });
+        }
+    });
+}
 
 
 function isVideoUrl(text) {
@@ -340,6 +408,7 @@ function fetchPosts() {
         postContainer.innerHTML = "";
         snapshot.forEach(doc => {
             let post = doc.data();
+            let postId = doc.id; // Get the post ID
             let postElement = document.createElement("div");
             postElement.classList.add("post");
 
@@ -348,6 +417,25 @@ function fetchPosts() {
                     checkVerifiedOrNot(post.poster, (isVerified) => {
                         let mediaContent = "";
                         let descriptionContent = "";
+                        let reactionsContent = `
+                            <button class="reaction-btn" onclick="toggleReactions('${postId}', this)">
+                                <i class="fa fa-heart"></i> <!-- Love reaction button -->
+                            </button>
+                            <div class="reactions-options" style="display: none;">
+                                <button class="reaction-option" onclick="reactToPost('${postId}', 'love', this)">
+                                    ❤️ Love
+                                </button>
+                                <button class="reaction-option" onclick="reactToPost('${postId}', 'like', this)">
+                                    👍 Like
+                                </button>
+                                <button class="reaction-option" onclick="reactToPost('${postId}', 'haha', this)">
+                                    😂 Haha
+                                </button>
+                                <button class="reaction-option" onclick="reactToPost('${postId}', 'angry', this)">
+                                    😡 Angry
+                                </button>
+                            </div>
+                        `;
                         
                         // Check if posttext is an image or video
                         if (isImageUrl(post.posttext)) {
@@ -379,8 +467,12 @@ function fetchPosts() {
                             ${mediaContent}
                             ${descriptionContent}
                             <div class="post-footer">${new Date(post.timestamp).toLocaleString()}</div>
+                            ${reactionsContent}
                         `;
                         postContainer.appendChild(postElement);
+
+                        // Check if user has reacted to the post
+                        checkUserReaction(postId);
                     });
                 });
             });
