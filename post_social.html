@@ -217,6 +217,7 @@ h1 {
         </button>
     </div>
     <div id="mediaPreview" style="margin-top: 10px;"></div>
+            <textarea id="descriptionText" placeholder="Add a description (optional)"></textarea>
             <div class="modal-actions">
                 <button class="save-btn" onclick="savePost()"><i class="fas fa-check"></i> Save</button>
                 <button class="cancel-btn" onclick="closePostDialog()"><i class="fas fa-times"></i> Cancel</button>
@@ -295,7 +296,7 @@ function previewMedia(event) {
     const file = event.target.files[0];
     const previewContainer = document.getElementById('mediaPreview');
     const textArea = document.getElementById('postText');
-    const selectButton = document.getElementById('selectMediaButton'); // Ensure you have this button in HTML
+    const descriptionText = document.getElementById('descriptionText'); // Get the description textarea
     previewContainer.innerHTML = ""; // Clear previous preview
 
     if (file) {
@@ -310,13 +311,15 @@ function previewMedia(event) {
 
         // Hide textarea and select button
         textArea.style.display = 'none';
-        selectButton.style.display = 'none';
     } else {
         // Show textarea and select button if no file is selected
         textArea.style.display = 'block';
-        selectButton.style.display = 'block';
     }
+    
+    // Ensure description textarea is always visible
+    descriptionText.style.display = 'block';
 }
+
 
 function isVideoUrl(text) {
     return text.startsWith("https://firebasestorage.googleapis.com") &&
@@ -340,6 +343,7 @@ function fetchPosts() {
                 fetchProfilePhoto(post.poster, (profilePhotoUrl) => {
                     checkVerifiedOrNot(post.poster, (isVerified) => {
                         let mediaContent = "";
+                        let descriptionContent = "";
                         
                         // Check if posttext is an image or video
                         if (isImageUrl(post.posttext)) {
@@ -348,6 +352,16 @@ function fetchPosts() {
                             mediaContent = `<video src="${post.posttext}" controls style="max-width: 100%; max-height: 400px; border-radius: 5px;"></video>`;
                         } else {
                             mediaContent = `<div class="post-text">${post.posttext}</div>`;
+                        }
+
+                        // Check if description exists
+                        if (post.description) {
+                            descriptionContent = `
+                                <div class="post-description" style="max-height: 3.2em; overflow: hidden;">
+                                    ${post.description.length > 100 ? post.description.substring(0, 100) + '...' : post.description}
+                                </div>
+                                ${post.description.length > 100 ? '<button class="see-more-btn" onclick="toggleDescription(this)">See more</button>' : ''}
+                            `;
                         }
 
                         postElement.innerHTML = `
@@ -359,6 +373,7 @@ function fetchPosts() {
                                      style="width: 16px; height: 16px; margin-left: 5px; display: ${isVerified ? 'inline' : 'none'};">
                             </div>
                             ${mediaContent}
+                            ${descriptionContent}
                             <div class="post-footer">${new Date(post.timestamp).toLocaleString()}</div>
                         `;
                         postContainer.appendChild(postElement);
@@ -367,6 +382,19 @@ function fetchPosts() {
             });
         });
     });
+}
+
+function toggleDescription(button) {
+    const descriptionDiv = button.previousElementSibling; // Get the description div
+    const isExpanded = descriptionDiv.style.maxHeight === 'none';
+
+    if (isExpanded) {
+        descriptionDiv.style.maxHeight = '3.2em'; // Collapse to 2 lines
+        button.textContent = 'See more';
+    } else {
+        descriptionDiv.style.maxHeight = 'none'; // Expand text
+        button.textContent = 'See less';
+    }
 }
 
 function checkVerifiedOrNot(userEmail, callback) {
@@ -394,17 +422,20 @@ function checkVerifiedOrNot(userEmail, callback) {
             document.getElementById('postText').value = '';
         }
 
-      function savePost() {
+ function savePost() {
     const user = firebase.auth().currentUser;
     if (!user) return alert("Please log in to post.");
 
     const postText = document.getElementById('postText').value.trim();
     const mediaFile = document.getElementById('mediaInput').files[0];
+    const descriptionText = document.getElementById('descriptionText').value.trim(); // Get the description text
 
-    if (!postText && !mediaFile) {
+    if (!postText && !mediaFile && !descriptionText) {
         alert("Post cannot be empty!");
         return;
     }
+
+    let postContent = postText; // Default content is the post text
 
     if (mediaFile) {
         const fileType = mediaFile.type.split('/')[0]; // Check if it's an 'image' or 'video'
@@ -429,25 +460,37 @@ function checkVerifiedOrNot(userEmail, callback) {
             console.error("Error uploading file:", error);
         }, () => {
             uploadTask.snapshot.ref.getDownloadURL().then(mediaUrl => {
-                savePostToDatabase(user.email, mediaUrl); // Save media URL as posttext
+                postContent = mediaUrl; // Use media URL as the post text
+                savePostToDatabase(user.email, postContent, descriptionText); // Save media URL and description
             }).catch(error => console.error("Error getting media URL:", error));
         });
     } else {
-        savePostToDatabase(user.email, postText);
+        savePostToDatabase(user.email, postContent, descriptionText); // Save text and description
     }
 }
 
 
-
-function savePostToDatabase(email, postContent) {
-    firestore.collection("postforall").add({
+function savePostToDatabase(email, postContent, description) {
+    // Create the post data object
+    let postData = {
         poster: email,
         posttext: postContent,
         timestamp: Date.now()
-    }).then(() => {
-        closePostDialog();
-    }).catch(error => console.error("Error saving post:", error));
+    };
+
+    // Only add the description field if it's not null or empty
+    if (description && description.trim() !== "") {
+        postData.description = description;
+    }
+
+    // Save the post to Firestore
+    firestore.collection("postforall").add(postData)
+        .then(() => {
+            closePostDialog();
+        })
+        .catch(error => console.error("Error saving post:", error));
 }
+
 
 
         auth.onAuthStateChanged(user => {
