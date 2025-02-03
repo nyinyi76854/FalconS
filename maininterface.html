@@ -690,17 +690,57 @@ savebutton:focus, cancelbutton:focus {
     display: inline-block;
     vertical-align: middle;
 }
+
 .create-post-btn {
-    background: none;
+    background: linear-gradient(45deg, #ff416c, #ff4b2b);
     border: none;
     font-size: 18px;
     color: white;
     cursor: pointer;
     margin-left: 10px;
+    padding: 12px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 4px 10px rgba(255, 65, 108, 0.5);
+    position: relative;
+    overflow: hidden;
 }
 
+.create-post-btn i {
+    transition: transform 0.3s ease-in-out;
+}
+
+/* Hover effect */
 .create-post-btn:hover {
-    color: lightgray;
+    background: linear-gradient(45deg, #ff512f, #dd2476);
+    box-shadow: 0 6px 15px rgba(255, 65, 108, 0.8);
+    transform: scale(1.1);
+}
+
+/* Inner ripple effect */
+.create-post-btn::before {
+    content: "";
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 10%, transparent 60%);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    transition: transform 0.4s ease-in-out;
+    border-radius: 50%;
+}
+
+.create-post-btn:hover::before {
+    transform: translate(-50%, -50%) scale(1);
+}
+
+/* Icon animation on hover */
+.create-post-btn:hover i {
+    transform: rotate(180deg);
 }
 
 /* Verification icon */
