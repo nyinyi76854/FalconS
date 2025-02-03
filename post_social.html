@@ -186,25 +186,80 @@ h1 {
         const auth = firebase.auth();
         const postContainer = document.getElementById('postContainer');
 
-        function fetchPosts() {
-            firestore.collection("postforall").orderBy("timestamp", "desc").onSnapshot(snapshot => {
-                postContainer.innerHTML = "";
-                snapshot.forEach(doc => {
-                    let post = doc.data();
-                    let postElement = `
-                        <div class="post">
+        function fetchAndDisplayName(email, callback) {
+        const namesRef = firestore.collection("names");
+        namesRef.where("email", "==", email).get().then((snapshot) => {
+            let lastTimestamp = 0;
+            let latestName = "Unknown User"; // Default name
+
+            snapshot.forEach((doc) => {
+                const timestamp = doc.get("timestamp") || 0;
+                const name = doc.get("name");
+
+                if (timestamp > lastTimestamp && name) {
+                    lastTimestamp = timestamp;
+                    latestName = name;
+                }
+            });
+
+            callback(latestName);
+        }).catch(error => {
+            console.error("Error fetching name:", error);
+            callback("Unknown User");
+        });
+    }
+
+    function fetchProfilePhoto(userEmail, callback) {
+        const profilesPhotoRef = firestore.collection("profilesphoto");
+        profilesPhotoRef.where("uploaderEmail", "==", userEmail)
+            .get()
+            .then((querySnapshot) => {
+                let latestPhotoUrl = "user_1077114.png"; // Default profile photo
+                let latestTimestamp = 0;
+
+                querySnapshot.forEach((doc) => {
+                    const timestamp = doc.data().timestamp || 0;
+                    const photoUrl = doc.data().downloadUrl;
+
+                    if (timestamp > latestTimestamp) {
+                        latestTimestamp = timestamp;
+                        latestPhotoUrl = photoUrl;
+                    }
+                });
+
+                callback(latestPhotoUrl);
+            })
+            .catch((error) => {
+                console.error("Error fetching profile photo:", error);
+                callback("user_1077114.png"); // Fallback to default
+            });
+    }
+
+    function fetchPosts() {
+        firestore.collection("postforall").orderBy("timestamp", "desc").onSnapshot(snapshot => {
+            postContainer.innerHTML = "";
+            snapshot.forEach(doc => {
+                let post = doc.data();
+                let postElement = document.createElement("div");
+                postElement.classList.add("post");
+
+                fetchAndDisplayName(post.poster, (displayName) => {
+                    fetchProfilePhoto(post.poster, (profilePhotoUrl) => {
+                        postElement.innerHTML = `
                             <div class="post-header">
-                                <i class="fas fa-user-circle"></i>
-                                <span>${post.poster}</span>
+                                <img src="${profilePhotoUrl}" alt="Profile Photo" style="width: 30px; height: 30px; border-radius: 50%; margin-right: 10px;">
+                                <span>${displayName}</span>
                             </div>
                             <div class="post-text">${post.posttext}</div>
                             <div class="post-footer">${new Date(post.timestamp).toLocaleString()}</div>
-                        </div>
-                    `;
-                    postContainer.innerHTML += postElement;
+                        `;
+                        postContainer.appendChild(postElement);
+                    });
                 });
             });
-        }
+        });
+    }
+
 
         function openPostDialog() {
             document.getElementById('postModal').style.display = 'flex';
