@@ -244,6 +244,8 @@ h1 {
 function previewMedia(event) {
     const file = event.target.files[0];
     const previewContainer = document.getElementById('mediaPreview');
+    const textArea = document.getElementById('postText');
+    const selectButton = document.getElementById('selectMediaButton'); // Ensure you have this button in HTML
     previewContainer.innerHTML = ""; // Clear previous preview
 
     if (file) {
@@ -255,8 +257,17 @@ function previewMedia(event) {
         } else if (fileType === 'video') {
             previewContainer.innerHTML = `<video src="${url}" controls style="max-width: 100%; max-height: 200px;"></video>`;
         }
+
+        // Hide textarea and select button
+        textArea.style.display = 'none';
+        selectButton.style.display = 'none';
+    } else {
+        // Show textarea and select button if no file is selected
+        textArea.style.display = 'block';
+        selectButton.style.display = 'block';
     }
 }
+
 
     function fetchPosts() {
     firestore.collection("postforall").orderBy("timestamp", "desc").onSnapshot(snapshot => {
@@ -313,7 +324,7 @@ function checkVerifiedOrNot(userEmail, callback) {
             document.getElementById('postText').value = '';
         }
 
-        function savePost() {
+      function savePost() {
     const user = firebase.auth().currentUser;
     if (!user) return alert("Please log in to post.");
 
@@ -326,7 +337,10 @@ function checkVerifiedOrNot(userEmail, callback) {
     }
 
     if (mediaFile) {
-        const storageRef = firebase.storage().ref(`socialpostvideooffalcons/${Date.now()}_${mediaFile.name}`);
+        const fileType = mediaFile.type.split('/')[0]; // Check if it's an 'image' or 'video'
+        let folderName = fileType === 'video' ? "socialpostvideooffalcons" : "socialpostimageoffalcons";
+
+        const storageRef = firebase.storage().ref(`${folderName}/${Date.now()}_${mediaFile.name}`);
         storageRef.put(mediaFile).then(snapshot => {
             return snapshot.ref.getDownloadURL();
         }).then(mediaUrl => {
@@ -336,6 +350,7 @@ function checkVerifiedOrNot(userEmail, callback) {
         savePostToDatabase(user.email, postText);
     }
 }
+
 
 function savePostToDatabase(email, postContent) {
     firestore.collection("postforall").add({
