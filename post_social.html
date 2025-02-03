@@ -346,7 +346,7 @@ function previewMedia(event) {
         descriptionText.style.display = 'none';
     }
 }
-
+hideAllReactionOptions();
 // Function to toggle reactions visibility
 function toggleReactions(postId, btn) {
     const options = btn.nextElementSibling;
@@ -465,86 +465,83 @@ function fetchPosts() {
             let postId = doc.id;
             let postElement = document.createElement("div");
             postElement.classList.add("post");
-            postElement.id = "post-" + postId; // Add ID for better selection
+            postElement.id = "post-" + postId; 
 
             fetchAndDisplayName(post.poster, (displayName) => {
                 fetchProfilePhoto(post.poster, (profilePhotoUrl) => {
                     checkVerifiedOrNot(post.poster, (isVerified) => {
-                        let mediaContent = "";
-                        let descriptionContent = "";
-                        let reactionsContent = `
-                            <button class="reaction-btn" onclick="toggleReactions('${postId}', this)">
-                                <i class="fa fa-heart"></i> 
-                            </button>
-                            <div class="reactions-options" style="
-        display: none; 
-        position: absolute; 
-        background: white; 
-        padding: 10px; 
-        border-radius: 12px; 
-        box-shadow: 0px 4px 10px rgba(0,0,0,0.1); 
-        z-index: 1000;
-        display: flex; 
-        gap: 8px;">
-        <button class="reaction-option" onclick="reactToPost('${postId}', 'love', this)" 
-            style="background: #ffccd5; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 18px; cursor: pointer;">
-            ❤️
-        </button>
-        <button class="reaction-option" onclick="reactToPost('${postId}', 'like', this)" 
-            style="background: #cce5ff; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 18px; cursor: pointer;">
-            👍
-        </button>
-        <button class="reaction-option" onclick="reactToPost('${postId}', 'haha', this)" 
-            style="background: #fff3cd; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 18px; cursor: pointer;">
-            😂
-        </button>
-        <button class="reaction-option" onclick="reactToPost('${postId}', 'angry', this)" 
-            style="background: #f8d7da; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 18px; cursor: pointer;">
-            😡
-        </button>
-    </div>
-                        `;
+                        
+                        firestore.collection("postforall").doc(postId).collection("falconspostreaction").get().then(reactionSnapshot => {
+                            let reactionCounts = { love: 0, like: 0, haha: 0, angry: 0 };
+                            
+                            reactionSnapshot.forEach(reactionDoc => {
+                                let reactionType = reactionDoc.data().type;
+                                if (reactionCounts.hasOwnProperty(reactionType)) {
+                                    reactionCounts[reactionType]++;
+                                }
+                            });
 
-                        if (isImageUrl(post.posttext)) {
-                            mediaContent = `<img src="${post.posttext}" style="max-width: 100%; max-height: 400px; border-radius: 5px;">`;
-                        } else if (isVideoUrl(post.posttext)) {
-                            mediaContent = `<video src="${post.posttext}" controls style="max-width: 100%; max-height: 400px; border-radius: 5px;"></video>`;
-                        } else {
-                            mediaContent = `<div class="post-text">${post.posttext}</div>`;
-                        }
+                            // Sort reactions by count (highest to lowest) and filter out zero counts
+                            let sortedReactions = Object.entries(reactionCounts)
+                                .filter(([_, count]) => count > 0)
+                                .sort((a, b) => b[1] - a[1]);
 
-                        if (post.description) {
-                            descriptionContent = `
+                            let reactionText = sortedReactions.map(([type, count]) => {
+                                let emoji = type === "love" ? "❤️" :
+                                            type === "like" ? "👍" :
+                                            type === "haha" ? "😂" :
+                                            type === "angry" ? "😡" : "";
+                                return `${count} ${emoji}`;
+                            }).join(", ");
+
+                            let mediaContent = isImageUrl(post.posttext) ? 
+                                `<img src="${post.posttext}" style="max-width: 100%; max-height: 400px; border-radius: 5px;">` :
+                                isVideoUrl(post.posttext) ? 
+                                `<video src="${post.posttext}" controls style="max-width: 100%; max-height: 400px; border-radius: 5px;"></video>` :
+                                `<div class="post-text">${post.posttext}</div>`;
+
+                            let descriptionContent = post.description ? `
                                 <div class="post-description" style="max-height: 3.2em; overflow: hidden;">
                                     ${post.description.length > 100 ? post.description.substring(0, 100) + '...' : post.description}
                                 </div>
                                 ${post.description.length > 100 ? '<button class="see-more-btn" onclick="toggleDescription(this)">See more</button>' : ''}
+                            ` : '';
+
+                            postElement.innerHTML = `
+                                <div class="post-header" style="display: flex; align-items: center;">
+                                    <img src="${profilePhotoUrl}" alt="Profile Photo" 
+                                         style="width: 30px; height: 30px; border-radius: 50%; margin-right: 10px;">
+                                    <span>${displayName}</span>
+                                    <img src="verification.jpg" alt="Verified" class="verified-icon" 
+                                         style="width: 16px; height: 16px; margin-left: 5px; display: ${isVerified ? 'inline' : 'none'};">
+                                </div>
+                                ${mediaContent}
+                                ${descriptionContent}
+                                <div class="post-footer">${new Date(post.timestamp).toLocaleString()}</div>
+                                <div class="reaction-section">
+                                    <button class="reaction-btn" onclick="toggleReactions('${postId}', this)">
+                                        <i class="fa fa-heart"></i> 
+                                    </button>
+                                    <span class="reaction-count">${reactionText ? "There are " + reactionText : ""}</span>
+                                    <div class="reactions-options" style="display: none; position: absolute; background: white; padding: 10px; border-radius: 12px; box-shadow: 0px 4px 10px rgba(0,0,0,0.1); z-index: 1000; display: flex; gap: 8px;">
+                                        <button class="reaction-option" onclick="reactToPost('${postId}', 'love', this)" style="background: #ffccd5; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 18px; cursor: pointer;">❤️</button>
+                                        <button class="reaction-option" onclick="reactToPost('${postId}', 'like', this)" style="background: #cce5ff; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 18px; cursor: pointer;">👍</button>
+                                        <button class="reaction-option" onclick="reactToPost('${postId}', 'haha', this)" style="background: #fff3cd; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 18px; cursor: pointer;">😂</button>
+                                        <button class="reaction-option" onclick="reactToPost('${postId}', 'angry', this)" style="background: #f8d7da; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 18px; cursor: pointer;">😡</button>
+                                    </div>
+                                </div>
                             `;
-                        }
 
-                        postElement.innerHTML = `
-                            <div class="post-header" style="display: flex; align-items: center;">
-                                <img src="${profilePhotoUrl}" alt="Profile Photo" 
-                                     style="width: 30px; height: 30px; border-radius: 50%; margin-right: 10px;">
-                                <span>${displayName}</span>
-                                <img src="verification.jpg" alt="Verified" class="verified-icon" 
-                                     style="width: 16px; height: 16px; margin-left: 5px; display: ${isVerified ? 'inline' : 'none'};">
-                            </div>
-                            ${mediaContent}
-                            ${descriptionContent}
-                            <div class="post-footer">${new Date(post.timestamp).toLocaleString()}</div>
-                            ${reactionsContent}
-                        `;
-                        postContainer.appendChild(postElement);
-
-                        // Check and update user reaction
-                        checkUserReaction(postId);
+                            postContainer.appendChild(postElement);
+                            checkUserReaction(postId);
+                        });
                     });
                 });
             });
         });
     });
 }
+
 
 function toggleDescription(button) {
     const descriptionDiv = button.previousElementSibling; // Get the description div
