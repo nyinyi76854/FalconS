@@ -349,7 +349,7 @@ function previewMedia(event) {
 
 function toggleReactions(postId, btn) {
     const options = btn.nextElementSibling;
-    options.style.display = options.style.display === 'block' ? 'none' : 'block';
+    options.style.display = options.style.display === 'flex' ? 'none' : 'flex';
 }
 
 // Function to react to a post
@@ -379,6 +379,9 @@ function reactToPost(postId, reactionType, btn) {
                 updateReactionIcon(postId, reactionType);
                 btn.closest(".reactions-options").style.display = "none"; // Hide options after reacting
             }).catch(error => console.error("Error saving reaction:", error));
+        } else {
+            // If the same reaction is clicked, remove it
+            updateReactionIcon(postId, "default");
         }
     });
 }
@@ -396,9 +399,10 @@ function updateReactionIcon(postId, reactionType) {
         case 'like': emoji = '👍'; break;
         case 'haha': emoji = '😂'; break;
         case 'angry': emoji = '😡'; break;
+        default: emoji = '<i class="fa fa-heart"></i>'; // Default icon
     }
     
-    reactionBtn.innerHTML = `<i class="fa">${emoji}</i>`;
+    reactionBtn.innerHTML = emoji;
 }
 
 // Function to check user's reaction on a post
@@ -414,6 +418,7 @@ function checkUserReaction(postId) {
         }
     });
 }
+
 
 
 function isVideoUrl(text) {
@@ -445,12 +450,33 @@ function fetchPosts() {
                             <button class="reaction-btn" onclick="toggleReactions('${postId}', this)">
                                 <i class="fa fa-heart"></i> 
                             </button>
-                            <div class="reactions-options" style="display: none;">
-                                <button class="reaction-option" onclick="reactToPost('${postId}', 'love', this)">❤️ Love</button>
-                                <button class="reaction-option" onclick="reactToPost('${postId}', 'like', this)">👍 Like</button>
-                                <button class="reaction-option" onclick="reactToPost('${postId}', 'haha', this)">😂 Haha</button>
-                                <button class="reaction-option" onclick="reactToPost('${postId}', 'angry', this)">😡 Angry</button>
-                            </div>
+                            <div class="reactions-options" style="
+        display: none; 
+        position: absolute; 
+        background: white; 
+        padding: 10px; 
+        border-radius: 12px; 
+        box-shadow: 0px 4px 10px rgba(0,0,0,0.1); 
+        z-index: 1000;
+        display: flex; 
+        gap: 8px;">
+        <button class="reaction-option" onclick="reactToPost('${postId}', 'love', this)" 
+            style="background: #ffccd5; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 18px; cursor: pointer;">
+            ❤️
+        </button>
+        <button class="reaction-option" onclick="reactToPost('${postId}', 'like', this)" 
+            style="background: #cce5ff; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 18px; cursor: pointer;">
+            👍
+        </button>
+        <button class="reaction-option" onclick="reactToPost('${postId}', 'haha', this)" 
+            style="background: #fff3cd; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 18px; cursor: pointer;">
+            😂
+        </button>
+        <button class="reaction-option" onclick="reactToPost('${postId}', 'angry', this)" 
+            style="background: #f8d7da; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 18px; cursor: pointer;">
+            😡
+        </button>
+    </div>
                         `;
 
                         if (isImageUrl(post.posttext)) {
