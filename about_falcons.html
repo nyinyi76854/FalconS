@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About Falcons</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -11,6 +12,7 @@
             padding: 20px;
             background-color: #f4f4f4;
             text-align: center;
+            position: relative;
         }
         .container {
             max-width: 800px;
@@ -27,9 +29,27 @@
             font-size: 18px;
             color: #555;
         }
+        .back-button {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 24px;
+            color: #4facfe;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .back-button:hover {
+            color: #007bff;
+        }
     </style>
 </head>
 <body>
+
+    <!-- Back Button -->
+    <a href="index.html" class="back-button">
+        <i class="fas fa-arrow-left"></i>
+    </a>
+
     <div class="container">
         <h1>About Falcons</h1>
         <p>Falcons is an ecosystem consisting of both an Android App and a Desktop App, designed to work seamlessly with a shared database. This ensures that users can access their data from either platform without any loss of continuity.</p>
@@ -38,5 +58,6 @@
         
         <p>Once an account is created via the Android App, users can log in with their credentials on both the Android and Desktop versions. This setup ensures security, streamlined registration, and consistency across platforms.</p>
     </div>
+
 </body>
 </html>
