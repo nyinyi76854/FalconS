@@ -162,6 +162,13 @@ h1 {
         <div class="modal-content">
             <h2>Create Post</h2>
             <textarea id="postText" placeholder="What's on your mind?"></textarea>
+              <div class="media-upload">
+        <input type="file" id="mediaInput" accept="image/*, video/*" style="display: none;" onchange="previewMedia(event)">
+        <button onclick="document.getElementById('mediaInput').click()">
+            <i class="fas fa-folder"></i> Select Media
+        </button>
+    </div>
+    <div id="mediaPreview" style="margin-top: 10px;"></div>
             <div class="modal-actions">
                 <button class="save-btn" onclick="savePost()"><i class="fas fa-check"></i> Save</button>
                 <button class="cancel-btn" onclick="closePostDialog()"><i class="fas fa-times"></i> Cancel</button>
@@ -234,6 +241,22 @@ h1 {
                 callback("user_1077114.png"); // Fallback to default
             });
     }
+function previewMedia(event) {
+    const file = event.target.files[0];
+    const previewContainer = document.getElementById('mediaPreview');
+    previewContainer.innerHTML = ""; // Clear previous preview
+
+    if (file) {
+        const fileType = file.type.split('/')[0]; // 'image' or 'video'
+        const url = URL.createObjectURL(file);
+
+        if (fileType === 'image') {
+            previewContainer.innerHTML = `<img src="${url}" style="max-width: 100%; max-height: 200px; border-radius: 5px;">`;
+        } else if (fileType === 'video') {
+            previewContainer.innerHTML = `<video src="${url}" controls style="max-width: 100%; max-height: 200px;"></video>`;
+        }
+    }
+}
 
     function fetchPosts() {
     firestore.collection("postforall").orderBy("timestamp", "desc").onSnapshot(snapshot => {
@@ -291,24 +314,39 @@ function checkVerifiedOrNot(userEmail, callback) {
         }
 
         function savePost() {
-            const user = firebase.auth().currentUser;
-            if (user) {
-                const postText = document.getElementById('postText').value.trim();
-                if (postText !== "") {
-                    firestore.collection("postforall").add({
-                        poster: user.email,
-                        posttext: postText,
-                        timestamp: Date.now()
-                    }).then(() => {
-                        closePostDialog();
-                    }).catch(error => {
-                        console.error("Error adding post: ", error);
-                    });
-                }
-            } else {
-                alert("Please log in to create a post.");
-            }
-        }
+    const user = firebase.auth().currentUser;
+    if (!user) return alert("Please log in to post.");
+
+    const postText = document.getElementById('postText').value.trim();
+    const mediaFile = document.getElementById('mediaInput').files[0];
+
+    if (!postText && !mediaFile) {
+        alert("Post cannot be empty!");
+        return;
+    }
+
+    if (mediaFile) {
+        const storageRef = firebase.storage().ref(`socialpostvideooffalcons/${Date.now()}_${mediaFile.name}`);
+        storageRef.put(mediaFile).then(snapshot => {
+            return snapshot.ref.getDownloadURL();
+        }).then(mediaUrl => {
+            savePostToDatabase(user.email, mediaUrl); // Save media URL as posttext
+        }).catch(error => console.error("Error uploading file:", error));
+    } else {
+        savePostToDatabase(user.email, postText);
+    }
+}
+
+function savePostToDatabase(email, postContent) {
+    firestore.collection("postforall").add({
+        poster: email,
+        posttext: postContent,
+        timestamp: Date.now()
+    }).then(() => {
+        closePostDialog();
+    }).catch(error => console.error("Error saving post:", error));
+}
+
 
         auth.onAuthStateChanged(user => {
             if (user) {
