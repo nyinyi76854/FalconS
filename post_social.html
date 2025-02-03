@@ -347,9 +347,20 @@ function previewMedia(event) {
     }
 }
 
+// Function to toggle reactions visibility
 function toggleReactions(postId, btn) {
     const options = btn.nextElementSibling;
-    options.style.display = options.style.display === 'flex' ? 'none' : 'flex';
+    const allOptions = document.querySelectorAll(".reactions-options");
+
+    // Close all other open reactions
+    allOptions.forEach(option => {
+        if (option !== options) {
+            option.style.display = "none";
+        }
+    });
+
+    // Toggle current options
+    options.style.display = (options.style.display === "flex") ? "none" : "flex";
 }
 
 // Function to react to a post
@@ -377,11 +388,12 @@ function reactToPost(postId, reactionType, btn) {
                 timestamp: Date.now()
             }).then(() => {
                 updateReactionIcon(postId, reactionType);
-                btn.closest(".reactions-options").style.display = "none"; // Hide options after reacting
+                hideAllReactionOptions(); // Hide all reaction options after reacting
             }).catch(error => console.error("Error saving reaction:", error));
         } else {
             // If the same reaction is clicked, remove it
             updateReactionIcon(postId, "default");
+            hideAllReactionOptions();
         }
     });
 }
@@ -418,6 +430,20 @@ function checkUserReaction(postId) {
         }
     });
 }
+
+// Function to hide all reaction options
+function hideAllReactionOptions() {
+    document.querySelectorAll(".reactions-options").forEach(option => {
+        option.style.display = "none";
+    });
+}
+
+// Close reaction options when clicking outside
+document.addEventListener("click", (event) => {
+    if (!event.target.closest(".reaction-btn") && !event.target.closest(".reactions-options")) {
+        hideAllReactionOptions();
+    }
+});
 
 
 
