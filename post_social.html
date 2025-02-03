@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Posts</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="styles.css"> 
+</head>
+<body>
+
+    <div class="container">
+        <h1>Posts</h1>
+        <div id="postContainer"></div>
+    </div>
+
+    <!-- Floating Create Post Button -->
+    <button class="create-post-btn" onclick="openPostDialog()">
+        <i class="fas fa-plus"></i>
+    </button>
+
+    <!-- Post Creation Modal -->
+    <div id="postModal" class="modal">
+        <div class="modal-content">
+            <h2>Create Post</h2>
+            <textarea id="postText" placeholder="What's on your mind?"></textarea>
+            <div class="modal-actions">
+                <button class="save-btn" onclick="savePost()"><i class="fas fa-check"></i> Save</button>
+                <button class="cancel-btn" onclick="closePostDialog()"><i class="fas fa-times"></i> Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBcTEVvxXmv5N8dJav4xNDRy5hXZRjVeM4",
+            authDomain: "chatflow-59776.firebaseapp.com",
+            databaseURL: "https://chatflow-59776-default-rtdb.firebaseio.com",
+            projectId: "chatflow-59776",
+            storageBucket: "chatflow-59776.appspot.com",
+            messagingSenderId: "549003131640",
+            appId: "1:549003131640:web:3f4a7b8cef4c0d8a2b990d",
+            measurementId: "G-V2180PR5CR"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const firestore = firebase.firestore();
+        const auth = firebase.auth();
+        const postContainer = document.getElementById('postContainer');
+
+        function fetchPosts() {
+            firestore.collection("postforall").orderBy("timestamp", "desc").onSnapshot(snapshot => {
+                postContainer.innerHTML = "";
+                snapshot.forEach(doc => {
+                    let post = doc.data();
+                    let postElement = `
+                        <div class="post">
+                            <div class="post-header">
+                                <i class="fas fa-user-circle"></i>
+                                <span>${post.poster}</span>
+                            </div>
+                            <div class="post-text">${post.posttext}</div>
+                            <div class="post-footer">${new Date(post.timestamp).toLocaleString()}</div>
+                        </div>
+                    `;
+                    postContainer.innerHTML += postElement;
+                });
+            });
+        }
+
+        function openPostDialog() {
+            document.getElementById('postModal').style.display = 'flex';
+        }
+
+        function closePostDialog() {
+            document.getElementById('postModal').style.display = 'none';
+            document.getElementById('postText').value = '';
+        }
+
+        function savePost() {
+            const user = firebase.auth().currentUser;
+            if (user) {
+                const postText = document.getElementById('postText').value.trim();
+                if (postText !== "") {
+                    firestore.collection("postforall").add({
+                        poster: user.email,
+                        posttext: postText,
+                        timestamp: Date.now()
+                    }).then(() => {
+                        closePostDialog();
+                    }).catch(error => {
+                        console.error("Error adding post: ", error);
+                    });
+                }
+            } else {
+                alert("Please log in to create a post.");
+            }
+        }
+
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                fetchPosts();
+            } else {
+                alert("You must be logged in to view posts.");
+            }
+        });
+    </script>
+
+</body>
+</html>
