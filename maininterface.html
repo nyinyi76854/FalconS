@@ -690,6 +690,18 @@ savebutton:focus, cancelbutton:focus {
     display: inline-block;
     vertical-align: middle;
 }
+.create-post-btn {
+    background: none;
+    border: none;
+    font-size: 18px;
+    color: white;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+.create-post-btn:hover {
+    color: lightgray;
+}
 
 /* Verification icon */
 .select-verification {
@@ -817,7 +829,9 @@ savebutton:focus, cancelbutton:focus {
         <p id="userRegion">Loading...</p>
         <p id="userUsername">Loading...</p>
         <p id="userGender">Loading...</p>
-
+<button id="create-post-btn" class="create-post-btn">
+        <i class="fas fa-plus"></i>
+    </button>
         <!-- Logout button -->
         <button id="logoutButton">
     <i class="fas fa-sign-out-alt"></i> Logout
@@ -872,6 +886,9 @@ profilesPhotoRef.where("uploaderEmail", "==", userEmail)
     .catch((error) => {
         console.error("Error fetching profile photo:", error);
     });
+document.getElementById("create-post-btn").addEventListener("click", function() {
+    window.location.href = "post_social.html";
+});
 
 
         // Load Personal Chat Messages
