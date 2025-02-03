@@ -309,16 +309,16 @@ function previewMedia(event) {
             previewContainer.innerHTML = `<video src="${url}" controls style="max-width: 100%; max-height: 200px;"></video>`;
         }
 
-        // Hide textarea and select button
+        // Hide postText area and show description textarea
         textArea.style.display = 'none';
+        descriptionText.style.display = 'block';
     } else {
-        // Show textarea and select button if no file is selected
+        // Show postText area and hide description textarea if no file is selected
         textArea.style.display = 'block';
+        descriptionText.style.display = 'none';
     }
-    
-    // Ensure description textarea is always visible
-    descriptionText.style.display = 'block';
 }
+
 
 
 function isVideoUrl(text) {
