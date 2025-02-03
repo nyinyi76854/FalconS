@@ -185,24 +185,23 @@ h1 {
 
 /* Style for the reaction button */
 .reaction-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    display: inline-block;
     background-color: #f2f2f2;
-    padding: 8px 12px;
-    border-radius: 20px;
+    padding: 10px;
+    border-radius: 25px;
     cursor: pointer;
     transition: background-color 0.3s ease;
-    font-size: 18px;
+    font-size: 20px;
     border: none;
 }
 
+/* Style for the reaction button icon */
 .reaction-btn i {
-    font-size: 20px;
+    font-size: 18px;
     color: #333;
 }
 
-/* Hover effect */
+/* Hover effect on reaction button */
 .reaction-btn:hover {
     background-color: #ddd;
 }
@@ -212,36 +211,37 @@ h1 {
     display: none;
     position: absolute;
     background-color: #fff;
-    border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
-    padding: 8px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 10px;
     z-index: 10;
     top: 40px;
     left: 0;
-    white-space: nowrap;
-    display: flex;
-    gap: 8px;
+    width: 120px;
 }
 
 /* Style for each reaction option */
 .reaction-option {
-    background-color: transparent;
+    background-color: #fff;
     border: none;
-    font-size: 22px;
+    padding: 8px;
+    font-size: 16px;
     cursor: pointer;
-    transition: transform 0.2s ease;
+    display: block;
+    text-align: left;
+    width: 100%;
 }
 
-/* Reaction hover effect */
+/* Hover effect on each reaction option */
 .reaction-option:hover {
-    transform: scale(1.2);
+    background-color: #f1f1f1;
 }
 
-/* Individual reaction colors */
-.reaction-option.love { color: red; }
-.reaction-option.like { color: blue; }
-.reaction-option.haha { color: orange; }
-.reaction-option.angry { color: darkred; }
+/* Style for the reaction option icons */
+.reaction-option i {
+    margin-right: 8px;
+}
+
 
 .cancel-btn {
     background: #dc3545;
