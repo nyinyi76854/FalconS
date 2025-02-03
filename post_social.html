@@ -217,7 +217,7 @@ h1 {
         </button>
     </div>
     <div id="mediaPreview" style="margin-top: 10px;"></div>
-            <textarea id="descriptionText" placeholder="Add a description (optional)"></textarea>
+            <textarea id="descriptionText" style="display: none;" placeholder="Add a description (optional)"></textarea>
             <div class="modal-actions">
                 <button class="save-btn" onclick="savePost()"><i class="fas fa-check"></i> Save</button>
                 <button class="cancel-btn" onclick="closePostDialog()"><i class="fas fa-times"></i> Cancel</button>
@@ -299,6 +299,9 @@ function previewMedia(event) {
     const descriptionText = document.getElementById('descriptionText'); // Get the description textarea
     previewContainer.innerHTML = ""; // Clear previous preview
 
+    // Initially, hide the description field
+    descriptionText.style.display = 'none';
+
     if (file) {
         const fileType = file.type.split('/')[0]; // 'image' or 'video'
         const url = URL.createObjectURL(file);
@@ -318,6 +321,7 @@ function previewMedia(event) {
         descriptionText.style.display = 'none';
     }
 }
+
 
 
 
