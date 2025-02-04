@@ -295,37 +295,33 @@ h1 {
     margin-top: 10px;
 }
 
-/* Ensure accounts-container is positioned at the right of the container and overlaps when needed */
+/* Ensure accounts-container is positioned at the right and overlaps other content when needed */
 .accounts-container {
-    width: 30vw; /* Adjust the width based on the viewport size */
+    width: 30%; /* Adjust the width as needed */
     background: white;
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     margin-top: 20px;
-    position: fixed; /* Fixed position to allow overlapping when there isn't enough space */
-    top: 20px; /* Align with the top */
-    right: 0; /* Positioned on the right side of the screen */
-    z-index: 9999; /* Ensure it stays on top of other content */
+    position: absolute; /* Keeps it independent of other layout flow */
+    top: 20px; /* Align with the top of the container */
+    right: 20px; /* Positioned on the right side */
+    z-index: 999; /* Ensure it stays above other elements */
+    overflow: hidden; /* Prevents content overflow */
 }
 
-/* Ensure the post container has enough space */
+/* Ensure the post container takes up its own space */
 .container {
-    width: 100%; /* Take up the full width, let the accounts-container overlap */
+    width: 60%; /* Take up the remaining width */
     background: white;
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     margin-top: 20px;
-    position: relative; /* Allow absolute positioning inside if needed */
+    position: relative; /* Keeps normal layout */
 }
 
-/* Adjust the accountsContainer when it gets pushed down */
-#accountsContainer {
-    margin-top: 20px;
-}
-
-/* Style for the accounts container items (optional) */
+/* Style for the accounts container items */
 .accounts-container h3 {
     text-align: center;
     font-size: 20px;
@@ -336,6 +332,7 @@ h1 {
     margin-bottom: 10px;
     font-size: 16px;
 }
+
 
 
 .cancel-btn {
