@@ -349,25 +349,24 @@ function previewMedia(event) {
 
 function toggleReactions(postId, btn) {
     const options = btn.nextElementSibling; // Get the reactions-options div
-    const allOptions = document.querySelectorAll(".reactions-options");
 
-    // Close all other open reactions
-    allOptions.forEach(option => {
+    // Close all other open reaction options
+    document.querySelectorAll(".reactions-options").forEach(option => {
         if (option !== options) {
             option.style.display = "none";
         }
     });
 
-    // Toggle visibility of the clicked reaction options
-    if (options.style.display === "flex") {
+    // Toggle the visibility of the clicked reaction options
+    options.style.display = (options.style.display === "flex") ? "none" : "flex";
+
+    // Automatically hide after a few seconds if no selection is made
+    setTimeout(() => {
         options.style.display = "none";
-    } else {
-        options.style.display = "flex";
-    }
+    }, 3000);
 }
 
 
-// Function to react to a post
 function reactToPost(postId, reactionType, btn) {
     const userEmail = firebase.auth().currentUser.email;
     const reactionsCollection = firestore.collection("postforall").doc(postId).collection("falconspostreaction");
@@ -392,7 +391,7 @@ function reactToPost(postId, reactionType, btn) {
                 timestamp: Date.now()
             }).then(() => {
                 updateReactionIcon(postId, reactionType);
-                hideAllReactionOptions(); // Hide all reaction options after reacting
+                hideAllReactionOptions(); // Hide options after selection
             }).catch(error => console.error("Error saving reaction:", error));
         } else {
             // If the same reaction is clicked, remove it
@@ -400,7 +399,11 @@ function reactToPost(postId, reactionType, btn) {
             hideAllReactionOptions();
         }
     });
+
+    // Hide reaction options immediately after selecting
+    hideAllReactionOptions();
 }
+
 
 // Function to update reaction icon on reaction button
 function updateReactionIcon(postId, reactionType) {
@@ -435,11 +438,6 @@ function checkUserReaction(postId) {
     });
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    document.querySelectorAll(".reactions-options").forEach(option => {
-        option.style.display = "none";
-    });
-});
 
 // Close reaction options when clicking outside
 document.addEventListener("click", (event) => {
