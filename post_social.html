@@ -295,30 +295,32 @@ h1 {
     margin-top: 10px;
 }
 
-/* Ensure accounts-container is positioned at the right of the container */
+/* Ensure accounts-container is positioned at the right of the container and overlaps when needed */
 .accounts-container {
-    width: 30%; /* Adjust the width as needed */
+    width: 30vw; /* Adjust the width based on the viewport size */
     background: white;
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     margin-top: 20px;
-    position: absolute; /* Position absolutely relative to the body */
-    top: 20px; /* Align with the top of the container */
-    right: 20px; /* Positioned on the right side */
+    position: fixed; /* Fixed position to allow overlapping when there isn't enough space */
+    top: 20px; /* Align with the top */
+    right: 0; /* Positioned on the right side of the screen */
+    z-index: 9999; /* Ensure it stays on top of other content */
 }
 
 /* Ensure the post container has enough space */
 .container {
-    width: 60%; /* Take up the remaining width */
+    width: 100%; /* Take up the full width, let the accounts-container overlap */
     background: white;
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     margin-top: 20px;
-    position: relative; /* Position relative to allow absolute positioning of accounts-container */
+    position: relative; /* Allow absolute positioning inside if needed */
 }
 
+/* Adjust the accountsContainer when it gets pushed down */
 #accountsContainer {
     margin-top: 20px;
 }
@@ -334,6 +336,7 @@ h1 {
     margin-bottom: 10px;
     font-size: 16px;
 }
+
 
 .cancel-btn {
     background: #dc3545;
