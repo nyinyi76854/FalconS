@@ -464,7 +464,7 @@ function isVideoUrl(text) {
 
 function isImageUrl(text) {
     return text.startsWith("https://firebasestorage.googleapis.com") &&
-           (text.includes("/socialpostimageoffalcons%2F") || text.includes("/socialpostvideooffalcons%2F"));
+           text.includes("/socialpostimageoffalcons%2F");
 }
 function fetchPosts() {
     firestore.collection("postforall").orderBy("timestamp", "desc").onSnapshot(snapshot => {
