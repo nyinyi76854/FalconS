@@ -295,6 +295,45 @@ h1 {
     margin-top: 10px;
 }
 
+/* Ensure accounts-container is positioned at the right of the container */
+.accounts-container {
+    width: 30%; /* Adjust the width as needed */
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+    position: absolute; /* Position absolutely relative to the body */
+    top: 20px; /* Align with the top of the container */
+    right: 20px; /* Positioned on the right side */
+}
+
+/* Ensure the post container has enough space */
+.container {
+    width: 60%; /* Take up the remaining width */
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+    position: relative; /* Position relative to allow absolute positioning of accounts-container */
+}
+
+#accountsContainer {
+    margin-top: 20px;
+}
+
+/* Style for the accounts container items (optional) */
+.accounts-container h3 {
+    text-align: center;
+    font-size: 20px;
+    margin-bottom: 15px;
+}
+
+.accounts-container .account {
+    margin-bottom: 10px;
+    font-size: 16px;
+}
 
 .cancel-btn {
     background: #dc3545;
@@ -309,8 +348,11 @@ h1 {
     <img src="Toyota.png" alt="Toyota Ad" class="ad-image">
     <p class="ad-text">Ad</p>
 </div>
-
-    <div class="container">
+ <div class="accounts-container">
+   <h3>Accounts To Explore</h3>
+     <div id="accountsContainer"></div>
+ </div>
+     <div class="container">
         <h3>Posts</h3>
         <div id="postContainer"></div>
     </div>
