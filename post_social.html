@@ -508,7 +508,7 @@ function fetchPosts() {
 
                         // Fetch and display reaction summary
                         fetchReactionsCount(postId);
-
+ reactionOptions.style.display = "none";
                         // Add hover effect to show/hide reaction options
                         let reactionBtn = postElement.querySelector(".reaction-btn");
                         let reactionOptions = postElement.querySelector(".reactions-options");
