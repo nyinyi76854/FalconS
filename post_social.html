@@ -347,11 +347,13 @@ function previewMedia(event) {
     }
 }
 
+// Function to toggle reactions visibility (only toggle on reaction button click)
 function toggleReactions(postId, btn) {
     const options = btn.nextElementSibling;
-    
-    // Hide all other reaction options
-    document.querySelectorAll(".reactions-options").forEach(option => {
+    const allOptions = document.querySelectorAll(".reactions-options");
+
+    // Close all other open reactions
+    allOptions.forEach(option => {
         if (option !== options) {
             option.style.display = "none";
         }
@@ -379,6 +381,7 @@ function reactToPost(postId, reactionType, btn) {
         }
 
         if (!hasReacted || oldReactionType !== reactionType) {
+            // Add new reaction
             reactionsCollection.add({
                 reactor: userEmail,
                 reactionType: reactionType,
@@ -388,13 +391,14 @@ function reactToPost(postId, reactionType, btn) {
                 hideAllReactionOptions(); // Hide all reaction options after reacting
             }).catch(error => console.error("Error saving reaction:", error));
         } else {
+            // If the same reaction is clicked, remove it
             updateReactionIcon(postId, "default");
             hideAllReactionOptions();
         }
     });
 }
 
-// Function to update reaction button based on the user's reaction
+// Function to update reaction icon on reaction button
 function updateReactionIcon(postId, reactionType) {
     const postElement = document.querySelector(`#post-${postId}`);
     if (!postElement) return;
@@ -413,7 +417,7 @@ function updateReactionIcon(postId, reactionType) {
     reactionBtn.innerHTML = emoji;
 }
 
-// Function to check user's reaction on a post and update the button
+// Function to check user's reaction on a post
 function checkUserReaction(postId) {
     const userEmail = firebase.auth().currentUser.email;
     const reactionsCollection = firestore.collection("postforall").doc(postId).collection("falconspostreaction");
@@ -442,7 +446,6 @@ document.addEventListener("click", (event) => {
 });
 
 
-
 function isVideoUrl(text) {
     return text.startsWith("https://firebasestorage.googleapis.com") &&
            text.includes("/socialpostvideooffalcons%2F");
@@ -453,6 +456,7 @@ function isImageUrl(text) {
            (text.includes("/socialpostimageoffalcons%2F") || text.includes("/socialpostvideooffalcons%2F"));
 }
 
+// Function to fetch posts and display them
 function fetchPosts() {
     firestore.collection("postforall").orderBy("timestamp", "desc").onSnapshot(snapshot => {
         postContainer.innerHTML = "";
@@ -524,7 +528,11 @@ function fetchPosts() {
 
                         postContainer.appendChild(postElement);
 
-                        checkUserReaction(postId); // Update the reaction button based on user reaction
+                        // Fetch and display user's reaction
+                        checkUserReaction(postId);
+
+                        // Fetch and display reaction summary
+                        fetchReactionsCount(postId);
                     });
                 });
             });
