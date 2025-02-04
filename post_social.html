@@ -347,9 +347,8 @@ function previewMedia(event) {
     }
 }
 
-// Function to toggle reactions visibility (only toggle on reaction button click)
 function toggleReactions(postId, btn) {
-    const options = btn.nextElementSibling;
+    const options = btn.nextElementSibling; // Get the reactions-options div
     const allOptions = document.querySelectorAll(".reactions-options");
 
     // Close all other open reactions
@@ -359,9 +358,14 @@ function toggleReactions(postId, btn) {
         }
     });
 
-    // Toggle current options
-    options.style.display = (options.style.display === "flex") ? "none" : "flex";
+    // Toggle visibility of the clicked reaction options
+    if (options.style.display === "flex") {
+        options.style.display = "none";
+    } else {
+        options.style.display = "flex";
+    }
 }
+
 
 // Function to react to a post
 function reactToPost(postId, reactionType, btn) {
@@ -431,12 +435,11 @@ function checkUserReaction(postId) {
     });
 }
 
-// Function to hide all reaction options
-function hideAllReactionOptions() {
+document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll(".reactions-options").forEach(option => {
         option.style.display = "none";
     });
-}
+});
 
 // Close reaction options when clicking outside
 document.addEventListener("click", (event) => {
@@ -444,6 +447,13 @@ document.addEventListener("click", (event) => {
         hideAllReactionOptions();
     }
 });
+
+// Function to hide all reaction options
+function hideAllReactionOptions() {
+    document.querySelectorAll(".reactions-options").forEach(option => {
+        option.style.display = "none";
+    });
+}
 
 
 function isVideoUrl(text) {
@@ -539,10 +549,11 @@ function fetchPosts() {
         });
     });
 }
+// Function to fetch real-time reaction count updates
 function fetchReactionsCount(postId) {
     const reactionsCollection = firestore.collection("postforall").doc(postId).collection("falconspostreaction");
 
-    reactionsCollection.get().then(snapshot => {
+    reactionsCollection.onSnapshot(snapshot => { // Use onSnapshot for real-time updates
         let reactionCounts = {};
 
         snapshot.forEach(doc => {
@@ -565,7 +576,7 @@ function fetchReactionsCount(postId) {
         if (reactionSummaryElement) {
             reactionSummaryElement.innerText = reactionSummary;
         }
-    }).catch(error => console.error("Error fetching reactions:", error));
+    });
 }
 
 function toggleDescription(button) {
