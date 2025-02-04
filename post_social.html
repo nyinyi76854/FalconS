@@ -347,25 +347,6 @@ function previewMedia(event) {
     }
 }
 
-function toggleReactions(postId, btn) {
-    const options = btn.nextElementSibling; // Get the reactions-options div
-
-    // Close all other open reaction options
-    document.querySelectorAll(".reactions-options").forEach(option => {
-        if (option !== options) {
-            option.style.display = "none";
-        }
-    });
-
-    // Toggle the visibility of the clicked reaction options
-    options.style.display = (options.style.display === "flex") ? "none" : "flex";
-
-    // Automatically hide after a few seconds if no selection is made
-    setTimeout(() => {
-        options.style.display = "none";
-    }, 3000);
-}
-
 
 function reactToPost(postId, reactionType, btn) {
     const userEmail = firebase.auth().currentUser.email;
@@ -391,17 +372,15 @@ function reactToPost(postId, reactionType, btn) {
                 timestamp: Date.now()
             }).then(() => {
                 updateReactionIcon(postId, reactionType);
-                hideAllReactionOptions(); // Hide options after selection
+                
             }).catch(error => console.error("Error saving reaction:", error));
         } else {
             // If the same reaction is clicked, remove it
             updateReactionIcon(postId, "default");
-            hideAllReactionOptions();
+            
         }
     });
 
-    // Hide reaction options immediately after selecting
-    hideAllReactionOptions();
 }
 
 
@@ -439,19 +418,7 @@ function checkUserReaction(postId) {
 }
 
 
-// Close reaction options when clicking outside
-document.addEventListener("click", (event) => {
-    if (!event.target.closest(".reaction-btn") && !event.target.closest(".reactions-options")) {
-        hideAllReactionOptions();
-    }
-});
 
-// Function to hide all reaction options
-function hideAllReactionOptions() {
-    document.querySelectorAll(".reactions-options").forEach(option => {
-        option.style.display = "none";
-    });
-}
 
 
 function isVideoUrl(text) {
@@ -464,7 +431,6 @@ function isImageUrl(text) {
            (text.includes("/socialpostimageoffalcons%2F") || text.includes("/socialpostvideooffalcons%2F"));
 }
 
-// Function to fetch posts and display them
 function fetchPosts() {
     firestore.collection("postforall").orderBy("timestamp", "desc").onSnapshot(snapshot => {
         postContainer.innerHTML = "";
@@ -473,7 +439,7 @@ function fetchPosts() {
             let postId = doc.id;
             let postElement = document.createElement("div");
             postElement.classList.add("post");
-            postElement.id = "post-" + postId; // Add ID for better selection
+            postElement.id = "post-" + postId;
 
             fetchAndDisplayName(post.poster, (displayName) => {
                 fetchProfilePhoto(post.poster, (profilePhotoUrl) => {
@@ -482,26 +448,29 @@ function fetchPosts() {
                         let descriptionContent = "";
 
                         let reactionsContent = `
-                            <div style="display: flex; align-items: center;">
-                                <button class="reaction-btn" onclick="toggleReactions('${postId}', this)">
+                            <div style="display: flex; align-items: center; position: relative;">
+                                <button class="reaction-btn">
                                     <i class="fa fa-heart"></i> 
                                 </button>
                                 <span class="reaction-summary" id="reaction-summary-${postId}" style="margin-left: 10px; font-size: 14px;"></span>
-                            </div>
-                            <div class="reactions-options" style="
-                                display: none; 
-                                position: absolute; 
-                                background: white; 
-                                padding: 10px; 
-                                border-radius: 12px; 
-                                box-shadow: 0px 4px 10px rgba(0,0,0,0.1); 
-                                z-index: 1000;
-                                display: flex; 
-                                gap: 8px;">
-                                <button class="reaction-option" onclick="reactToPost('${postId}', 'love', this)" style="background: #ffccd5; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 18px; cursor: pointer;">❤️</button>
-                                <button class="reaction-option" onclick="reactToPost('${postId}', 'like', this)" style="background: #cce5ff; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 18px; cursor: pointer;">👍</button>
-                                <button class="reaction-option" onclick="reactToPost('${postId}', 'haha', this)" style="background: #fff3cd; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 18px; cursor: pointer;">😂</button>
-                                <button class="reaction-option" onclick="reactToPost('${postId}', 'angry', this)" style="background: #f8d7da; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 18px; cursor: pointer;">😡</button>
+
+                                <div class="reactions-options" style="
+                                    display: none;
+                                    position: absolute; 
+                                    bottom: 40px; 
+                                    left: 0; 
+                                    background: white; 
+                                    padding: 10px; 
+                                    border-radius: 12px; 
+                                    box-shadow: 0px 4px 10px rgba(0,0,0,0.1); 
+                                    z-index: 1000;
+                                    display: flex; 
+                                    gap: 8px;">
+                                    <button class="reaction-option" onclick="reactToPost('${postId}', 'love', this)" style="background: #ffccd5; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 18px; cursor: pointer;">❤️</button>
+                                    <button class="reaction-option" onclick="reactToPost('${postId}', 'like', this)" style="background: #cce5ff; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 18px; cursor: pointer;">👍</button>
+                                    <button class="reaction-option" onclick="reactToPost('${postId}', 'haha', this)" style="background: #fff3cd; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 18px; cursor: pointer;">😂</button>
+                                    <button class="reaction-option" onclick="reactToPost('${postId}', 'angry', this)" style="background: #f8d7da; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 18px; cursor: pointer;">😡</button>
+                                </div>
                             </div>
                         `;
 
@@ -541,12 +510,25 @@ function fetchPosts() {
 
                         // Fetch and display reaction summary
                         fetchReactionsCount(postId);
+
+                        // Add hover effect to show/hide reaction options
+                        let reactionBtn = postElement.querySelector(".reaction-btn");
+                        let reactionOptions = postElement.querySelector(".reactions-options");
+
+                        reactionBtn.addEventListener("mouseenter", () => {
+                            reactionOptions.style.display = "flex";
+                        });
+
+                        postElement.addEventListener("mouseleave", () => {
+                            reactionOptions.style.display = "none";
+                        });
                     });
                 });
             });
         });
     });
 }
+
 // Function to fetch real-time reaction count updates
 function fetchReactionsCount(postId) {
     const reactionsCollection = firestore.collection("postforall").doc(postId).collection("falconspostreaction");
