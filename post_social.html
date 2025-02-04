@@ -347,13 +347,11 @@ function previewMedia(event) {
     }
 }
 
-// Function to toggle reactions visibility
 function toggleReactions(postId, btn) {
     const options = btn.nextElementSibling;
-    const allOptions = document.querySelectorAll(".reactions-options");
-
-    // Close all other open reactions
-    allOptions.forEach(option => {
+    
+    // Hide all other reaction options
+    document.querySelectorAll(".reactions-options").forEach(option => {
         if (option !== options) {
             option.style.display = "none";
         }
@@ -381,7 +379,6 @@ function reactToPost(postId, reactionType, btn) {
         }
 
         if (!hasReacted || oldReactionType !== reactionType) {
-            // Add new reaction
             reactionsCollection.add({
                 reactor: userEmail,
                 reactionType: reactionType,
@@ -391,14 +388,13 @@ function reactToPost(postId, reactionType, btn) {
                 hideAllReactionOptions(); // Hide all reaction options after reacting
             }).catch(error => console.error("Error saving reaction:", error));
         } else {
-            // If the same reaction is clicked, remove it
             updateReactionIcon(postId, "default");
             hideAllReactionOptions();
         }
     });
 }
 
-// Function to update reaction icon
+// Function to update reaction button based on the user's reaction
 function updateReactionIcon(postId, reactionType) {
     const postElement = document.querySelector(`#post-${postId}`);
     if (!postElement) return;
@@ -417,7 +413,7 @@ function updateReactionIcon(postId, reactionType) {
     reactionBtn.innerHTML = emoji;
 }
 
-// Function to check user's reaction on a post
+// Function to check user's reaction on a post and update the button
 function checkUserReaction(postId) {
     const userEmail = firebase.auth().currentUser.email;
     const reactionsCollection = firestore.collection("postforall").doc(postId).collection("falconspostreaction");
@@ -528,8 +524,7 @@ function fetchPosts() {
 
                         postContainer.appendChild(postElement);
 
-                        // Fetch and display reaction summary
-                        fetchReactionsCount(postId);
+                        checkUserReaction(postId); // Update the reaction button based on user reaction
                     });
                 });
             });
