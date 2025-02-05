@@ -450,12 +450,16 @@ function fetchUsersAndDisplay() {
             const userDiv = document.createElement("div");
             userDiv.classList.add("user-item");
 
+            // Create container for profile photo, name, and verification icon
+            const profileContainer = document.createElement("div");
+            profileContainer.classList.add("profile-container");
+
             // Fetch profile photo
             fetchProfilePhotoForAccount(userEmail, (photoUrl) => {
                 const profileImg = document.createElement("img");
                 profileImg.src = photoUrl;
                 profileImg.classList.add("profile-photo");
-                userDiv.appendChild(profileImg);
+                profileContainer.appendChild(profileImg);
             });
 
             // Create container for name and verification icon
@@ -484,8 +488,11 @@ function fetchUsersAndDisplay() {
                 }
             });
 
-            // Append the nameContainer to the userDiv
-            userDiv.appendChild(nameContainer);
+            // Append nameContainer to profileContainer
+            profileContainer.appendChild(nameContainer);
+
+            // Append profileContainer to userDiv
+            userDiv.appendChild(profileContainer);
 
             accountsContainer.appendChild(userDiv);
         });
@@ -499,7 +506,10 @@ function fetchUsersAndDisplay() {
             align-items: center;
             padding: 10px;
             border-bottom: 1px solid #ddd;
-            flex-direction: row; /* Ensure that items are in row order */
+        }
+        .profile-container {
+            display: flex;
+            align-items: center;
         }
         .profile-photo {
             width: 40px;
@@ -525,6 +535,7 @@ function fetchUsersAndDisplay() {
     `;
     document.head.appendChild(style);
 }
+
 
 
 
