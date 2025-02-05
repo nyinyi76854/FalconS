@@ -484,6 +484,7 @@ function fetchUsersAndDisplay() {
                 }
             });
 
+            // Append name container after the profile image
             userDiv.appendChild(nameContainer);
             accountsContainer.appendChild(userDiv);
         });
@@ -507,8 +508,9 @@ function fetchUsersAndDisplay() {
         }
         .name-container {
             display: flex;
+            flex-direction: row; /* Ensure name and verification icon are in a row */
             align-items: center;
-            flex-grow: 1; /* Ensures the name and verification grow */
+            justify-content: flex-start; /* Align left */
         }
         .user-name {
             font-size: 14px;
@@ -523,6 +525,7 @@ function fetchUsersAndDisplay() {
     `;
     document.head.appendChild(style);
 }
+
 
 
 
