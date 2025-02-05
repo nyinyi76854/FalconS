@@ -450,16 +450,12 @@ function fetchUsersAndDisplay() {
             const userDiv = document.createElement("div");
             userDiv.classList.add("user-item");
 
-            // Create container for profile photo, name, and verification icon
-            const profileContainer = document.createElement("div");
-            profileContainer.classList.add("profile-container");
-
             // Fetch profile photo
             fetchProfilePhotoForAccount(userEmail, (photoUrl) => {
                 const profileImg = document.createElement("img");
                 profileImg.src = photoUrl;
                 profileImg.classList.add("profile-photo");
-                profileContainer.appendChild(profileImg);
+                userDiv.appendChild(profileImg); // Profile image goes first
             });
 
             // Create container for name and verification icon
@@ -471,7 +467,7 @@ function fetchUsersAndDisplay() {
                 const nameSpan = document.createElement("span");
                 nameSpan.textContent = userName;
                 nameSpan.classList.add("user-name");
-                nameContainer.appendChild(nameSpan);
+                nameContainer.appendChild(nameSpan); // Name goes inside nameContainer
             });
 
             // Verification icon
@@ -479,21 +475,19 @@ function fetchUsersAndDisplay() {
             verificationImg.src = "verification.jpg";
             verificationImg.classList.add("verification-icon");
             verificationImg.style.display = "none"; // Hide by default
-            nameContainer.appendChild(verificationImg);
+            nameContainer.appendChild(verificationImg); // Verification icon goes after the name
 
             // Check if the user is verified
             checkVerifiedOrNotForAccount(userEmail, (isVerified) => {
                 if (isVerified) {
-                    verificationImg.style.display = "inline-block";
+                    verificationImg.style.display = "inline-block"; // Display if verified
                 }
             });
 
-            // Append nameContainer to profileContainer
-            profileContainer.appendChild(nameContainer);
+            // Append the nameContainer to the userDiv after profile image
+            userDiv.appendChild(nameContainer);
 
-            // Append profileContainer to userDiv
-            userDiv.appendChild(profileContainer);
-
+            // Add the userDiv to the accountsContainer
             accountsContainer.appendChild(userDiv);
         });
     });
@@ -506,10 +500,6 @@ function fetchUsersAndDisplay() {
             align-items: center;
             padding: 10px;
             border-bottom: 1px solid #ddd;
-        }
-        .profile-container {
-            display: flex;
-            align-items: center;
         }
         .profile-photo {
             width: 40px;
@@ -535,7 +525,6 @@ function fetchUsersAndDisplay() {
     `;
     document.head.appendChild(style);
 }
-
 
 
 
