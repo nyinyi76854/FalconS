@@ -438,13 +438,12 @@ function closeAd() {
 function fetchUsersAndDisplay() {
     const usersRef = firestore.collection("users");
     const accountsContainer = document.getElementById("accountsContainer");
-    const currentUserEmail = firebase.auth().currentUser.email; // Get current user email
-
     accountsContainer.innerHTML = ""; // Clear previous content
+    const currentUserEmail = firebase.auth().currentUser.email; // Get current user's email
 
     usersRef.get().then((querySnapshot) => {
         querySnapshot.forEach((doc) => {
-            const userEmail = doc.data().email; // Get email of each user
+            const userEmail = doc.data().email; // Correctly getting the email field
 
             if (!userEmail) {
                 console.error("User email missing for document ID:", doc.id);
@@ -477,56 +476,62 @@ function fetchUsersAndDisplay() {
             nameContainer.appendChild(nameSpan);
             nameContainer.appendChild(verificationImg);
 
-            // Create Follow button
+            // Create Follow button container
             const followButton = document.createElement("button");
             followButton.classList.add("follow-btn");
-            followButton.innerHTML = `<span class="plus-icon">+</span> Follow`;
 
-            // Hide follow button if it's the current user
+            // Check if current user is the same as the displayed user and hide the follow button
             if (userEmail === currentUserEmail) {
-                followButton.style.display = "none";
+                followButton.style.display = "none"; // Hide the button for the current user
+            } else {
+                followButton.innerHTML = `<span class="plus-icon">+</span> Follow`;
             }
 
-            // Follow button click event
+            // Handle follow/unfollow button click event
             followButton.addEventListener("click", () => {
-                toggleFollow(userEmail, followButton);
+                if (followButton.innerHTML === `<span class="plus-icon">+</span> Follow`) {
+                    followUser(userEmail, currentUserEmail, followButton);
+                } else {
+                    unfollowUser(userEmail, currentUserEmail, followButton);
+                }
             });
 
-            // Wrapper for user info
+            // Create a wrapper div for nameContainer and followButton
             const userInfoContainer = document.createElement("div");
             userInfoContainer.classList.add("user-info-container");
             userInfoContainer.appendChild(nameContainer);
             userInfoContainer.appendChild(followButton);
 
-            // Append profile image and user info container
+            // Append profile image first, then userInfoContainer
             userDiv.appendChild(profileImg);
             userDiv.appendChild(userInfoContainer);
+
+            // Append the user item to the container
             accountsContainer.appendChild(userDiv);
 
-            // Fetch profile photo
+            // Fetch profile photo and set its source
             fetchProfilePhotoForAccount(userEmail, (photoUrl) => {
                 profileImg.src = photoUrl;
             });
 
-            // Fetch name
+            // Fetch and display name
             fetchAndDisplayName(userEmail, (userName) => {
                 nameSpan.textContent = userName;
             });
 
-            // Check if verified
+            // Check if the user is verified
             checkVerifiedOrNotForAccount(userEmail, (isVerified) => {
                 if (isVerified) {
                     verificationImg.style.display = "inline-block";
                 }
             });
 
-            // Check if already following
-            listenForFollowStatus(userEmail, followButton);
-
+            // Check and update follow status on initial load
+            checkFollowStatus(userEmail, currentUserEmail, followButton);
         });
     });
 
-    // CSS Styles
+    // CSS styles (unchanged)
     const style = document.createElement("style");
     style.textContent = `
         .user-item {
@@ -542,6 +547,7 @@ function fetchUsersAndDisplay() {
             object-fit: cover;
             margin-right: 12px;
         }
+        
         .name-container {
             display: flex;
             align-items: center;
@@ -560,10 +566,11 @@ function fetchUsersAndDisplay() {
         .user-info-container {
             display: flex;
             flex-direction: column;
-            align-items: flex-start;
+            align-items: flex-start; 
             gap: 5px;
             width: 150px;
         }
+
         .follow-btn {
             display: flex;
             align-items: center;
@@ -581,10 +588,12 @@ function fetchUsersAndDisplay() {
             outline: none;
             width: 100px;
         }
+
         .follow-btn:hover {
             background: linear-gradient(45deg, #0056b3, #0086ff);
             transform: scale(1.05);
         }
+
         .plus-icon {
             font-size: 18px;
             font-weight: bold;
@@ -593,53 +602,50 @@ function fetchUsersAndDisplay() {
     `;
     document.head.appendChild(style);
 }
-function toggleFollow(userEmail, button) {
-    const currentUserEmail = firebase.auth().currentUser.email;
-    const userRef = firestore.collection("users").where("email", "==", userEmail);
 
-    userRef.get().then((querySnapshot) => {
-        if (!querySnapshot.empty) {
-            const userDocId = querySnapshot.docs[0].id;
-            const followersRef = firestore.collection("users").doc(userDocId).collection("followers");
+// Function to follow a user
+function followUser(userEmail, currentUserEmail, followButton) {
+    const followersRef = firestore.collection("users").doc(userEmail).collection("followers");
+    const timestamp = Date.now();
 
-            followersRef.where("follower", "==", currentUserEmail).get().then((querySnapshot) => {
-                if (!querySnapshot.empty) {
-                    // Unfollow (Delete the document)
-                    querySnapshot.forEach((doc) => {
-                        doc.ref.delete();
-                    });
-                } else {
-                    // Follow (Add new document)
-                    followersRef.add({
-                        follower: currentUserEmail,
-                        timestamp: Date.now(),
-                    });
-                }
-            });
-        }
+    followersRef.add({
+        followerEmail: currentUserEmail,
+        timestamp: timestamp,
+    }).then(() => {
+        followButton.innerHTML = `<span class="plus-icon">✓</span> Followed`;
+        followButton.style.backgroundColor = "#28a745"; // Green for followed
+    }).catch((error) => {
+        console.error("Error following user:", error);
     });
 }
 
+// Function to unfollow a user
+function unfollowUser(userEmail, currentUserEmail, followButton) {
+    const followersRef = firestore.collection("users").doc(userEmail).collection("followers");
 
-function listenForFollowStatus(userEmail, button) {
-    const currentUserEmail = firebase.auth().currentUser.email;
-    const userRef = firestore.collection("users").where("email", "==", userEmail);
+    // Query for the follower to remove
+    followersRef.where("followerEmail", "==", currentUserEmail).get().then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+            doc.ref.delete(); // Delete the follower from the collection
+        });
+        followButton.innerHTML = `<span class="plus-icon">+</span> Follow`;
+        followButton.style.backgroundColor = "#007bff"; // Blue for follow
+    }).catch((error) => {
+        console.error("Error unfollowing user:", error);
+    });
+}
 
-    userRef.get().then((querySnapshot) => {
+// Function to check follow status
+function checkFollowStatus(userEmail, currentUserEmail, followButton) {
+    const followersRef = firestore.collection("users").doc(userEmail).collection("followers");
+
+    followersRef.where("followerEmail", "==", currentUserEmail).get().then((querySnapshot) => {
         if (!querySnapshot.empty) {
-            const userDocId = querySnapshot.docs[0].id; // Get the Firestore-generated user ID
-            const followersRef = firestore.collection("users").doc(userDocId).collection("followers");
-
-            followersRef.where("follower", "==", currentUserEmail).onSnapshot((snapshot) => {
-                if (!snapshot.empty) {
-                    button.innerHTML = `<span class="plus-icon">✔</span> Followed`;
-                    button.style.background = "gray";
-                } else {
-                    button.innerHTML = `<span class="plus-icon">+</span> Follow`;
-                    button.style.background = "linear-gradient(45deg, #007bff, #00c6ff)";
-                }
-            });
+            followButton.innerHTML = `<span class="plus-icon">✓</span> Followed`;
+            followButton.style.backgroundColor = "#28a745"; // Green for followed
         }
+    }).catch((error) => {
+        console.error("Error checking follow status:", error);
     });
 }
 
