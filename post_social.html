@@ -438,11 +438,13 @@ function closeAd() {
 function fetchUsersAndDisplay() {
     const usersRef = firestore.collection("users");
     const accountsContainer = document.getElementById("accountsContainer");
+    const currentUserEmail = firebase.auth().currentUser.email; // Get current user email
+
     accountsContainer.innerHTML = ""; // Clear previous content
 
     usersRef.get().then((querySnapshot) => {
         querySnapshot.forEach((doc) => {
-            const userEmail = doc.data().email; // Correctly getting the email field
+            const userEmail = doc.data().email; // Get email of each user
 
             if (!userEmail) {
                 console.error("User email missing for document ID:", doc.id);
@@ -475,49 +477,55 @@ function fetchUsersAndDisplay() {
             nameContainer.appendChild(nameSpan);
             nameContainer.appendChild(verificationImg);
 
-            // Create Follow button container
+            // Create Follow button
             const followButton = document.createElement("button");
             followButton.classList.add("follow-btn");
             followButton.innerHTML = `<span class="plus-icon">+</span> Follow`;
 
-            // Handle follow button click event
+            // Hide follow button if it's the current user
+            if (userEmail === currentUserEmail) {
+                followButton.style.display = "none";
+            }
+
+            // Follow button click event
             followButton.addEventListener("click", () => {
-                alert(`Followed ${userEmail}`);
+                toggleFollow(userEmail, followButton);
             });
 
-            // Create a wrapper div for nameContainer and followButton
+            // Wrapper for user info
             const userInfoContainer = document.createElement("div");
             userInfoContainer.classList.add("user-info-container");
             userInfoContainer.appendChild(nameContainer);
             userInfoContainer.appendChild(followButton);
 
-            // Append profile image first, then userInfoContainer
+            // Append profile image and user info container
             userDiv.appendChild(profileImg);
             userDiv.appendChild(userInfoContainer);
-
-            // Append the user item to the container
             accountsContainer.appendChild(userDiv);
 
-            // Fetch profile photo and set its source
+            // Fetch profile photo
             fetchProfilePhotoForAccount(userEmail, (photoUrl) => {
                 profileImg.src = photoUrl;
             });
 
-            // Fetch and display name
+            // Fetch name
             fetchAndDisplayName(userEmail, (userName) => {
                 nameSpan.textContent = userName;
             });
 
-            // Check if the user is verified
+            // Check if verified
             checkVerifiedOrNotForAccount(userEmail, (isVerified) => {
                 if (isVerified) {
                     verificationImg.style.display = "inline-block";
                 }
             });
+
+            // Check if already following
+            checkIfFollowing(userEmail, followButton);
         });
     });
 
-    // CSS styles
+    // CSS Styles
     const style = document.createElement("style");
     style.textContent = `
         .user-item {
@@ -533,7 +541,6 @@ function fetchUsersAndDisplay() {
             object-fit: cover;
             margin-right: 12px;
         }
-        
         .name-container {
             display: flex;
             align-items: center;
@@ -550,44 +557,85 @@ function fetchUsersAndDisplay() {
             height: 18px;
         }
         .user-info-container {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start; /* Aligns name and button properly */
-    gap: 5px;
-    width: 150px; /* Ensures a consistent width */
-}
-
-.follow-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(45deg, #007bff, #00c6ff);
-    color: white;
-    border: none;
-    padding: 6px 14px;
-    font-size: 14px;
-    font-weight: bold;
-    border-radius: 20px;
-    cursor: pointer;
-    transition: all 0.3s ease-in-out;
-    box-shadow: 0px 4px 6px rgba(0, 123, 255, 0.3);
-    outline: none;
-    width: 100px; /* Set a fixed width */
-}
-
-.follow-btn:hover {
-    background: linear-gradient(45deg, #0056b3, #0086ff);
-    transform: scale(1.05);
-}
-
-.plus-icon {
-    font-size: 18px;
-    font-weight: bold;
-    margin-right: 6px;
-}
-
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 5px;
+            width: 150px;
+        }
+        .follow-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(45deg, #007bff, #00c6ff);
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0px 4px 6px rgba(0, 123, 255, 0.3);
+            outline: none;
+            width: 100px;
+        }
+        .follow-btn:hover {
+            background: linear-gradient(45deg, #0056b3, #0086ff);
+            transform: scale(1.05);
+        }
+        .plus-icon {
+            font-size: 18px;
+            font-weight: bold;
+            margin-right: 6px;
+        }
     `;
     document.head.appendChild(style);
+}
+function toggleFollow(userEmail, button) {
+    const currentUserEmail = firebase.auth().currentUser.email;
+    const userRef = firestore.collection("users").doc(userEmail).collection("followers");
+
+    // Check if the current user is already following the target user
+    userRef.where("follower", "==", currentUserEmail).get().then((querySnapshot) => {
+        if (!querySnapshot.empty) {
+            // If already following, unfollow (delete the existing follower document)
+            querySnapshot.forEach((doc) => {
+                doc.ref.delete().then(() => {
+                    button.innerHTML = `<span class="plus-icon">+</span> Follow`;
+                    button.style.background = "linear-gradient(45deg, #007bff, #00c6ff)";
+                });
+            });
+        } else {
+            // If not following, follow the user (add a new document in the followers subcollection)
+            userRef.add({
+                follower: currentUserEmail,
+                timestamp: Date.now()
+            }).then(() => {
+                button.innerHTML = `<span class="plus-icon">✔</span> Followed`;
+                button.style.background = "gray";
+            });
+        }
+    });
+}
+
+/** Function to check if the current user is following another user */
+function checkIfFollowing(userEmail, button) {
+    const currentUserEmail = firebase.auth().currentUser.email;
+    const userRef = firestore.collection("users").doc(userEmail).collection("followers");
+
+    // Check if the current user is already following the target user
+    userRef.where("follower", "==", currentUserEmail).get().then((querySnapshot) => {
+        if (!querySnapshot.empty) {
+            // If the current user is following, update the button to "Followed"
+            button.innerHTML = `<span class="plus-icon">✔</span> Followed`;
+            button.style.background = "gray";
+        } else {
+            // If not following, update the button to "Follow"
+            button.innerHTML = `<span class="plus-icon">+</span> Follow`;
+            button.style.background = "linear-gradient(45deg, #007bff, #00c6ff)";
+        }
+    });
 }
 
 
