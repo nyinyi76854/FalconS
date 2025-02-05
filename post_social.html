@@ -458,12 +458,16 @@ function fetchUsersAndDisplay() {
                 userDiv.appendChild(profileImg);
             });
 
+            // Create name and verification container
+            const nameContainer = document.createElement("div");
+            nameContainer.classList.add("name-container");
+
             // Fetch and display name
             fetchAndDisplayName(userEmail, (userName) => {
                 const nameSpan = document.createElement("span");
                 nameSpan.textContent = userName;
                 nameSpan.classList.add("user-name");
-                userDiv.appendChild(nameSpan);
+                nameContainer.appendChild(nameSpan);
             });
 
             // Verification icon
@@ -471,7 +475,7 @@ function fetchUsersAndDisplay() {
             verificationImg.src = "verification.jpg";
             verificationImg.classList.add("verification-icon");
             verificationImg.style.display = "none"; // Hide by default
-            userDiv.appendChild(verificationImg);
+            nameContainer.appendChild(verificationImg);
 
             // Check if the user is verified
             checkVerifiedOrNotForAccount(userEmail, (isVerified) => {
@@ -480,6 +484,7 @@ function fetchUsersAndDisplay() {
                 }
             });
 
+            userDiv.appendChild(nameContainer);
             accountsContainer.appendChild(userDiv);
         });
     });
@@ -500,11 +505,15 @@ function fetchUsersAndDisplay() {
             object-fit: cover;
             margin-right: 10px;
         }
+        .name-container {
+            display: flex;
+            align-items: center;
+        }
         .user-name {
             font-size: 14px;
             font-weight: bold;
             color: #333;
-            margin-right: 5px; /* Adding some space between name and verification icon */
+            margin-right: 5px; /* Space between name and verification icon */
         }
         .verification-icon {
             width: 16px;
@@ -513,6 +522,7 @@ function fetchUsersAndDisplay() {
     `;
     document.head.appendChild(style);
 }
+
 
 
 
