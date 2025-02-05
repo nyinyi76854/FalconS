@@ -455,19 +455,15 @@ function fetchUsersAndDisplay() {
                 const profileImg = document.createElement("img");
                 profileImg.src = photoUrl;
                 profileImg.classList.add("profile-photo");
-                userDiv.appendChild(profileImg); // Profile image goes first
+                userDiv.appendChild(profileImg);
             });
-
-            // Create container for name and verification icon
-            const nameContainer = document.createElement("div");
-            nameContainer.classList.add("name-container");
 
             // Fetch and display name
             fetchAndDisplayName(userEmail, (userName) => {
                 const nameSpan = document.createElement("span");
                 nameSpan.textContent = userName;
                 nameSpan.classList.add("user-name");
-                nameContainer.appendChild(nameSpan); // Name goes inside nameContainer
+                userDiv.appendChild(nameSpan);
             });
 
             // Verification icon
@@ -475,19 +471,15 @@ function fetchUsersAndDisplay() {
             verificationImg.src = "verification.jpg";
             verificationImg.classList.add("verification-icon");
             verificationImg.style.display = "none"; // Hide by default
-            nameContainer.appendChild(verificationImg); // Verification icon goes after the name
+            userDiv.appendChild(verificationImg);
 
             // Check if the user is verified
             checkVerifiedOrNotForAccount(userEmail, (isVerified) => {
                 if (isVerified) {
-                    verificationImg.style.display = "inline-block"; // Display if verified
+                    verificationImg.style.display = "inline-block";
                 }
             });
 
-            // Append the nameContainer to the userDiv after profile image
-            userDiv.appendChild(nameContainer);
-
-            // Add the userDiv to the accountsContainer
             accountsContainer.appendChild(userDiv);
         });
     });
@@ -508,17 +500,13 @@ function fetchUsersAndDisplay() {
             object-fit: cover;
             margin-right: 10px;
         }
-        .name-container {
-            display: flex;
-            align-items: center;
-        }
         .user-name {
             font-size: 14px;
             font-weight: bold;
             color: #333;
+            margin-right: 5px; /* Adding some space between name and verification icon */
         }
         .verification-icon {
-            margin-left: 5px; /* Space between name and verification icon */
             width: 16px;
             height: 16px;
         }
