@@ -431,6 +431,128 @@ function closeAd() {
         ad.style.display = "flex";
     }, 10000);
 }
+        fetchUsersAndDisplay()
+function fetchUsersAndDisplay() {
+    const usersRef = firestore.collection("users");
+    const accountsContainer = document.getElementById("accountsContainer");
+    accountsContainer.innerHTML = ""; // Clear previous content
+
+    usersRef.get().then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+            const userEmail = doc.id; // Firestore ID as email
+
+            // Create container for user
+            const userDiv = document.createElement("div");
+            userDiv.classList.add("user-item");
+
+            // Fetch profile photo
+            fetchProfilePhoto(userEmail, (photoUrl) => {
+                const profileImg = document.createElement("img");
+                profileImg.src = photoUrl;
+                profileImg.classList.add("profile-photo");
+                userDiv.appendChild(profileImg);
+            });
+
+            // Fetch and display name
+            fetchAndDisplayName(userEmail, (userName) => {
+                const nameSpan = document.createElement("span");
+                nameSpan.textContent = userName;
+                nameSpan.classList.add("user-name");
+                userDiv.appendChild(nameSpan);
+            });
+
+            // Verification icon
+            const verificationImg = document.createElement("img");
+            verificationImg.src = "verification.jpg";
+            verificationImg.classList.add("verification-icon");
+            verificationImg.style.display = "none";
+            userDiv.appendChild(verificationImg);
+
+            checkVerifiedOrNotForAccount(userEmail, (isVerified) => {
+                if (isVerified) {
+                    verificationImg.style.display = "inline-block";
+                }
+            });
+
+            accountsContainer.appendChild(userDiv);
+        });
+    });
+
+    // CSS styles
+    const style = document.createElement("style");
+    style.textContent = `
+        .user-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        .profile-photo {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .user-name {
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+        }
+        .verification-icon {
+            width: 16px;
+            height: 16px;
+            margin-left: 5px;
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+function fetchAndDisplayName(email, callback) {
+    const namesRef = firestore.collection("names");
+    namesRef.where("email", "==", email).get().then((snapshot) => {
+        let lastTimestamp = 0;
+        let latestName = "Unknown User";
+
+        snapshot.forEach((doc) => {
+            const timestamp = doc.get("timestamp") || 0;
+            const name = doc.get("name");
+
+            if (timestamp > lastTimestamp && name) {
+                lastTimestamp = timestamp;
+                latestName = name;
+            }
+        });
+
+        callback(latestName);
+    });
+}
+
+function fetchProfilePhoto(userEmail, callback) {
+    const profilesPhotoRef = firestore.collection("profilesphoto");
+    profilesPhotoRef.where("uploaderEmail", "==", userEmail).get().then((querySnapshot) => {
+        let latestPhotoUrl = "user_1077114.png"; // Default profile photo
+        let latestTimestamp = 0;
+
+        querySnapshot.forEach((doc) => {
+            const timestamp = doc.data().timestamp || 0;
+            const photoUrl = doc.data().downloadUrl;
+
+            if (timestamp > latestTimestamp) {
+                latestTimestamp = timestamp;
+                latestPhotoUrl = photoUrl;
+            }
+        });
+
+        callback(latestPhotoUrl);
+    });
+}
+
+function checkVerifiedOrNotForAccount(userEmail, callback) {
+    const verificationRef = firestore.collection("verificationbridge");
+    verificationRef.where("email", "==", userEmail).get().then((snapshot) => {
+        callback(!snapshot.empty);
+    });
+}
 
     function fetchProfilePhoto(userEmail, callback) {
         const profilesPhotoRef = firestore.collection("profilesphoto");
