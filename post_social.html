@@ -458,12 +458,16 @@ function fetchUsersAndDisplay() {
                 userDiv.appendChild(profileImg);
             });
 
+            // Create name and verification container
+            const nameVerificationDiv = document.createElement("div");
+            nameVerificationDiv.classList.add("name-verification-container");
+
             // Fetch and display name
             fetchAndDisplayName(userEmail, (userName) => {
                 const nameSpan = document.createElement("span");
                 nameSpan.textContent = userName;
                 nameSpan.classList.add("user-name");
-                userDiv.appendChild(nameSpan);
+                nameVerificationDiv.appendChild(nameSpan);
             });
 
             // Verification icon
@@ -471,14 +475,17 @@ function fetchUsersAndDisplay() {
             verificationImg.src = "verification.jpg";
             verificationImg.classList.add("verification-icon");
             verificationImg.style.display = "none";
-            userDiv.appendChild(verificationImg);
+            nameVerificationDiv.appendChild(verificationImg);
 
+            // Check if verified
             checkVerifiedOrNotForAccount(userEmail, (isVerified) => {
                 if (isVerified) {
                     verificationImg.style.display = "inline-block";
                 }
             });
 
+            // Append name and verification div to the userDiv
+            userDiv.appendChild(nameVerificationDiv);
             accountsContainer.appendChild(userDiv);
         });
     });
@@ -499,6 +506,10 @@ function fetchUsersAndDisplay() {
             object-fit: cover;
             margin-right: 10px;
         }
+        .name-verification-container {
+            display: flex;
+            align-items: center;
+        }
         .user-name {
             font-size: 14px;
             font-weight: bold;
@@ -512,6 +523,7 @@ function fetchUsersAndDisplay() {
     `;
     document.head.appendChild(style);
 }
+
 
 function fetchAndDisplayName(email, callback) {
     const namesRef = firestore.collection("names");
