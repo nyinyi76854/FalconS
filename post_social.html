@@ -483,15 +483,15 @@ function fetchUsersAndDisplay() {
             followButton.classList.add("follow-btn");
             followButton.innerHTML = `<span class="plus-icon">+</span> Follow`;
 
-            // Check if the current user's email matches the user's email
             if (userEmail === currentUserEmail) {
-                // Hide follow button if it's the current user
                 followButton.style.display = "none";
             } else {
-                // Handle follow button click event for others
                 followButton.addEventListener("click", () => {
-                    alert(`Followed ${userEmail}`);
+                    followUser(currentUserEmail, userEmail, followButton);
                 });
+
+                // Check if already followed
+                checkFollowedOrNot(currentUserEmail, userEmail, followButton);
             }
 
             // Create a wrapper div for nameContainer and followButton
@@ -615,6 +615,73 @@ function fetchAndDisplayName(email, callback) {
         console.error("Error fetching name:", error);
         callback("Unknown User");
     });
+}
+function followUser(currentUserEmail, targetUserEmail, followButton) {
+    const agesRef = firestore.collection("ages");
+
+    // Find the document where email == targetUserEmail
+    agesRef.where("email", "==", targetUserEmail).get().then((querySnapshot) => {
+        if (querySnapshot.empty) {
+            console.error("User not found in ages collection.");
+            return;
+        }
+
+        querySnapshot.forEach((doc) => {
+            const userDocRef = agesRef.doc(doc.id);
+            const followersRef = userDocRef.collection("followers");
+
+            // Check if already followed
+            followersRef.where("follower", "==", currentUserEmail).get().then((snapshot) => {
+                if (!snapshot.empty) {
+                    // Unfollow: Remove the follower document
+                    snapshot.forEach((followerDoc) => {
+                        followersRef.doc(followerDoc.id).delete().then(() => {
+                            console.log("Unfollowed successfully");
+                            updateFollowButton(followButton, false);
+                        }).catch((error) => console.error("Error unfollowing:", error));
+                    });
+                } else {
+                    // Follow: Add new follower
+                    followersRef.add({
+                        follower: currentUserEmail,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    }).then(() => {
+                        console.log("Followed successfully");
+                        updateFollowButton(followButton, true);
+                    }).catch((error) => console.error("Error following:", error));
+                }
+            });
+        });
+    }).catch((error) => console.error("Error fetching ages collection:", error));
+}
+function checkFollowedOrNot(currentUserEmail, targetUserEmail, followButton) {
+    const agesRef = firestore.collection("ages");
+
+    // Find the document where email == targetUserEmail
+    agesRef.where("email", "==", targetUserEmail).get().then((querySnapshot) => {
+        if (querySnapshot.empty) {
+            console.error("User not found in ages collection.");
+            return;
+        }
+
+        querySnapshot.forEach((doc) => {
+            const followersRef = agesRef.doc(doc.id).collection("followers");
+
+            // Check if the current user is a follower
+            followersRef.where("follower", "==", currentUserEmail).get().then((snapshot) => {
+                updateFollowButton(followButton, !snapshot.empty);
+            }).catch((error) => console.error("Error checking follow status:", error));
+        });
+    }).catch((error) => console.error("Error fetching ages collection:", error));
+}
+function updateFollowButton(followButton, isFollowed) {
+    if (isFollowed) {
+        followButton.innerHTML = `<span class="check-icon">&#10003;</span> Followed`;
+        followButton.style.background = "gray";
+    } else {
+        followButton.innerHTML = `<span class="plus-icon">+</span> Follow`;
+        followButton.style.background = "linear-gradient(45deg, #007bff, #00c6ff)";
+    }
 }
 
 function fetchProfilePhotoForAccount(userEmail, callback) {
