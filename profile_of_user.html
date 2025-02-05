@@ -26,15 +26,16 @@
 
         firebase.initializeApp(firebaseConfig);
         const firestore = firebase.firestore();
-
-        function fetchPosts() {
-          const urlParams = new URLSearchParams(window.location.search);
+  const urlParams = new URLSearchParams(window.location.search);
     const userEmail = urlParams.get("userEmail"); // Get the carried email
 
     if (!userEmail) {
         console.error("User email not found in URL parameters.");
         return;
     }
+        fetchPosts()
+        function fetchPosts() {
+        
 
             firestore.collection("postforall")
                 .where("poster", "==", userEmail)  // Filter posts by the current user's email
@@ -143,9 +144,7 @@
                 });
         }
 
-        // Run fetchPosts on page load
-        window.onload = fetchPosts;
-
+       
         // Additional helper functions for fetching user info (like name, profile photo)
        function fetchAndDisplayName(email, callback) {
     const namesRef = firestore.collection("names");
