@@ -26,6 +26,7 @@
 
         firebase.initializeApp(firebaseConfig);
         const firestore = firebase.firestore();
+         const auth = firebase.auth();
   const urlParams = new URLSearchParams(window.location.search);
     const userEmail = urlParams.get("userEmail"); // Get the carried email
 
