@@ -450,32 +450,44 @@ function fetchUsersAndDisplay() {
             const userDiv = document.createElement("div");
             userDiv.classList.add("user-item");
 
-            // Fetch profile photo
-            fetchProfilePhotoForAccount(userEmail, (photoUrl) => {
-                const profileImg = document.createElement("img");
-                profileImg.src = photoUrl;
-                profileImg.classList.add("profile-photo");
-                userDiv.appendChild(profileImg);
-            });
+            // Create profile image element
+            const profileImg = document.createElement("img");
+            profileImg.classList.add("profile-photo");
 
             // Create name and verification container
             const nameContainer = document.createElement("div");
             nameContainer.classList.add("name-container");
 
-            // Fetch and display name
-            fetchAndDisplayName(userEmail, (userName) => {
-                const nameSpan = document.createElement("span");
-                nameSpan.textContent = userName;
-                nameSpan.classList.add("user-name");
-                nameContainer.appendChild(nameSpan);
-            });
+            // Create name element
+            const nameSpan = document.createElement("span");
+            nameSpan.classList.add("user-name");
 
-            // Verification icon
+            // Create verification icon
             const verificationImg = document.createElement("img");
             verificationImg.src = "verification.jpg";
             verificationImg.classList.add("verification-icon");
             verificationImg.style.display = "none"; // Hide by default
+
+            // Append name and verification icon inside nameContainer
+            nameContainer.appendChild(nameSpan);
             nameContainer.appendChild(verificationImg);
+
+            // Append profile image first, then nameContainer
+            userDiv.appendChild(profileImg);
+            userDiv.appendChild(nameContainer);
+
+            // Append the user item to the container
+            accountsContainer.appendChild(userDiv);
+
+            // Fetch profile photo and set its source
+            fetchProfilePhotoForAccount(userEmail, (photoUrl) => {
+                profileImg.src = photoUrl;
+            });
+
+            // Fetch and display name
+            fetchAndDisplayName(userEmail, (userName) => {
+                nameSpan.textContent = userName;
+            });
 
             // Check if the user is verified
             checkVerifiedOrNotForAccount(userEmail, (isVerified) => {
@@ -483,10 +495,6 @@ function fetchUsersAndDisplay() {
                     verificationImg.style.display = "inline-block";
                 }
             });
-
-            // Append name container after the profile image
-            userDiv.appendChild(nameContainer);
-            accountsContainer.appendChild(userDiv);
         });
     });
 
@@ -508,9 +516,7 @@ function fetchUsersAndDisplay() {
         }
         .name-container {
             display: flex;
-            flex-direction: row; /* Ensure name and verification icon are in a row */
             align-items: center;
-            justify-content: flex-start; /* Align left */
         }
         .user-name {
             font-size: 14px;
