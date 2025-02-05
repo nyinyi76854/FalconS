@@ -90,6 +90,7 @@ h1 {
 
 
 /* Floating Create Post Button */
+/* Floating Create Post Button */
 .create-post-btn {
     position: fixed;
     bottom: 20px;
@@ -106,12 +107,14 @@ h1 {
     justify-content: center;
     transition: all 0.3s ease-in-out;
     box-shadow: 0 4px 10px rgba(255, 65, 108, 0.5);
+    z-index: 9999; /* Ensure it stays on top */
 }
 
 .create-post-btn:hover {
     background: linear-gradient(45deg, #ff512f, #dd2476);
     transform: scale(1.1);
 }
+
 
 /* Post Modal */
 .modal {
