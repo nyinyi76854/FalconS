@@ -618,19 +618,33 @@ function fetchAndDisplayName(email, callback) {
 
 function fetchProfilePhotoForAccount(userEmail, callback) {
     const profilesPhotoRef = firestore.collection("profilesphoto");
-    profilesPhotoRef.where("uploaderEmail", "==", userEmail).orderBy("timestamp", "desc").limit(1).get()
-    .then((querySnapshot) => {
-        if (!querySnapshot.empty) {
-            const latestPhotoUrl = querySnapshot.docs[0].data().downloadUrl;
+
+    profilesPhotoRef
+        .where("uploaderEmail", "==", userEmail)
+        .get()
+        .then((querySnapshot) => {
+            let latestPhotoUrl = "user_1077114.png"; // Default profile photo
+            let latestTimestamp = 0;
+
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                const timestamp = data.timestamp || 0;
+                const photoUrl = data.downloadUrl;
+
+                if (timestamp > latestTimestamp) {
+                    latestTimestamp = timestamp;
+                    latestPhotoUrl = photoUrl;
+                }
+            });
+
             callback(latestPhotoUrl);
-        } else {
-            callback("user_1077114.png"); // Default profile photo
-        }
-    }).catch(error => {
-        console.error("Error fetching profile photo:", error);
-        callback("user_1077114.png"); // Default profile photo on error
-    });
+        })
+        .catch((error) => {
+            console.error("Error fetching profile photo:", error);
+            callback("user_1077114.png"); // Default profile photo on error
+        });
 }
+
 
 function checkVerifiedOrNotForAccount(userEmail, callback) {
     const verificationRef = firestore.collection("verificationbridge");
