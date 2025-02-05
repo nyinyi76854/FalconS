@@ -521,7 +521,8 @@ function fetchUsersAndDisplay() {
             });
 
             // Check if already following
-            checkIfFollowing(userEmail, followButton);
+            listenForFollowStatus(userEmail, followButton);
+
         });
     });
 
@@ -594,46 +595,50 @@ function fetchUsersAndDisplay() {
 }
 function toggleFollow(userEmail, button) {
     const currentUserEmail = firebase.auth().currentUser.email;
-    const userRef = firestore.collection("users").doc(userEmail).collection("followers");
+    const userRef = firestore.collection("users").where("email", "==", userEmail);
 
-    // Check if the current user is already following the target user
-    userRef.where("follower", "==", currentUserEmail).get().then((querySnapshot) => {
+    userRef.get().then((querySnapshot) => {
         if (!querySnapshot.empty) {
-            // If already following, unfollow (delete the existing follower document)
-            querySnapshot.forEach((doc) => {
-                doc.ref.delete().then(() => {
-                    button.innerHTML = `<span class="plus-icon">+</span> Follow`;
-                    button.style.background = "linear-gradient(45deg, #007bff, #00c6ff)";
-                });
-            });
-        } else {
-            // If not following, follow the user (add a new document in the followers subcollection)
-            userRef.add({
-                follower: currentUserEmail,
-                timestamp: Date.now()
-            }).then(() => {
-                button.innerHTML = `<span class="plus-icon">✔</span> Followed`;
-                button.style.background = "gray";
+            const userDocId = querySnapshot.docs[0].id;
+            const followersRef = firestore.collection("users").doc(userDocId).collection("followers");
+
+            followersRef.where("follower", "==", currentUserEmail).get().then((querySnapshot) => {
+                if (!querySnapshot.empty) {
+                    // Unfollow (Delete the document)
+                    querySnapshot.forEach((doc) => {
+                        doc.ref.delete();
+                    });
+                } else {
+                    // Follow (Add new document)
+                    followersRef.add({
+                        follower: currentUserEmail,
+                        timestamp: Date.now(),
+                    });
+                }
             });
         }
     });
 }
 
-/** Function to check if the current user is following another user */
-function checkIfFollowing(userEmail, button) {
-    const currentUserEmail = firebase.auth().currentUser.email;
-    const userRef = firestore.collection("users").doc(userEmail).collection("followers");
 
-    // Check if the current user is already following the target user
-    userRef.where("follower", "==", currentUserEmail).get().then((querySnapshot) => {
+function listenForFollowStatus(userEmail, button) {
+    const currentUserEmail = firebase.auth().currentUser.email;
+    const userRef = firestore.collection("users").where("email", "==", userEmail);
+
+    userRef.get().then((querySnapshot) => {
         if (!querySnapshot.empty) {
-            // If the current user is following, update the button to "Followed"
-            button.innerHTML = `<span class="plus-icon">✔</span> Followed`;
-            button.style.background = "gray";
-        } else {
-            // If not following, update the button to "Follow"
-            button.innerHTML = `<span class="plus-icon">+</span> Follow`;
-            button.style.background = "linear-gradient(45deg, #007bff, #00c6ff)";
+            const userDocId = querySnapshot.docs[0].id; // Get the Firestore-generated user ID
+            const followersRef = firestore.collection("users").doc(userDocId).collection("followers");
+
+            followersRef.where("follower", "==", currentUserEmail).onSnapshot((snapshot) => {
+                if (!snapshot.empty) {
+                    button.innerHTML = `<span class="plus-icon">✔</span> Followed`;
+                    button.style.background = "gray";
+                } else {
+                    button.innerHTML = `<span class="plus-icon">+</span> Follow`;
+                    button.style.background = "linear-gradient(45deg, #007bff, #00c6ff)";
+                }
+            });
         }
     });
 }
