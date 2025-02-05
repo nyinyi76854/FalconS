@@ -27,9 +27,25 @@
             font-size: 24px;
             color: #333;
         }
-        .user-email {
-            font-size: 18px;
-            color: #555;
+        .profile-photo-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .profile-photo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 20px;
+        }
+        .user-name {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+        .profile-content {
+            padding: 10px 0;
         }
     </style>
 </head>
@@ -37,10 +53,15 @@
     <div class="profile-container">
         <div class="profile-header">
             <h2>User Profile</h2>
-            <p class="user-email">Loading user email...</p>
+        </div>
+        <div class="profile-photo-container">
+            <img id="profilePhoto" class="profile-photo" src="user_1077114.png" alt="Profile Photo">
+            <div>
+                <p id="userName" class="user-name">Loading name...</p>
+            </div>
         </div>
         <div class="profile-content">
-            <!-- Profile information will be displayed here -->
+            <!-- Other profile information can be displayed here -->
         </div>
     </div>
 
@@ -49,14 +70,67 @@
         const urlParams = new URLSearchParams(window.location.search);
         const userEmail = urlParams.get('userEmail');
 
-        // Display the user email
-        if (userEmail) {
-            document.querySelector('.user-email').textContent = `User Email: ${userEmail}`;
-        } else {
-            document.querySelector('.user-email').textContent = 'No user email found.';
+        // Fetch the user's name using the function provided
+        fetchAndDisplayName(userEmail, (name) => {
+            document.getElementById('userName').textContent = name;
+        });
+
+        // Fetch the user's profile photo using the function provided
+        fetchProfilePhoto(userEmail, (photoUrl) => {
+            document.getElementById('profilePhoto').src = photoUrl;
+        });
+
+        // Function to fetch and display user name
+        function fetchAndDisplayName(email, callback) {
+            const firestore = firebase.firestore();  // Initialize Firestore
+            const namesRef = firestore.collection("names");
+            namesRef.where("email", "==", email).get().then((snapshot) => {
+                let lastTimestamp = 0;
+                let latestName = "Unknown User";
+
+                snapshot.forEach((doc) => {
+                    const timestamp = doc.data().timestamp || 0;
+                    const name = doc.data().name;
+
+                    if (timestamp > lastTimestamp && name) {
+                        lastTimestamp = timestamp;
+                        latestName = name;
+                    }
+                });
+
+                callback(latestName);
+            }).catch(error => {
+                console.error("Error fetching name:", error);
+                callback("Unknown User");
+            });
         }
 
-        // You can add more functionality here to fetch and display user data (name, photo, etc.)
+        // Function to fetch the profile photo
+        function fetchProfilePhoto(userEmail, callback) {
+            const firestore = firebase.firestore();  // Initialize Firestore
+            const profilesPhotoRef = firestore.collection("profilesphoto");
+            profilesPhotoRef.where("uploaderEmail", "==", userEmail)
+                .get()
+                .then((querySnapshot) => {
+                    let latestPhotoUrl = "user_1077114.png"; // Default profile photo
+                    let latestTimestamp = 0;
+
+                    querySnapshot.forEach((doc) => {
+                        const timestamp = doc.data().timestamp || 0;
+                        const photoUrl = doc.data().downloadUrl;
+
+                        if (timestamp > latestTimestamp) {
+                            latestTimestamp = timestamp;
+                            latestPhotoUrl = photoUrl;
+                        }
+                    });
+
+                    callback(latestPhotoUrl);
+                }).catch(error => {
+                    console.error("Error fetching profile photo:", error);
+                    callback("user_1077114.png");
+                });
+        }
     </script>
 </body>
 </html>
