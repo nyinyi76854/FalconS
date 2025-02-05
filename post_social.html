@@ -440,6 +440,9 @@ function fetchUsersAndDisplay() {
     const accountsContainer = document.getElementById("accountsContainer");
     accountsContainer.innerHTML = ""; // Clear previous content
 
+    // Get the current user's email
+    const currentUserEmail = firebase.auth().currentUser.email;
+
     usersRef.get().then((querySnapshot) => {
         querySnapshot.forEach((doc) => {
             const userEmail = doc.data().email; // Correctly getting the email field
@@ -478,12 +481,18 @@ function fetchUsersAndDisplay() {
             // Create Follow button container
             const followButton = document.createElement("button");
             followButton.classList.add("follow-btn");
-            followButton.innerHTML = <span class="plus-icon">+</span> Follow;
+            followButton.innerHTML = `<span class="plus-icon">+</span> Follow`;
 
-            // Handle follow button click event
-            followButton.addEventListener("click", () => {
-                alert(Followed ${userEmail});
-            });
+            // Check if the current user's email matches the user's email
+            if (userEmail === currentUserEmail) {
+                // Hide follow button if it's the current user
+                followButton.style.display = "none";
+            } else {
+                // Handle follow button click event for others
+                followButton.addEventListener("click", () => {
+                    alert(`Followed ${userEmail}`);
+                });
+            }
 
             // Create a wrapper div for nameContainer and followButton
             const userInfoContainer = document.createElement("div");
@@ -519,7 +528,7 @@ function fetchUsersAndDisplay() {
 
     // CSS styles
     const style = document.createElement("style");
-    style.textContent = 
+    style.textContent = `
         .user-item {
             display: flex;
             align-items: center;
@@ -533,7 +542,6 @@ function fetchUsersAndDisplay() {
             object-fit: cover;
             margin-right: 12px;
         }
-        
         .name-container {
             display: flex;
             align-items: center;
@@ -550,43 +558,39 @@ function fetchUsersAndDisplay() {
             height: 18px;
         }
         .user-info-container {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start; /* Aligns name and button properly */
-    gap: 5px;
-    width: 150px; /* Ensures a consistent width */
-}
-
-.follow-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(45deg, #007bff, #00c6ff);
-    color: white;
-    border: none;
-    padding: 6px 14px;
-    font-size: 14px;
-    font-weight: bold;
-    border-radius: 20px;
-    cursor: pointer;
-    transition: all 0.3s ease-in-out;
-    box-shadow: 0px 4px 6px rgba(0, 123, 255, 0.3);
-    outline: none;
-    width: 100px; /* Set a fixed width */
-}
-
-.follow-btn:hover {
-    background: linear-gradient(45deg, #0056b3, #0086ff);
-    transform: scale(1.05);
-}
-
-.plus-icon {
-    font-size: 18px;
-    font-weight: bold;
-    margin-right: 6px;
-}
-
-    ;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start; /* Aligns name and button properly */
+            gap: 5px;
+            width: 150px; /* Ensures a consistent width */
+        }
+        .follow-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(45deg, #007bff, #00c6ff);
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0px 4px 6px rgba(0, 123, 255, 0.3);
+            outline: none;
+            width: 100px; /* Set a fixed width */
+        }
+        .follow-btn:hover {
+            background: linear-gradient(45deg, #0056b3, #0086ff);
+            transform: scale(1.05);
+        }
+        .plus-icon {
+            font-size: 18px;
+            font-weight: bold;
+            margin-right: 6px;
+        }
+    `;
     document.head.appendChild(style);
 }
 
