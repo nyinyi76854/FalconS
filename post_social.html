@@ -459,7 +459,10 @@ function fetchUsersAndDisplay() {
             // Create profile image element
             const profileImg = document.createElement("img");
             profileImg.classList.add("profile-photo");
-
+            profileImg.addEventListener("click", () => {
+                // Navigate to the user's profile page
+                window.location.href = `profile_of_user.html?userEmail=${encodeURIComponent(userEmail)}`;
+            });
             // Create name and verification container
             const nameContainer = document.createElement("div");
             nameContainer.classList.add("name-container");
