@@ -28,7 +28,13 @@
         const firestore = firebase.firestore();
 
         function fetchPosts() {
-            const userEmail = firebase.auth().currentUser.email;
+          const urlParams = new URLSearchParams(window.location.search);
+    const userEmail = urlParams.get("userEmail"); // Get the carried email
+
+    if (!userEmail) {
+        console.error("User email not found in URL parameters.");
+        return;
+    }
 
             firestore.collection("postforall")
                 .where("poster", "==", userEmail)  // Filter posts by the current user's email
