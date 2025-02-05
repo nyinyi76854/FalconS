@@ -441,10 +441,15 @@ function fetchUsersAndDisplay() {
     accountsContainer.innerHTML = ""; // Clear previous content
     const currentUserEmail = firebase.auth().currentUser.email; // Get current user's email
 
+    // Fetch users collection
     usersRef.get().then((querySnapshot) => {
+        if (querySnapshot.empty) {
+            accountsContainer.innerHTML = "<p>No users found.</p>"; // Handle empty collection
+            return;
+        }
+
         querySnapshot.forEach((doc) => {
             const userEmail = doc.data().email; // Correctly getting the email field
-
             if (!userEmail) {
                 console.error("User email missing for document ID:", doc.id);
                 return; // Skip if email is missing
@@ -485,16 +490,15 @@ function fetchUsersAndDisplay() {
                 followButton.style.display = "none"; // Hide the button for the current user
             } else {
                 followButton.innerHTML = `<span class="plus-icon">+</span> Follow`;
+                // Handle follow/unfollow button click event
+                followButton.addEventListener("click", () => {
+                    if (followButton.innerHTML === `<span class="plus-icon">+</span> Follow`) {
+                        followUser(userEmail, currentUserEmail, followButton);
+                    } else {
+                        unfollowUser(userEmail, currentUserEmail, followButton);
+                    }
+                });
             }
-
-            // Handle follow/unfollow button click event
-            followButton.addEventListener("click", () => {
-                if (followButton.innerHTML === `<span class="plus-icon">+</span> Follow`) {
-                    followUser(userEmail, currentUserEmail, followButton);
-                } else {
-                    unfollowUser(userEmail, currentUserEmail, followButton);
-                }
-            });
 
             // Create a wrapper div for nameContainer and followButton
             const userInfoContainer = document.createElement("div");
@@ -529,6 +533,8 @@ function fetchUsersAndDisplay() {
             // Check and update follow status on initial load
             checkFollowStatus(userEmail, currentUserEmail, followButton);
         });
+    }).catch((error) => {
+        console.error("Error fetching users:", error);
     });
 
     // CSS styles (unchanged)
@@ -547,7 +553,6 @@ function fetchUsersAndDisplay() {
             object-fit: cover;
             margin-right: 12px;
         }
-        
         .name-container {
             display: flex;
             align-items: center;
@@ -570,7 +575,6 @@ function fetchUsersAndDisplay() {
             gap: 5px;
             width: 150px;
         }
-
         .follow-btn {
             display: flex;
             align-items: center;
@@ -588,12 +592,10 @@ function fetchUsersAndDisplay() {
             outline: none;
             width: 100px;
         }
-
         .follow-btn:hover {
             background: linear-gradient(45deg, #0056b3, #0086ff);
             transform: scale(1.05);
         }
-
         .plus-icon {
             font-size: 18px;
             font-weight: bold;
