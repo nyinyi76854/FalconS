@@ -445,36 +445,36 @@ function fetchUsersAndDisplay() {
             const userDiv = document.createElement("div");
             userDiv.classList.add("user-item");
 
-            // Fetch profile photo
-            fetchProfilePhoto(userEmail, (photoUrl) => {
-                const profileImg = document.createElement("img");
-                profileImg.src = photoUrl;
-                profileImg.classList.add("profile-photo");
-                userDiv.appendChild(profileImg);
-            });
+            // Create profile photo element
+            const profileImg = document.createElement("img");
+            profileImg.src = "user_1077114.png"; // Default profile image
+            profileImg.classList.add("profile-photo");
 
-            // Fetch and display name
-            fetchAndDisplayName(userEmail, (userName) => {
-                const nameSpan = document.createElement("span");
-                nameSpan.textContent = userName;
-                nameSpan.classList.add("user-name");
-                userDiv.appendChild(nameSpan);
-            });
+            // Create name element
+            const nameSpan = document.createElement("span");
+            nameSpan.textContent = "Unknown User"; // Default name
+            nameSpan.classList.add("user-name");
 
             // Verification icon
             const verificationImg = document.createElement("img");
             verificationImg.src = "verification.jpg";
             verificationImg.classList.add("verification-icon");
-            verificationImg.style.display = "none";
+            verificationImg.style.display = "none"; // Hide by default
+
+            // Append elements first with default values
+            userDiv.appendChild(profileImg);
+            userDiv.appendChild(nameSpan);
             userDiv.appendChild(verificationImg);
-
-            checkVerifiedOrNotForAccount(userEmail, (isVerified) => {
-                if (isVerified) {
-                    verificationImg.style.display = "inline-block";
-                }
-            });
-
             accountsContainer.appendChild(userDiv);
+
+            // Fetch and update details asynchronously
+            Promise.all([
+                fetchProfilePhoto(userEmail).then(photoUrl => profileImg.src = photoUrl),
+                fetchAndDisplayName(userEmail).then(userName => nameSpan.textContent = userName),
+                checkVerifiedOrNotForAccount(userEmail).then(isVerified => {
+                    if (isVerified) verificationImg.style.display = "inline-block";
+                })
+            ]);
         });
     });
 
@@ -486,6 +486,7 @@ function fetchUsersAndDisplay() {
             align-items: center;
             padding: 10px;
             border-bottom: 1px solid #ddd;
+            gap: 10px;
         }
         .profile-photo {
             width: 40px;
@@ -507,9 +508,10 @@ function fetchUsersAndDisplay() {
     document.head.appendChild(style);
 }
 
-function fetchAndDisplayName(email, callback) {
+// Fetch Name
+function fetchAndDisplayName(email) {
     const namesRef = firestore.collection("names");
-    namesRef.where("email", "==", email).get().then((snapshot) => {
+    return namesRef.where("email", "==", email).get().then((snapshot) => {
         let lastTimestamp = 0;
         let latestName = "Unknown User";
 
@@ -523,13 +525,14 @@ function fetchAndDisplayName(email, callback) {
             }
         });
 
-        callback(latestName);
-    });
+        return latestName;
+    }).catch(() => "Unknown User"); // Handle errors
 }
 
-function fetchProfilePhoto(userEmail, callback) {
+// Fetch Profile Photo
+function fetchProfilePhoto(userEmail) {
     const profilesPhotoRef = firestore.collection("profilesphoto");
-    profilesPhotoRef.where("uploaderEmail", "==", userEmail).get().then((querySnapshot) => {
+    return profilesPhotoRef.where("uploaderEmail", "==", userEmail).get().then((querySnapshot) => {
         let latestPhotoUrl = "user_1077114.png"; // Default profile photo
         let latestTimestamp = 0;
 
@@ -543,15 +546,16 @@ function fetchProfilePhoto(userEmail, callback) {
             }
         });
 
-        callback(latestPhotoUrl);
-    });
+        return latestPhotoUrl;
+    }).catch(() => "user_1077114.png"); // Handle errors
 }
 
-function checkVerifiedOrNotForAccount(userEmail, callback) {
+// Check Verification
+function checkVerifiedOrNotForAccount(userEmail) {
     const verificationRef = firestore.collection("verificationbridge");
-    verificationRef.where("email", "==", userEmail).get().then((snapshot) => {
-        callback(!snapshot.empty);
-    });
+    return verificationRef.where("email", "==", userEmail).get().then((snapshot) => {
+        return !snapshot.empty;
+    }).catch(() => false); // Handle errors
 }
 
     function fetchProfilePhoto(userEmail, callback) {
