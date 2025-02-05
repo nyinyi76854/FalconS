@@ -3,133 +3,601 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile</title>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
-    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+    <title>Posts</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+   <style>
+       body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.back-btn {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    background: #fff;
+    color: #333;
+    border: none;
+    padding: 12px 16px;
+    border-radius: 50%;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.3s;
+}
+
+.back-btn:hover {
+    background: #f0f0f0;
+}
+.container {
+    width: 40%; /* Reduced the width */
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+}
+
+h1 {
+    text-align: center;
+}
+
+#postContainer {
+    margin-top: 20px;
+}
+
+.post {
+    background: white;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.post-header {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    color: #333;
+    font-weight: bold;
+}
+
+.post-header i {
+    font-size: 24px;
+    margin-right: 10px;
+}
+
+.post-text {
+    font-size: 16px;
+    margin: 10px 0;
+}
+
+.post-footer {
+    font-size: 12px;
+    color: gray;
+}
+
+
+/* Floating Create Post Button */
+/* Floating Create Post Button */
+.create-post-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: linear-gradient(45deg, #ff416c, #ff4b2b);
+    border: none;
+    font-size: 18px;
+    color: white;
+    cursor: pointer;
+    padding: 15px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 4px 10px rgba(255, 65, 108, 0.5);
+    z-index: 9999; /* Ensure it stays on top */
+}
+
+.create-post-btn:hover {
+    background: linear-gradient(45deg, #ff512f, #dd2476);
+    transform: scale(1.1);
+}
+
+
+/* Post Modal */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 40%;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+.modal-content textarea {
+    width: 100%;
+    height: 80px;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+.modal-actions {
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.save-btn, .cancel-btn {
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: white;
+    border-radius: 5px;
+}
+
+.save-btn {
+    background: #28a745;
+}
+#uploadProgressContainer {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #f5f5f5;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 80%; /* Adjust this to control the width */
+    max-width: 500px; /* Max width to avoid excessive stretch */
+    display: none;
+    margin: 0 auto; /* Center the container */
+}
+
+#uploadProgress {
+    width: 100%;
+    height: 25px;
+    border-radius: 5px;
+    background-color: #ddd;
+    appearance: none;
+}
+
+#uploadProgress::-webkit-progress-bar {
+    background-color: #f5f5f5;
+    border-radius: 5px;
+}
+
+#uploadProgress::-webkit-progress-value {
+    background-color: #4caf50;
+    border-radius: 5px;
+}
+
+#uploadProgress::-moz-progress-bar {
+    background-color: #4caf50;
+    border-radius: 5px;
+}
+
+#uploadProgressText {
+    display: block;
+    text-align: center;
+    font-size: 14px;
+    margin-top: 5px;
+    color: #333;
+}
+
+/* Style for the reaction button */
+.reaction-btn {
+    display: inline-block;
+    background-color: #f2f2f2;
+    padding: 10px;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-size: 20px;
+    border: none;
+}
+
+/* Style for the reaction button icon */
+.reaction-btn i {
+    font-size: 18px;
+    color: #333;
+}
+
+/* Hover effect on reaction button */
+.reaction-btn:hover {
+    background-color: #ddd;
+}
+.reactions-options {
+    display: none; /* Ensure it's hidden initially */
+    position: absolute;
+    bottom: 40px;
+    left: 0;
+    background: white;
+    padding: 10px;
+    border-radius: 12px;
+    box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+    z-index: 1000;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+/* Ad Container */
+.ad-container {
+    position: fixed; /* Keeps it in place while scrolling */
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 200px; /* Increased from 160px */
+    background: white;
+    padding: 12px;
+    border-radius: 12px;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 1000; /* Ensures it stays above other content */
+}
+
+/* Ad Image */
+.ad-image {
+    width: 180px; /* Increased from 150px */
+    height: auto; 
+    border-radius: 10px;
+}
+
+/* Ad Close Button */
+.ad-close-btn {
+    position: absolute;
+    top: -7px;
+    right: -7px;
+    background: white;
+    color: red;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.25);
+    transition: 0.3s;
+}
+
+.ad-close-btn:hover {
+    background: #ddd;
+}
+
+/* Ad Text */
+.ad-text {
+    font-size: 16px; /* Increased font size */
+    color: gray;
+    margin-top: 10px;
+}
+
+/* Ensure accounts-container is positioned at the right and overlaps other content when needed */
+.accounts-container {
+    width: 24%; /* Adjust the width as needed */
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+    position: absolute; /* Keeps it independent of other layout flow */
+    top: 20px; /* Align with the top of the container */
+    right: 10px; /* Positioned on the right side */
+    z-index: 999; /* Ensure it stays above other elements */
+    overflow: hidden; /* Prevents content overflow */
+}
+
+
+
+/* Style for the accounts container items */
+.accounts-container h3 {
+    text-align: center;
+    font-size: 20px;
+    margin-bottom: 15px;
+}
+
+.accounts-container .account {
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+
+
+
+.cancel-btn {
+    background: #dc3545;
+}
+   </style>
 </head>
 <body>
-    <div id="postContainer"></div>
+<div id="adContainer" class="ad-container">
+    <button class="ad-close-btn" onclick="closeAd()">
+        <i class="fas fa-times"></i>
+    </button>
+    <img src="Toyota.png" alt="Toyota Ad" class="ad-image">
+    <p class="ad-text">Ad</p>
+</div>
+ <div class="accounts-container">
+   <h3>Accounts To Explore</h3>
+     <div id="accountsContainer"></div>
+ </div>
+     <div class="container">
+        <h3>Posts</h3>
+        <div id="postContainer"></div>
+    </div>
+<!-- Floating Back Button (Independent at Left-Top) -->
+<button class="back-btn" onclick="window.location.href='maininterface.html'">
+    <i class="fas fa-arrow-left"></i>
+</button>
+    <!-- Floating Create Post Button -->
+    <button class="create-post-btn" onclick="openPostDialog()">
+        <i class="fas fa-plus"></i>
+    </button>
 
+    <!-- Post Creation Modal -->
+    <div id="postModal" class="modal">
+        <div class="modal-content">
+            <h2>Create Post</h2>
+            <div id="uploadProgressContainer" style="display: none;">
+    <progress id="uploadProgress" value="0" max="100" style="width: 100%;"></progress>
+    <span id="uploadProgressText">0%</span>
+</div>
+            <textarea id="postText" placeholder="What's on your mind?"></textarea>
+              <div class="media-upload">
+        <input type="file" id="mediaInput" accept="image/*, video/*" style="display: none;" onchange="previewMedia(event)">
+        <button onclick="document.getElementById('mediaInput').click()">
+            <i class="fas fa-folder"></i> Select Media
+        </button>
+    </div>
+    <div id="mediaPreview" style="margin-top: 10px;"></div>
+            <textarea id="descriptionText" style="display: none;" placeholder="Add a description (optional)"></textarea>
+            <div class="modal-actions">
+                <button class="save-btn" onclick="savePost()"><i class="fas fa-check"></i> Save</button>
+                <button class="cancel-btn" onclick="closePostDialog()"><i class="fas fa-times"></i> Cancel</button>
+            </div>
+        </div>
+       
+
+    </div>
+ 
     <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBcTEVvxXmv5N8dJav4xNDRy5hXZRjVeM4",
+            authDomain: "chatflow-59776.firebaseapp.com",
+            databaseURL: "https://chatflow-59776-default-rtdb.firebaseio.com",
+            projectId: "chatflow-59776",
+            storageBucket: "chatflow-59776.appspot.com",
+            messagingSenderId: "549003131640",
+            appId: "1:549003131640:web:3f4a7b8cef4c0d8a2b990d",
+            measurementId: "G-V2180PR5CR"
+        };
+
+        firebase.initializeApp(firebaseConfig);
         const firestore = firebase.firestore();
+        const auth = firebase.auth();
+        const postContainer = document.getElementById('postContainer');
 
-        function fetchPosts() {
-            const userEmail = firebase.auth().currentUser.email;
+        function fetchAndDisplayName(email, callback) {
+        const namesRef = firestore.collection("names");
+        namesRef.where("email", "==", email).get().then((snapshot) => {
+            let lastTimestamp = 0;
+            let latestName = "Unknown User"; // Default name
 
-            firestore.collection("postforall")
-                .where("poster", "==", userEmail)  // Filter posts by the current user's email
-                .orderBy("timestamp", "desc")
-                .onSnapshot(snapshot => {
-                    const postContainer = document.getElementById("postContainer");
-                    postContainer.innerHTML = "";
+            snapshot.forEach((doc) => {
+                const timestamp = doc.get("timestamp") || 0;
+                const name = doc.get("name");
 
-                    snapshot.forEach(doc => {
-                        let post = doc.data();
-                        let postId = doc.id;
-                        let postElement = document.createElement("div");
-                        postElement.classList.add("post");
-                        postElement.id = "post-" + postId;
+                if (timestamp > lastTimestamp && name) {
+                    lastTimestamp = timestamp;
+                    latestName = name;
+                }
+            });
 
-                        fetchAndDisplayName(post.poster, (displayName) => {
-                            fetchProfilePhoto(post.poster, (profilePhotoUrl) => {
-                                checkVerifiedOrNot(post.poster, (isVerified) => {
-                                    let mediaContent = "";
-                                    let descriptionContent = "";
+            callback(latestName);
+        }).catch(error => {
+            console.error("Error fetching name:", error);
+            callback("Unknown User");
+        });
+    }
+function closeAd() {
+    const ad = document.getElementById("adContainer");
+    ad.style.display = "none";
 
-                                    let reactionsContent = `
-                                        <div style="display: flex; align-items: center; position: relative;">
-                                            <button class="reaction-btn">
-                                                <i class="fa fa-heart"></i> 
-                                            </button>
-                                            <span class="reaction-summary" id="reaction-summary-${postId}" style="margin-left: 10px; font-size: 14px;"></span>
+    // Reappear after 10 seconds
+    setTimeout(() => {
+        ad.style.display = "flex";
+    }, 10000);
+}
+        
+function fetchUsersAndDisplay() {
+    const usersRef = firestore.collection("users");
+    const accountsContainer = document.getElementById("accountsContainer");
+    accountsContainer.innerHTML = ""; // Clear previous content
 
-                                            <div class="reactions-options" style="display: none; 
-                                                position: absolute; 
-                                                bottom: 40px; 
-                                                left: 0; 
-                                                background: white; 
-                                                padding: 10px; 
-                                                border-radius: 12px; 
-                                                box-shadow: 0px 4px 10px rgba(0,0,0,0.1); 
-                                                z-index: 1000;
-                                                display: flex; 
-                                                gap: 8px;">
-                                                <button class="reaction-option" onclick="reactToPost('${postId}', 'love', this)" style="background: #ffccd5; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 18px; cursor: pointer;">❤️</button>
-                                                <button class="reaction-option" onclick="reactToPost('${postId}', 'like', this)" style="background: #cce5ff; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 18px; cursor: pointer;">👍</button>
-                                                <button class="reaction-option" onclick="reactToPost('${postId}', 'haha', this)" style="background: #fff3cd; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 18px; cursor: pointer;">😂</button>
-                                                <button class="reaction-option" onclick="reactToPost('${postId}', 'angry', this)" style="background: #f8d7da; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 18px; cursor: pointer;">😡</button>
-                                            </div>
-                                        </div>
-                                    `;
+    // Get the current user's email
+    const currentUserEmail = firebase.auth().currentUser.email;
 
-                                    // Media Content
-                                    if (isImageUrl(post.posttext)) {
-                                        mediaContent = `<img src="${post.posttext}" style="max-width: 100%; max-height: 400px; border-radius: 5px;">`;
-                                    } else if (isVideoUrl(post.posttext)) {
-                                        mediaContent = `
-                                            <video controls style="max-width: 100%; max-height: 400px; border-radius: 5px;">
-                                                <source src="${post.posttext}" type="video/mp4">
-                                                Your browser does not support the video tag.
-                                            </video>
-                                        `;
-                                    } else {
-                                        mediaContent = `<div class="post-text">${post.posttext}</div>`;
-                                    }
+    usersRef.get().then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+            const userEmail = doc.data().email; // Correctly getting the email field
 
-                                    if (post.description) {
-                                        descriptionContent = `
-                                            <div class="post-description" style="max-height: 3.2em; overflow: hidden;">
-                                                ${post.description.length > 100 ? post.description.substring(0, 100) + '...' : post.description}
-                                            </div>
-                                            ${post.description.length > 100 ? '<button class="see-more-btn" onclick="toggleDescription(this)">See more</button>' : ''}
-                                        `;
-                                    }
+            if (!userEmail) {
+                console.error("User email missing for document ID:", doc.id);
+                return; // Skip if email is missing
+            }
 
-                                    postElement.innerHTML = `
-                                        <div class="post-header" style="display: flex; align-items: center;">
-                                            <img src="${profilePhotoUrl}" alt="Profile Photo" style="width: 30px; height: 30px; border-radius: 50%; margin-right: 10px;">
-                                            <span>${displayName}</span>
-                                            <img src="verification.jpg" alt="Verified" class="verified-icon" style="width: 16px; height: 16px; margin-left: 5px; display: ${isVerified ? 'inline' : 'none'};">
-                                        </div>
-                                        ${mediaContent}
-                                        ${descriptionContent}
-                                        <div class="post-footer">${new Date(post.timestamp).toLocaleString()}</div>
-                                        ${reactionsContent}
-                                    `;
+            // Create container for user
+            const userDiv = document.createElement("div");
+            userDiv.classList.add("user-item");
 
-                                    postContainer.appendChild(postElement);
+            // Create profile image element
+            const profileImg = document.createElement("img");
+            profileImg.classList.add("profile-photo");
+            profileImg.addEventListener("click", () => {
+                // Navigate to the user's profile page
+                window.location.href = `profile_of_user.html?userEmail=${encodeURIComponent(userEmail)}`;
+            });
+            // Create name and verification container
+            const nameContainer = document.createElement("div");
+            nameContainer.classList.add("name-container");
 
-                                    // Fetch and display user's reaction
-                                    checkUserReaction(postId);
+            // Create name element
+            const nameSpan = document.createElement("span");
+            nameSpan.classList.add("user-name");
 
-                                    // Fetch and display reaction summary
-                                    fetchReactionsCount(postId);
+            // Create verification icon
+            const verificationImg = document.createElement("img");
+            verificationImg.src = "verification.jpg";
+            verificationImg.classList.add("verification-icon");
+            verificationImg.style.display = "none"; // Hide by default
 
-                                    // Add hover effect to show/hide reaction options
-                                    let reactionBtn = postElement.querySelector(".reaction-btn");
-                                    let reactionOptions = postElement.querySelector(".reactions-options");
-                                    reactionOptions.style.display = "none"; 
-                                    reactionBtn.addEventListener("mouseenter", () => {
-                                        reactionOptions.style.display = "flex"; // Show reactions options on hover
-                                    });
+            // Append name and verification icon inside nameContainer
+            nameContainer.appendChild(nameSpan);
+            nameContainer.appendChild(verificationImg);
 
-                                    postElement.addEventListener("mouseleave", () => {
-                                        reactionOptions.style.display = "none"; // Hide reactions options when hover ends
-                                    });
-                                });
-                            });
-                        });
-                    });
+            // Create Follow button container
+            const followButton = document.createElement("button");
+            followButton.classList.add("follow-btn");
+            followButton.innerHTML = `<span class="plus-icon">+</span> Follow`;
+
+            if (userEmail === currentUserEmail) {
+                followButton.style.display = "none";
+            } else {
+                followButton.addEventListener("click", () => {
+                    followUser(currentUserEmail, userEmail, followButton);
                 });
+
+                // Check if already followed
+                checkFollowedOrNot(currentUserEmail, userEmail, followButton);
+            }
+
+            // Create a wrapper div for nameContainer and followButton
+            const userInfoContainer = document.createElement("div");
+            userInfoContainer.classList.add("user-info-container");
+            userInfoContainer.appendChild(nameContainer);
+            userInfoContainer.appendChild(followButton);
+
+            // Append profile image first, then userInfoContainer
+            userDiv.appendChild(profileImg);
+            userDiv.appendChild(userInfoContainer);
+
+            // Append the user item to the container
+            accountsContainer.appendChild(userDiv);
+
+            // Fetch profile photo and set its source
+            fetchProfilePhotoForAccount(userEmail, (photoUrl) => {
+                profileImg.src = photoUrl;
+            });
+
+            // Fetch and display name
+            fetchAndDisplayName(userEmail, (userName) => {
+                nameSpan.textContent = userName;
+            });
+
+            // Check if the user is verified
+            checkVerifiedOrNotForAccount(userEmail, (isVerified) => {
+                if (isVerified) {
+                    verificationImg.style.display = "inline-block";
+                }
+            });
+        });
+    });
+
+    // CSS styles
+    const style = document.createElement("style");
+    style.textContent = `
+        .user-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
         }
+        .profile-photo {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 12px;
+        }
+        .name-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        .user-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            margin-right: 6px;
+        }
+        .verification-icon {
+            width: 18px;
+            height: 18px;
+        }
+        .user-info-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start; /* Aligns name and button properly */
+            gap: 5px;
+            width: 150px; /* Ensures a consistent width */
+        }
+        .follow-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(45deg, #007bff, #00c6ff);
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0px 4px 6px rgba(0, 123, 255, 0.3);
+            outline: none;
+            width: 100px; /* Set a fixed width */
+        }
+        .follow-btn:hover {
+            background: linear-gradient(45deg, #0056b3, #0086ff);
+            transform: scale(1.05);
+        }
+        .plus-icon {
+            font-size: 18px;
+            font-weight: bold;
+            margin-right: 6px;
+        }
+    `;
+    document.head.appendChild(style);
+}
 
-        // Run fetchPosts on page load
-        window.onload = fetchPosts;
-
-        // Additional helper functions for fetching user info (like name, profile photo)
-       function fetchAndDisplayName(email, callback) {
+function fetchAndDisplayName(email, callback) {
     const namesRef = firestore.collection("names");
     namesRef.where("email", "==", email).get().then((snapshot) => {
         let lastTimestamp = 0;
@@ -150,9 +618,116 @@
         console.error("Error fetching name:", error);
         callback("Unknown User");
     });
-} 
+}
+function followUser(currentUserEmail, targetUserEmail, followButton) {
+    const agesRef = firestore.collection("ages");
 
-        function fetchProfilePhoto(userEmail, callback) {
+    // Find the document where email == targetUserEmail
+    agesRef.where("email", "==", targetUserEmail).get().then((querySnapshot) => {
+        if (querySnapshot.empty) {
+            console.error("User not found in ages collection.");
+            return;
+        }
+
+        querySnapshot.forEach((doc) => {
+            const userDocRef = agesRef.doc(doc.id);
+            const followersRef = userDocRef.collection("followers");
+
+            // Check if already followed
+            followersRef.where("follower", "==", currentUserEmail).get().then((snapshot) => {
+                if (!snapshot.empty) {
+                    // Unfollow: Remove the follower document
+                    snapshot.forEach((followerDoc) => {
+                        followersRef.doc(followerDoc.id).delete().then(() => {
+                            console.log("Unfollowed successfully");
+                            updateFollowButton(followButton, false);
+                        }).catch((error) => console.error("Error unfollowing:", error));
+                    });
+                } else {
+                    // Follow: Add new follower
+                    followersRef.add({
+                        follower: currentUserEmail,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    }).then(() => {
+                        console.log("Followed successfully");
+                        updateFollowButton(followButton, true);
+                    }).catch((error) => console.error("Error following:", error));
+                }
+            });
+        });
+    }).catch((error) => console.error("Error fetching ages collection:", error));
+}
+function checkFollowedOrNot(currentUserEmail, targetUserEmail, followButton) {
+    const agesRef = firestore.collection("ages");
+
+    // Find the document where email == targetUserEmail
+    agesRef.where("email", "==", targetUserEmail).get().then((querySnapshot) => {
+        if (querySnapshot.empty) {
+            console.error("User not found in ages collection.");
+            return;
+        }
+
+        querySnapshot.forEach((doc) => {
+            const followersRef = agesRef.doc(doc.id).collection("followers");
+
+            // Check if the current user is a follower
+            followersRef.where("follower", "==", currentUserEmail).get().then((snapshot) => {
+                updateFollowButton(followButton, !snapshot.empty);
+            }).catch((error) => console.error("Error checking follow status:", error));
+        });
+    }).catch((error) => console.error("Error fetching ages collection:", error));
+}
+function updateFollowButton(followButton, isFollowed) {
+    if (isFollowed) {
+        followButton.innerHTML = `<span class="check-icon">&#10003;</span> Followed`;
+        followButton.style.background = "gray";
+    } else {
+        followButton.innerHTML = `<span class="plus-icon">+</span> Follow`;
+        followButton.style.background = "linear-gradient(45deg, #007bff, #00c6ff)";
+    }
+}
+
+function fetchProfilePhotoForAccount(userEmail, callback) {
+    const profilesPhotoRef = firestore.collection("profilesphoto");
+
+    profilesPhotoRef
+        .where("uploaderEmail", "==", userEmail)
+        .get()
+        .then((querySnapshot) => {
+            let latestPhotoUrl = "user_1077114.png"; // Default profile photo
+            let latestTimestamp = 0;
+
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                const timestamp = data.timestamp || 0;
+                const photoUrl = data.downloadUrl;
+
+                if (timestamp > latestTimestamp) {
+                    latestTimestamp = timestamp;
+                    latestPhotoUrl = photoUrl;
+                }
+            });
+
+            callback(latestPhotoUrl);
+        })
+        .catch((error) => {
+            console.error("Error fetching profile photo:", error);
+            callback("user_1077114.png"); // Default profile photo on error
+        });
+}
+
+
+function checkVerifiedOrNotForAccount(userEmail, callback) {
+    const verificationRef = firestore.collection("verificationbridge");
+    verificationRef.where("email", "==", userEmail).get().then((snapshot) => {
+        callback(!snapshot.empty);
+    }).catch(error => {
+        console.error("Error checking verification:", error);
+        callback(false);
+    });
+}
+
+    function fetchProfilePhoto(userEmail, callback) {
         const profilesPhotoRef = firestore.collection("profilesphoto");
         profilesPhotoRef.where("uploaderEmail", "==", userEmail)
             .get()
@@ -176,73 +751,39 @@
                 console.error("Error fetching profile photo:", error);
                 callback("user_1077114.png"); // Fallback to default
             });
-    } 
+    }
+function previewMedia(event) {
+    const file = event.target.files[0];
+    const previewContainer = document.getElementById('mediaPreview');
+    const textArea = document.getElementById('postText');
+    const descriptionText = document.getElementById('descriptionText'); // Get the description textarea
+    previewContainer.innerHTML = ""; // Clear previous preview
 
-        function checkVerifiedOrNot(userEmail, callback) {
-    const verificationRef = firestore.collection("verificationbridge");
+    // Initially, hide the description field
+    descriptionText.style.display = 'none';
 
-    verificationRef.where("email", "==", userEmail)
-        .get()
-        .then((snapshot) => {
-            callback(!snapshot.empty); // Returns true if verified, false otherwise
-        })
-        .catch((error) => {
-            console.error("Error checking verification status:", error);
-            callback(false);
-        });
-}
-// Function to fetch real-time reaction count updates
-function fetchReactionsCount(postId) {
-    const reactionsCollection = firestore.collection("postforall").doc(postId).collection("falconspostreaction");
+    if (file) {
+        const fileType = file.type.split('/')[0]; // 'image' or 'video'
+        const url = URL.createObjectURL(file);
 
-    reactionsCollection.onSnapshot(snapshot => { // Use onSnapshot for real-time updates
-        let reactionCounts = {};
-
-        snapshot.forEach(doc => {
-            let reactionType = doc.data().reactionType;
-            if (!reactionCounts[reactionType]) {
-                reactionCounts[reactionType] = 0;
-            }
-            reactionCounts[reactionType]++;
-        });
-
-        // Sort reactions from highest to lowest count
-        let sortedReactions = Object.entries(reactionCounts)
-            .sort((a, b) => b[1] - a[1]) // Sort by count descending
-            .map(([reaction, count]) => `${count} ${reaction}`); // Format text
-
-        let reactionSummary = sortedReactions.length > 0 ? `There are ${sortedReactions.join(', ')}` : '';
-
-        // Update the UI
-        let reactionSummaryElement = document.getElementById(`reaction-summary-${postId}`);
-        if (reactionSummaryElement) {
-            reactionSummaryElement.innerText = reactionSummary;
+        if (fileType === 'image') {
+            previewContainer.innerHTML = `<img src="${url}" style="max-width: 100%; max-height: 200px; border-radius: 5px;">`;
+        } else if (fileType === 'video') {
+            previewContainer.innerHTML = `<video src="${url}" controls style="max-width: 100%; max-height: 200px;"></video>`;
         }
-    });
-}
 
-function toggleDescription(button) {
-    const descriptionDiv = button.previousElementSibling; // Get the description div
-    const isExpanded = descriptionDiv.style.maxHeight === 'none';
-
-    if (isExpanded) {
-        descriptionDiv.style.maxHeight = '3.2em'; // Collapse to 2 lines
-        button.textContent = 'See more';
+        // Hide postText area and show description textarea
+        textArea.style.display = 'none';
+        descriptionText.style.display = 'block';
     } else {
-        descriptionDiv.style.maxHeight = 'none'; // Expand text
-        button.textContent = 'See less';
+        // Show postText area and hide description textarea if no file is selected
+        textArea.style.display = 'block';
+        descriptionText.style.display = 'none';
     }
 }
- function isVideoUrl(text) {
-    return text.startsWith("https://firebasestorage.googleapis.com") &&
-           text.includes("/socialpostvideooffalcons%2F");
-}
 
-function isImageUrl(text) {
-    return text.startsWith("https://firebasestorage.googleapis.com") &&
-           text.includes("/socialpostimageoffalcons%2F");
-}
- function reactToPost(postId, reactionType, btn) {
+
+function reactToPost(postId, reactionType, btn) {
     const userEmail = firebase.auth().currentUser.email;
     const reactionsCollection = firestore.collection("postforall").doc(postId).collection("falconspostreaction");
 
@@ -310,7 +851,273 @@ function checkUserReaction(postId) {
         }
     });
 }
- 
+
+
+
+
+
+function isVideoUrl(text) {
+    return text.startsWith("https://firebasestorage.googleapis.com") &&
+           text.includes("/socialpostvideooffalcons%2F");
+}
+
+function isImageUrl(text) {
+    return text.startsWith("https://firebasestorage.googleapis.com") &&
+           text.includes("/socialpostimageoffalcons%2F");
+}
+function fetchPosts() {
+    firestore.collection("postforall").orderBy("timestamp", "desc").onSnapshot(snapshot => {
+        postContainer.innerHTML = "";
+        snapshot.forEach(doc => {
+            let post = doc.data();
+            let postId = doc.id;
+            let postElement = document.createElement("div");
+            postElement.classList.add("post");
+            postElement.id = "post-" + postId;
+
+            fetchAndDisplayName(post.poster, (displayName) => {
+                fetchProfilePhoto(post.poster, (profilePhotoUrl) => {
+                    checkVerifiedOrNot(post.poster, (isVerified) => {
+                        let mediaContent = "";
+                        let descriptionContent = "";
+
+                        let reactionsContent = `
+                            <div style="display: flex; align-items: center; position: relative;">
+                                <button class="reaction-btn">
+                                    <i class="fa fa-heart"></i> 
+                                </button>
+                                <span class="reaction-summary" id="reaction-summary-${postId}" style="margin-left: 10px; font-size: 14px;"></span>
+
+                                <div class="reactions-options" style="display: none; 
+                                    position: absolute; 
+                                    bottom: 40px; 
+                                    left: 0; 
+                                    background: white; 
+                                    padding: 10px; 
+                                    border-radius: 12px; 
+                                    box-shadow: 0px 4px 10px rgba(0,0,0,0.1); 
+                                    z-index: 1000;
+                                    display: flex; 
+                                    gap: 8px;">
+                                    <button class="reaction-option" onclick="reactToPost('${postId}', 'love', this)" style="background: #ffccd5; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 18px; cursor: pointer;">❤️</button>
+                                    <button class="reaction-option" onclick="reactToPost('${postId}', 'like', this)" style="background: #cce5ff; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 18px; cursor: pointer;">👍</button>
+                                    <button class="reaction-option" onclick="reactToPost('${postId}', 'haha', this)" style="background: #fff3cd; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 18px; cursor: pointer;">😂</button>
+                                    <button class="reaction-option" onclick="reactToPost('${postId}', 'angry', this)" style="background: #f8d7da; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 18px; cursor: pointer;">😡</button>
+                                </div>
+                            </div>
+                        `;
+
+                        // ✅ Improved Media Handling
+                        if (isImageUrl(post.posttext)) {
+                            mediaContent = `<img src="${post.posttext}" style="max-width: 100%; max-height: 400px; border-radius: 5px;">`;
+                        } else if (isVideoUrl(post.posttext)) {
+                            mediaContent = `
+                                <video controls style="max-width: 100%; max-height: 400px; border-radius: 5px;">
+                                    <source src="${post.posttext}" type="video/mp4">
+                                    Your browser does not support the video tag.
+                                </video>
+                            `;
+                        } else {
+                            mediaContent = `<div class="post-text">${post.posttext}</div>`;
+                        }
+
+                        if (post.description) {
+                            descriptionContent = `
+                                <div class="post-description" style="max-height: 3.2em; overflow: hidden;">
+                                    ${post.description.length > 100 ? post.description.substring(0, 100) + '...' : post.description}
+                                </div>
+                                ${post.description.length > 100 ? '<button class="see-more-btn" onclick="toggleDescription(this)">See more</button>' : ''}
+                            `;
+                        }
+
+                        postElement.innerHTML = `
+                            <div class="post-header" style="display: flex; align-items: center;">
+                                <img src="${profilePhotoUrl}" alt="Profile Photo" style="width: 30px; height: 30px; border-radius: 50%; margin-right: 10px;">
+                                <span>${displayName}</span>
+                                <img src="verification.jpg" alt="Verified" class="verified-icon" style="width: 16px; height: 16px; margin-left: 5px; display: ${isVerified ? 'inline' : 'none'};">
+                            </div>
+                            ${mediaContent}
+                            ${descriptionContent}
+                            <div class="post-footer">${new Date(post.timestamp).toLocaleString()}</div>
+                            ${reactionsContent}
+                        `;
+
+                        postContainer.appendChild(postElement);
+
+                        // Fetch and display user's reaction
+                        checkUserReaction(postId);
+
+                        // Fetch and display reaction summary
+                        fetchReactionsCount(postId);
+
+                        // Add hover effect to show/hide reaction options
+                        let reactionBtn = postElement.querySelector(".reaction-btn");
+                        let reactionOptions = postElement.querySelector(".reactions-options");
+                        reactionOptions.style.display = "none"; 
+                        reactionBtn.addEventListener("mouseenter", () => {
+                            reactionOptions.style.display = "flex"; // Show reactions options on hover
+                        });
+
+                        postElement.addEventListener("mouseleave", () => {
+                            reactionOptions.style.display = "none"; // Hide reactions options when hover ends
+                        });
+                    });
+                });
+            });
+        });
+    });
+}
+
+
+
+// Function to fetch real-time reaction count updates
+function fetchReactionsCount(postId) {
+    const reactionsCollection = firestore.collection("postforall").doc(postId).collection("falconspostreaction");
+
+    reactionsCollection.onSnapshot(snapshot => { // Use onSnapshot for real-time updates
+        let reactionCounts = {};
+
+        snapshot.forEach(doc => {
+            let reactionType = doc.data().reactionType;
+            if (!reactionCounts[reactionType]) {
+                reactionCounts[reactionType] = 0;
+            }
+            reactionCounts[reactionType]++;
+        });
+
+        // Sort reactions from highest to lowest count
+        let sortedReactions = Object.entries(reactionCounts)
+            .sort((a, b) => b[1] - a[1]) // Sort by count descending
+            .map(([reaction, count]) => `${count} ${reaction}`); // Format text
+
+        let reactionSummary = sortedReactions.length > 0 ? `There are ${sortedReactions.join(', ')}` : '';
+
+        // Update the UI
+        let reactionSummaryElement = document.getElementById(`reaction-summary-${postId}`);
+        if (reactionSummaryElement) {
+            reactionSummaryElement.innerText = reactionSummary;
+        }
+    });
+}
+
+function toggleDescription(button) {
+    const descriptionDiv = button.previousElementSibling; // Get the description div
+    const isExpanded = descriptionDiv.style.maxHeight === 'none';
+
+    if (isExpanded) {
+        descriptionDiv.style.maxHeight = '3.2em'; // Collapse to 2 lines
+        button.textContent = 'See more';
+    } else {
+        descriptionDiv.style.maxHeight = 'none'; // Expand text
+        button.textContent = 'See less';
+    }
+}
+
+function checkVerifiedOrNot(userEmail, callback) {
+    const verificationRef = firestore.collection("verificationbridge");
+
+    verificationRef.where("email", "==", userEmail)
+        .get()
+        .then((snapshot) => {
+            callback(!snapshot.empty); // Returns true if verified, false otherwise
+        })
+        .catch((error) => {
+            console.error("Error checking verification status:", error);
+            callback(false);
+        });
+}
+
+
+
+        function openPostDialog() {
+            document.getElementById('postModal').style.display = 'flex';
+        }
+
+        function closePostDialog() {
+            document.getElementById('postModal').style.display = 'none';
+            document.getElementById('postText').value = '';
+        }
+
+ function savePost() {
+    const user = firebase.auth().currentUser;
+    if (!user) return alert("Please log in to post.");
+
+    const postText = document.getElementById('postText').value.trim();
+    const mediaFile = document.getElementById('mediaInput').files[0];
+    const descriptionText = document.getElementById('descriptionText').value.trim(); // Get the description text
+
+    if (!postText && !mediaFile && !descriptionText) {
+        alert("Post cannot be empty!");
+        return;
+    }
+
+    let postContent = postText; // Default content is the post text
+
+    if (mediaFile) {
+        const fileType = mediaFile.type.split('/')[0]; // Check if it's an 'image' or 'video'
+        let folderName = fileType === 'video' ? "socialpostvideooffalcons" : "socialpostimageoffalcons";
+
+        // Show progress bar and set initial value
+        document.getElementById('uploadProgressContainer').style.display = 'block';
+        const progressBar = document.getElementById('uploadProgress');
+        const progressText = document.getElementById('uploadProgressText');
+        progressBar.value = 0;
+        progressText.textContent = "0%";
+
+        const storageRef = firebase.storage().ref(`${folderName}/${Date.now()}_${mediaFile.name}`);
+        const uploadTask = storageRef.put(mediaFile);
+
+        // Monitor upload progress
+        uploadTask.on('state_changed', (snapshot) => {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            progressBar.value = progress;
+            progressText.textContent = `${Math.round(progress)}%`;
+        }, (error) => {
+            console.error("Error uploading file:", error);
+        }, () => {
+            uploadTask.snapshot.ref.getDownloadURL().then(mediaUrl => {
+                postContent = mediaUrl; // Use media URL as the post text
+                savePostToDatabase(user.email, postContent, descriptionText); // Save media URL and description
+            }).catch(error => console.error("Error getting media URL:", error));
+        });
+    } else {
+        savePostToDatabase(user.email, postContent, descriptionText); // Save text and description
+    }
+}
+
+
+function savePostToDatabase(email, postContent, description) {
+    // Create the post data object
+    let postData = {
+        poster: email,
+        posttext: postContent,
+        timestamp: Date.now()
+    };
+
+    // Only add the description field if it's not null or empty
+    if (description && description.trim() !== "") {
+        postData.description = description;
+    }
+
+    // Save the post to Firestore
+    firestore.collection("postforall").add(postData)
+        .then(() => {
+            closePostDialog();
+        })
+        .catch(error => console.error("Error saving post:", error));
+}
+
+
+
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                fetchPosts();
+                fetchUsersAndDisplay()
+            } else {
+                alert("You must be logged in to view posts.");
+            }
+        });
     </script>
+
 </body>
 </html>
