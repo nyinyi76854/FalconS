@@ -434,7 +434,7 @@ function closeAd() {
         ad.style.display = "flex";
     }, 10000);
 }
-        fetchUsersAndDisplay()
+        
 function fetchUsersAndDisplay() {
     const usersRef = firestore.collection("users");
     const accountsContainer = document.getElementById("accountsContainer");
@@ -1042,6 +1042,7 @@ function savePostToDatabase(email, postContent, description) {
         auth.onAuthStateChanged(user => {
             if (user) {
                 fetchPosts();
+                fetchUsersAndDisplay()
             } else {
                 alert("You must be logged in to view posts.");
             }
