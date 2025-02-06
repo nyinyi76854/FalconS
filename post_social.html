@@ -995,29 +995,60 @@ function fetchPosts() {
 function showPostMenu(event, postId) {
     event.stopPropagation();
 
+    // Remove any existing menu
     let existingMenu = document.getElementById("postMenu");
     if (existingMenu) existingMenu.remove();
 
+    // Create menu
     let menu = document.createElement("div");
     menu.id = "postMenu";
-    menu.classList.add("post-menu");
-    menu.style.position = "absolute";
+    menu.style.position = "fixed"; // Fixed ensures it's always relative to viewport
     menu.style.top = `${event.clientY}px`;
     menu.style.left = `${event.clientX}px`;
     menu.style.background = "#fff";
     menu.style.padding = "10px";
-    menu.style.borderRadius = "5px";
-    menu.style.boxShadow = "0px 4px 8px rgba(0, 0, 0, 0.1)";
-    menu.style.cursor = "pointer";
+    menu.style.borderRadius = "8px";
+    menu.style.boxShadow = "0px 4px 10px rgba(0, 0, 0, 0.2)";
+    menu.style.zIndex = "9999"; // Ensure it's above everything
+    menu.style.minWidth = "120px";
+    menu.style.display = "flex";
+    menu.style.flexDirection = "column";
+    menu.style.alignItems = "center";
 
+    // Menu option
     menu.innerHTML = `
-        <button onclick="deletePost('${postId}')">
-            <i class="fa fa-trash" style="color: red; margin-right: 5px;"></i> Delete
+        <button onclick="deletePost('${postId}')" 
+            style="
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+                padding: 8px;
+                border: none;
+                background: none;
+                font-size: 14px;
+                cursor: pointer;
+                color: red;
+                font-weight: bold;">
+            <i class="fa fa-trash" style="margin-right: 8px;"></i> Delete
         </button>
     `;
 
     document.body.appendChild(menu);
 
+    // Adjust menu position to prevent overflow outside viewport
+    let menuRect = menu.getBoundingClientRect();
+    let viewportWidth = window.innerWidth;
+    let viewportHeight = window.innerHeight;
+
+    if (menuRect.right > viewportWidth) {
+        menu.style.left = `${viewportWidth - menuRect.width - 10}px`;
+    }
+    if (menuRect.bottom > viewportHeight) {
+        menu.style.top = `${viewportHeight - menuRect.height - 10}px`;
+    }
+
+    // Close menu when clicking outside
     document.addEventListener("click", function closeMenu(event) {
         if (!menu.contains(event.target)) {
             menu.remove();
@@ -1025,6 +1056,7 @@ function showPostMenu(event, postId) {
         }
     });
 }
+
 
 // Function to delete post
 function deletePost(postId) {
