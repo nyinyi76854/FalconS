@@ -212,10 +212,7 @@ function fetchAndDisplayNameForPost(email, callback) {
             });
         }
 function fetchPosts(userEmail) {
-    if (!userEmail) {
-        console.error("User email is missing.");
-        return;
-    }
+    
 
     firestore.collection("postforall")
         .where("poster", "==", userEmail) // Filter by userEmail
