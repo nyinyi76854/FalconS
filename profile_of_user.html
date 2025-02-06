@@ -144,7 +144,7 @@ h1 {
         const firestore = firebase.firestore();
          const auth = firebase.auth();
   const urlParams = new URLSearchParams(window.location.search);
-    const userEmail = urlParams.get("userEmail"); // Get the carried email
+    const carrieduserEmail = urlParams.get("userEmail"); // Get the carried email
 
     if (!userEmail) {
         console.error("User email not found in URL parameters.");
@@ -155,7 +155,7 @@ h1 {
         
 
             firestore.collection("postforall")
-                .where("poster", "==", userEmail)  // Filter posts by the current user's email
+                .where("poster", "==", carrieduserEmail)  // Filter posts by the current user's email
                 .orderBy("timestamp", "desc")
                 .onSnapshot(snapshot => {
                     const postContainer = document.getElementById("postContainer");
