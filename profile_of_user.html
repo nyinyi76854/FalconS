@@ -1,1 +1,235 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .profile-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            margin: 50px auto;
+        }
+        .profile-photo {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #ddd;
+        }
+        .back-button {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        .user-info {
+            margin-top: 10px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Back Button -->
+    <button class="back-button" onclick="goBack()">
+        <i class="fas fa-arrow-left"></i>
+    </button>
+
+    <div class="profile-container">
+        <img id="currentUserProfilePhoto" class="profile-photo" src="user_1077114.png" alt="Profile Photo">
+        <p class="user-info"><strong>Name:</strong> <span id="userName">Loading...</span></p>
+        <p class="user-info"><strong>Username:</strong> <span id="userUsername">Loading...</span></p>
+        <p class="user-info"><strong>Age:</strong> <span id="userAge">Loading...</span></p>
+        <p class="user-info"><strong>Gender:</strong> <span id="userGender">Loading...</span></p>
+        <p class="user-info"><strong>Region:</strong> <span id="userRegion">Loading...</span></p>
+    </div>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBcTEVvxXmv5N8dJav4xNDRy5hXZRjVeM4",
+            authDomain: "chatflow-59776.firebaseapp.com",
+            databaseURL: "https://chatflow-59776-default-rtdb.firebaseio.com",
+            projectId: "chatflow-59776",
+            storageBucket: "chatflow-59776.appspot.com",
+            messagingSenderId: "549003131640",
+            appId: "1:549003131640:web:3f4a7b8cef4c0d8a2b990d",
+            measurementId: "G-V2180PR5CR"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const firestore = firebase.firestore();
+
+        // Get userEmail from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const userEmail = urlParams.get("userEmail");
+
+        if (userEmail) {
+            fetchAndDisplayName(userEmail);
+            fetchAndDisplayAge(userEmail);
+            fetchAndDisplayRegion(userEmail);
+            fetchAndDisplayUsername(userEmail);
+            fetchAndDisplayGender(userEmail);
+            loadUserProfile(userEmail);
+        } else {
+            console.error("No userEmail provided in URL.");
+        }
+
+        // Function to navigate back to social_post.html
+        function goBack() {
+            window.location.href = "post_social.html";
+        }
+
+        // Fetch and display the latest name
+        function fetchAndDisplayName(email) {
+            const namesRef = firestore.collection("names");
+            namesRef.where("email", "==", email).get().then((snapshot) => {
+                let lastTimestamp = 0;
+                let latestName = "No name found";
+
+                snapshot.forEach((doc) => {
+                    const timestamp = doc.get("timestamp") || 0;
+                    const name = doc.get("name");
+
+                    if (timestamp > lastTimestamp && name) {
+                        lastTimestamp = timestamp;
+                        latestName = name;
+                    }
+                });
+
+                document.getElementById("userName").innerText = latestName;
+            }).catch((error) => {
+                console.error("Error fetching name:", error);
+            });
+        }
+
+        // Fetch and display age
+        function fetchAndDisplayAge(email) {
+            const agesRef = firestore.collection("ages");
+            agesRef.where("email", "==", email).get().then((snapshot) => {
+                let lastTimestamp = 0;
+                let latestAge = "Unknown";
+
+                snapshot.forEach((doc) => {
+                    const timestamp = doc.get("timestamp") || 0;
+                    const age = doc.get("birthdate");
+
+                    if (timestamp > lastTimestamp && age) {
+                        lastTimestamp = timestamp;
+                        latestAge = age;
+                    }
+                });
+
+                document.getElementById("userAge").innerText = latestAge;
+            }).catch((error) => {
+                console.error("Error fetching age:", error);
+            });
+        }
+
+        // Fetch and display the region
+        function fetchAndDisplayRegion(email) {
+            const locationRef = firestore.collection("locations");
+            locationRef.where("email", "==", email).get().then((snapshot) => {
+                let region = "Region not found";
+
+                snapshot.forEach((doc) => {
+                    const continent = doc.get("continent");
+                    const country = doc.get("country");
+                    region = continent && country ? `${continent}/${country}` : "Region not found";
+                });
+
+                document.getElementById("userRegion").innerText = region;
+            }).catch((error) => {
+                console.error("Error fetching region:", error);
+            });
+        }
+
+        // Fetch and display the username
+        function fetchAndDisplayUsername(email) {
+            const usernameRef = firestore.collection("usernameSet");
+            usernameRef.where("email", "==", email).get().then((snapshot) => {
+                let latestUsername = "No username found";
+                let lastTimestamp = 0;
+
+                snapshot.forEach((doc) => {
+                    const timestamp = doc.get("timestamp") || 0;
+                    const username = doc.get("username");
+
+                    if (timestamp > lastTimestamp && username) {
+                        lastTimestamp = timestamp;
+                        latestUsername = username;
+                    }
+                });
+
+                document.getElementById("userUsername").innerText = latestUsername;
+            }).catch((error) => {
+                console.error("Error fetching username:", error);
+            });
+        }
+
+        // Fetch and display the gender
+        function fetchAndDisplayGender(email) {
+            const genderRef = firestore.collection("genders");
+            genderRef.where("email", "==", email).get().then((snapshot) => {
+                let gender = "Unknown";
+
+                snapshot.forEach((doc) => {
+                    gender = doc.get("gender") || "Unknown";
+                });
+
+                document.getElementById("userGender").innerText = gender;
+            }).catch((error) => {
+                console.error("Error fetching gender:", error);
+            });
+        }
+
+        // Load and display profile photo
+        function loadUserProfile(email) {
+            const profilesPhotoRef = firestore.collection("profilesphoto");
+
+            profilesPhotoRef.where("uploaderEmail", "==", email)
+                .get()
+                .then((querySnapshot) => {
+                    let latestPhotoUrl = "user_1077114.png";
+                    let latestTimestamp = 0;
+
+                    querySnapshot.forEach((doc) => {
+                        const timestamp = doc.data().timestamp || 0;
+                        const photoUrl = doc.data().downloadUrl;
+
+                        if (timestamp > latestTimestamp) {
+                            latestTimestamp = timestamp;
+                            latestPhotoUrl = photoUrl;
+                        }
+                    });
+
+                    document.getElementById("currentUserProfilePhoto").src = latestPhotoUrl;
+                })
+                .catch((error) => {
+                    console.error("Error fetching profile photo:", error);
+                });
+        }
+    </script>
+
+</body>
+</html>
