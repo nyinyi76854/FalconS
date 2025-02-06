@@ -981,7 +981,6 @@ function fetchPosts() {
     });
 }
 
-// Function to show delete menu
 function showPostMenu(event, postId) {
     event.stopPropagation();
 
@@ -991,39 +990,23 @@ function showPostMenu(event, postId) {
     let menu = document.createElement("div");
     menu.id = "postMenu";
     menu.classList.add("post-menu");
-
-    // Apply styles directly to position the menu at the clicked place
     menu.style.position = "absolute";
-    menu.style.top = `${event.clientY}px`; // Y position based on click
-    menu.style.left = `${event.clientX}px`; // X position based on click
+    menu.style.top = ${event.clientY}px;
+    menu.style.left = ${event.clientX}px;
     menu.style.background = "#fff";
-    menu.style.padding = "8px 12px";
-    menu.style.borderRadius = "8px";
-    menu.style.boxShadow = "0px 4px 10px rgba(0, 0, 0, 0.2)";
+    menu.style.padding = "10px";
+    menu.style.borderRadius = "5px";
+    menu.style.boxShadow = "0px 4px 8px rgba(0, 0, 0, 0.1)";
     menu.style.cursor = "pointer";
-    menu.style.zIndex = "1000";
-    menu.style.minWidth = "120px";
-    menu.style.border = "1px solid #ddd";
 
-    menu.innerHTML = `
-        <button onclick="deletePost('${postId}')" 
-            style="
-                display: flex; 
-                align-items: center; 
-                background: none; 
-                border: none; 
-                width: 100%; 
-                padding: 10px; 
-                font-size: 14px; 
-                color: #333; 
-                cursor: pointer;">
-            <i class="fa fa-trash" style="color: red; margin-right: 8px;"></i> Delete
+    menu.innerHTML = 
+        <button onclick="deletePost('${postId}')">
+            <i class="fa fa-trash" style="color: red; margin-right: 5px;"></i> Delete
         </button>
-    `;
+    ;
 
     document.body.appendChild(menu);
 
-    // Close menu when clicking elsewhere
     document.addEventListener("click", function closeMenu(event) {
         if (!menu.contains(event.target)) {
             menu.remove();
@@ -1031,7 +1014,6 @@ function showPostMenu(event, postId) {
         }
     });
 }
-
 
 // Function to delete post
 function deletePost(postId) {
