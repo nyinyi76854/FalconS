@@ -136,29 +136,103 @@
             measurementId: "G-V2180PR5CR"
         };
 
-        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
-        const firestore = firebase.firestore();
+    const firestore = firebase.firestore();
 
-        // Get userEmail from URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const carrieduserEmail = urlParams.get("userEmail");
-        firebase.auth().onAuthStateChanged(user => {
-    if (user) {
-        const currentUserEmail = user.email; // Get logged-in user's email
-        const followButton = document.getElementById("followButton");
-        const youTag = document.getElementById("youTag");
+    // Get userEmail from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const carrieduserEmail = urlParams.get("userEmail");
 
-        if (carrieduserEmail === currentUserEmail) {
-            // If viewing own profile, show "(You)" and hide follow button
-            youTag.style.display = "inline";
-            followButton.style.display = "none";
+    firebase.auth().onAuthStateChanged(user => {
+        if (user) {
+            const currentUserEmail = user.email;
+            const followButton = document.getElementById("followButton");
+            const youTag = document.getElementById("youTag");
+
+            if (carrieduserEmail === currentUserEmail) {
+                // Viewing own profile
+                youTag.style.display = "inline";
+                followButton.style.display = "none";
+            } else {
+                // Viewing another user's profile
+                followButton.style.visibility = "visible";
+                checkFollowedOrNot(currentUserEmail, carrieduserEmail, followButton);
+                followButton.addEventListener("click", () => {
+                    followUser(currentUserEmail, carrieduserEmail, followButton);
+                });
+            }
+        }
+    });
+
+    function followUser(currentUserEmail, targetUserEmail, followButton) {
+        const agesRef = firestore.collection("ages");
+
+        // Find the document where email == targetUserEmail
+        agesRef.where("email", "==", targetUserEmail).get().then(querySnapshot => {
+            if (querySnapshot.empty) {
+                console.error("User not found in ages collection.");
+                return;
+            }
+
+            querySnapshot.forEach(doc => {
+                const userDocRef = agesRef.doc(doc.id);
+                const followersRef = userDocRef.collection("followers");
+
+                // Check if already followed
+                followersRef.where("follower", "==", currentUserEmail).get().then(snapshot => {
+                    if (!snapshot.empty) {
+                        // Unfollow: Remove the follower document
+                        snapshot.forEach(followerDoc => {
+                            followersRef.doc(followerDoc.id).delete().then(() => {
+                                console.log("Unfollowed successfully");
+                                updateFollowButton(followButton, false);
+                            }).catch(error => console.error("Error unfollowing:", error));
+                        });
+                    } else {
+                        // Follow: Add new follower
+                        followersRef.add({
+                            follower: currentUserEmail,
+                            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                        }).then(() => {
+                            console.log("Followed successfully");
+                            updateFollowButton(followButton, true);
+                        }).catch(error => console.error("Error following:", error));
+                    }
+                });
+            });
+        }).catch(error => console.error("Error fetching ages collection:", error));
+    }
+
+    function checkFollowedOrNot(currentUserEmail, targetUserEmail, followButton) {
+        const agesRef = firestore.collection("ages");
+
+        // Find the document where email == targetUserEmail
+        agesRef.where("email", "==", targetUserEmail).get().then(querySnapshot => {
+            if (querySnapshot.empty) {
+                console.error("User not found in ages collection.");
+                return;
+            }
+
+            querySnapshot.forEach(doc => {
+                const followersRef = agesRef.doc(doc.id).collection("followers");
+
+                // Check if the current user is a follower
+                followersRef.where("follower", "==", currentUserEmail).get().then(snapshot => {
+                    updateFollowButton(followButton, !snapshot.empty);
+                }).catch(error => console.error("Error checking follow status:", error));
+            });
+        }).catch(error => console.error("Error fetching ages collection:", error));
+    }
+
+    function updateFollowButton(followButton, isFollowed) {
+        if (isFollowed) {
+            followButton.innerHTML = `<span class="check-icon">&#10003;</span> Followed`;
+            followButton.style.background = "gray";
         } else {
-            // If viewing another user's profile, show Follow button
-            followButton.style.visibility = "visible";
+            followButton.innerHTML = `<span class="plus-icon">+</span> Follow`;
+            followButton.style.background = "linear-gradient(45deg, #007bff, #00c6ff)";
         }
     }
-});
 
 fetchPosts(carrieduserEmail);
         if (carrieduserEmail) {
