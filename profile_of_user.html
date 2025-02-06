@@ -407,13 +407,9 @@ function checkUserReaction(postId) {
         }
     });
 }
- auth.onAuthStateChanged(user => {
-            if (user) {
+ 
                 fetchPosts();
-            } else {
-                alert("You must be logged in to view posts.");
-            }
-        });
+            
     </script>
 </body>
 </html>
