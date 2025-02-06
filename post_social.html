@@ -991,7 +991,6 @@ function fetchPosts() {
     });
 }
 
-// Function to show delete menu
 function showPostMenu(event, postId) {
     event.stopPropagation();
 
@@ -1017,7 +1016,7 @@ function showPostMenu(event, postId) {
 
     // Menu option
     menu.innerHTML = `
-        <button onclick="deletePost('${postId}')" 
+        <button onclick="deletePost('${postId}')"
             style="
                 display: flex;
                 align-items: center;
@@ -1057,15 +1056,33 @@ function showPostMenu(event, postId) {
     });
 }
 
-
 // Function to delete post
 function deletePost(postId) {
-    firestore.collection("postforall").doc(postId).delete().then(() => {
-        console.log("Post deleted");
-        document.getElementById("postMenu").remove();
-        document.getElementById(`post-${postId}`).remove();
-    }).catch(error => console.error("Error deleting post:", error));
+  
+
+    // Get Firestore reference
+    let postRef = firebase.firestore().collection("postforall").doc(postId);
+
+    postRef.get().then((doc) => {
+        if (doc.exists) {
+            // Delete the document from Firestore
+            postRef.delete().then(() => {
+                console.log("Post deleted successfully");
+
+                // Remove menu
+                let menu = document.getElementById("postMenu");
+                if (menu) menu.remove();
+
+                // Remove post element from UI
+                let postElement = document.getElementById(`post-${postId}`);
+                if (postElement) postElement.remove();
+            }).catch(error => console.error("Error deleting post:", error));
+        } else {
+            console.error("Post not found in Firestore.");
+        }
+    }).catch(error => console.error("Error fetching post:", error));
 }
+
 
 
 
