@@ -106,7 +106,14 @@
 <div class="container">
     <div class="profile-container">
         <img id="currentUserProfilePhoto" class="profile-photo" src="user_1077114.png" alt="Profile Photo">
-        <p class="user-info"><strong>Name:</strong> <span id="userName">Loading...</span></p>
+        <p class="user-info">
+        <strong>Name:</strong> 
+        <span id="userName">Loading...</span> 
+        <span id="youTag" style="display: none; font-weight: bold;"> (You)</span>
+        <button id="followButton" style="visibility: hidden; padding: 5px 10px; margin-left: 10px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+            Follow
+        </button>
+    </p>
         <p class="user-info"><strong>Username:</strong> <span id="userUsername">Loading...</span></p>
         <p class="user-info"><strong>Age:</strong> <span id="userAge">Loading...</span></p>
         <p class="user-info"><strong>Gender:</strong> <span id="userGender">Loading...</span></p>
@@ -136,6 +143,23 @@
         // Get userEmail from URL
         const urlParams = new URLSearchParams(window.location.search);
         const carrieduserEmail = urlParams.get("userEmail");
+        firebase.auth().onAuthStateChanged(user => {
+    if (user) {
+        const currentUserEmail = user.email; // Get logged-in user's email
+        const followButton = document.getElementById("followButton");
+        const youTag = document.getElementById("youTag");
+
+        if (carrieduserEmail === currentUserEmail) {
+            // If viewing own profile, show "(You)" and hide follow button
+            youTag.style.display = "inline";
+            followButton.style.display = "none";
+        } else {
+            // If viewing another user's profile, show Follow button
+            followButton.style.visibility = "visible";
+        }
+    }
+});
+
 fetchPosts(carrieduserEmail);
         if (carrieduserEmail) {
             fetchAndDisplayName(carrieduserEmail);
