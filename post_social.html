@@ -884,22 +884,12 @@ function fetchPosts() {
 
                             let menuDotHTML = ""; 
                             if (currentUserEmail === post.poster) {
-    menuDotHTML = `
-        <button class="menu-dot" onclick="showPostMenu(event, '${postId}')" 
-            style="
-                background: none; 
-                border: none; 
-                font-size: 20px; 
-                cursor: pointer; 
-                color: #555; 
-                padding: 5px; 
-                position: absolute; 
-                right: 10px; 
-                top: 5px;">
-            &#x22EE;
-        </button>
-    `;
-}
+                                menuDotHTML = 
+                                    <button class="menu-dot" onclick="showPostMenu(event, '${postId}')">
+                                        &#x22EE;
+                                    </button>
+                                ;
+                            }
 
 
                             let mediaContent = "";
