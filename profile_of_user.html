@@ -106,6 +106,8 @@
 <div class="container">
     <div class="profile-container">
         <img id="currentUserProfilePhoto" class="profile-photo" src="user_1077114.png" alt="Profile Photo">
+        <p class="user-info"><strong>Followers:</strong> <span id="followerCount">Loading...</span></p>
+
         <p class="user-info">
         <strong>Name:</strong> 
         <span id="userName">Loading...</span> 
@@ -142,7 +144,7 @@
     // Get userEmail from URL
     const urlParams = new URLSearchParams(window.location.search);
     const carrieduserEmail = urlParams.get("userEmail");
-
+countFollowers(carrieduserEmail);
     firebase.auth().onAuthStateChanged(user => {
         if (user) {
             const currentUserEmail = user.email;
@@ -163,6 +165,28 @@
             }
         }
     });
+function countFollowers(targetUserEmail) {
+    const agesRef = firestore.collection("ages");
+
+    // Find the document where email == targetUserEmail
+    agesRef.where("email", "==", targetUserEmail).get().then(querySnapshot => {
+        if (querySnapshot.empty) {
+            console.error("User not found in ages collection.");
+            document.getElementById("followerCount").innerText = "0 followers";
+            return;
+        }
+
+        querySnapshot.forEach(doc => {
+            const followersRef = agesRef.doc(doc.id).collection("followers");
+
+            // Get count of followers
+            followersRef.get().then(snapshot => {
+                const count = snapshot.size; // Get the number of documents in the collection
+                document.getElementById("followerCount").innerText = `${count} followers`;
+            }).catch(error => console.error("Error counting followers:", error));
+        });
+    }).catch(error => console.error("Error fetching ages collection:", error));
+}
 
     function followUser(currentUserEmail, targetUserEmail, followButton) {
         const agesRef = firestore.collection("ages");
