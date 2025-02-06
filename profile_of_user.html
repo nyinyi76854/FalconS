@@ -146,7 +146,7 @@ h1 {
   const urlParams = new URLSearchParams(window.location.search);
     const carrieduserEmail = urlParams.get("userEmail"); // Get the carried email
 
-    if (!userEmail) {
+    if (!carrieduserEmail) {
         console.error("User email not found in URL parameters.");
         return;
     }
