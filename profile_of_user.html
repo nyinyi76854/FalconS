@@ -60,6 +60,41 @@
             margin-top: 10px;
             font-size: 18px;
         }
+        /* Style for the reaction button */
+.reaction-btn {
+    display: inline-block;
+    background-color: #f2f2f2;
+    padding: 10px;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-size: 20px;
+    border: none;
+}
+
+/* Style for the reaction button icon */
+.reaction-btn i {
+    font-size: 18px;
+    color: #333;
+}
+
+/* Hover effect on reaction button */
+.reaction-btn:hover {
+    background-color: #ddd;
+}
+.reactions-options {
+    display: none; /* Ensure it's hidden initially */
+    position: absolute;
+    bottom: 40px;
+    left: 0;
+    background: white;
+    padding: 10px;
+    border-radius: 12px;
+    box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+    z-index: 1000;
+    flex-wrap: wrap;
+    gap: 8px;
+}
     </style>
 </head>
 <body>
