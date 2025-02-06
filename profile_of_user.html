@@ -102,11 +102,11 @@
         // Get userEmail from URL
         const urlParams = new URLSearchParams(window.location.search);
         const userEmail = urlParams.get("userEmail");
-
+fetchPosts(userEmail);
         if (userEmail) {
             fetchAndDisplayName(userEmail);
             fetchAndDisplayAge(userEmail);
-            fetchPosts(userEmail);
+            
             fetchAndDisplayRegion(userEmail);
             fetchAndDisplayUsername(userEmail);
             fetchAndDisplayGender(userEmail);
