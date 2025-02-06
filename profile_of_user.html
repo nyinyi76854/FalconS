@@ -327,6 +327,144 @@ function fetchPosts() {
             }
         });
 }
+function reactToPost(postId, reactionType, btn) {
+    const userEmail = firebase.auth().currentUser.email;
+    const reactionsCollection = firestore.collection("postforall").doc(postId).collection("falconspostreaction");
+
+    reactionsCollection.where("reactor", "==", userEmail).get().then(snapshot => {
+        let hasReacted = false;
+        let oldReactionType = null;
+
+        if (!snapshot.empty) {
+            snapshot.forEach(doc => {
+                hasReacted = true;
+                oldReactionType = doc.data().reactionType;
+                doc.ref.delete(); // Remove old reaction
+            });
+        }
+
+        if (!hasReacted || oldReactionType !== reactionType) {
+            // Add new reaction
+            reactionsCollection.add({
+                reactor: userEmail,
+                reactionType: reactionType,
+                timestamp: Date.now()
+            }).then(() => {
+                updateReactionIcon(postId, reactionType);
+                
+            }).catch(error => console.error("Error saving reaction:", error));
+        } else {
+            // If the same reaction is clicked, remove it
+            updateReactionIcon(postId, "default");
+            
+        }
+    });
+
+}
+
+
+// Function to update reaction icon on reaction button
+function updateReactionIcon(postId, reactionType) {
+    const postElement = document.querySelector(`#post-${postId}`);
+    if (!postElement) return;
+
+    const reactionBtn = postElement.querySelector(".reaction-btn");
+    
+    let emoji = "";
+    switch (reactionType) {
+        case 'love': emoji = '❤️'; break;
+        case 'like': emoji = '👍'; break;
+        case 'haha': emoji = '😂'; break;
+        case 'angry': emoji = '😡'; break;
+        default: emoji = '<i class="fa fa-heart"></i>'; // Default icon
+    }
+    
+    reactionBtn.innerHTML = emoji;
+}
+
+// Function to check user's reaction on a post
+function checkUserReaction(postId) {
+    const userEmail = firebase.auth().currentUser.email;
+    const reactionsCollection = firestore.collection("postforall").doc(postId).collection("falconspostreaction");
+
+    reactionsCollection.where("reactor", "==", userEmail).get().then(snapshot => {
+        if (!snapshot.empty) {
+            snapshot.forEach(doc => {
+                updateReactionIcon(postId, doc.data().reactionType);
+            });
+        }
+    });
+}
+
+
+
+
+
+function isVideoUrl(text) {
+    return text.startsWith("https://firebasestorage.googleapis.com") &&
+           text.includes("/socialpostvideooffalcons%2F");
+}
+
+function isImageUrl(text) {
+    return text.startsWith("https://firebasestorage.googleapis.com") &&
+           text.includes("/socialpostimageoffalcons%2F");
+}
+// Function to fetch real-time reaction count updates
+function fetchReactionsCount(postId) {
+    const reactionsCollection = firestore.collection("postforall").doc(postId).collection("falconspostreaction");
+
+    reactionsCollection.onSnapshot(snapshot => { // Use onSnapshot for real-time updates
+        let reactionCounts = {};
+
+        snapshot.forEach(doc => {
+            let reactionType = doc.data().reactionType;
+            if (!reactionCounts[reactionType]) {
+                reactionCounts[reactionType] = 0;
+            }
+            reactionCounts[reactionType]++;
+        });
+
+        // Sort reactions from highest to lowest count
+        let sortedReactions = Object.entries(reactionCounts)
+            .sort((a, b) => b[1] - a[1]) // Sort by count descending
+            .map(([reaction, count]) => `${count} ${reaction}`); // Format text
+
+        let reactionSummary = sortedReactions.length > 0 ? `There are ${sortedReactions.join(', ')}` : '';
+
+        // Update the UI
+        let reactionSummaryElement = document.getElementById(`reaction-summary-${postId}`);
+        if (reactionSummaryElement) {
+            reactionSummaryElement.innerText = reactionSummary;
+        }
+    });
+}
+
+function toggleDescription(button) {
+    const descriptionDiv = button.previousElementSibling; // Get the description div
+    const isExpanded = descriptionDiv.style.maxHeight === 'none';
+
+    if (isExpanded) {
+        descriptionDiv.style.maxHeight = '3.2em'; // Collapse to 2 lines
+        button.textContent = 'See more';
+    } else {
+        descriptionDiv.style.maxHeight = 'none'; // Expand text
+        button.textContent = 'See less';
+    }
+}
+
+function checkVerifiedOrNot(userEmail, callback) {
+    const verificationRef = firestore.collection("verificationbridge");
+
+    verificationRef.where("email", "==", userEmail)
+        .get()
+        .then((snapshot) => {
+            callback(!snapshot.empty); // Returns true if verified, false otherwise
+        })
+        .catch((error) => {
+            console.error("Error checking verification status:", error);
+            callback(false);
+        });
+}
 
         // Fetch and display the region
         function fetchAndDisplayRegion(email) {
