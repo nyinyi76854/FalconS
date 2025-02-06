@@ -884,13 +884,12 @@ function fetchPosts() {
 
                             let menuDotHTML = ""; 
                             if (currentUserEmail === post.poster) {
-                                menuDotHTML = 
+                                menuDotHTML = `
                                     <button class="menu-dot" onclick="showPostMenu(event, '${postId}')">
                                         &#x22EE;
                                     </button>
-                                ;
+                                `;
                             }
-
 
                             let mediaContent = "";
                             let descriptionContent = "";
@@ -981,6 +980,7 @@ function fetchPosts() {
     });
 }
 
+// Function to show delete menu
 function showPostMenu(event, postId) {
     event.stopPropagation();
 
@@ -991,19 +991,19 @@ function showPostMenu(event, postId) {
     menu.id = "postMenu";
     menu.classList.add("post-menu");
     menu.style.position = "absolute";
-    menu.style.top = ${event.clientY}px;
-    menu.style.left = ${event.clientX}px;
+    menu.style.top = `${event.clientY}px`;
+    menu.style.left = `${event.clientX}px`;
     menu.style.background = "#fff";
     menu.style.padding = "10px";
     menu.style.borderRadius = "5px";
     menu.style.boxShadow = "0px 4px 8px rgba(0, 0, 0, 0.1)";
     menu.style.cursor = "pointer";
 
-    menu.innerHTML = 
+    menu.innerHTML = `
         <button onclick="deletePost('${postId}')">
             <i class="fa fa-trash" style="color: red; margin-right: 5px;"></i> Delete
         </button>
-    ;
+    `;
 
     document.body.appendChild(menu);
 
