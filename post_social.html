@@ -932,17 +932,172 @@ function fetchPosts() {
                             `;
 
                             if (isImageUrl(post.posttext)) {
-                                mediaContent = `<img src="${post.posttext}" style="max-width: 100%; max-height: 400px; border-radius: 5px;">`;
-                            } else if (isVideoUrl(post.posttext)) {
-                                mediaContent = `
-                                    <video controls style="max-width: 100%; max-height: 400px; border-radius: 5px;">
-                                        <source src="${post.posttext}" type="video/mp4">
-                                        Your browser does not support the video tag.
-                                    </video>
-                                `;
-                            } else {
-                                mediaContent = `<div class="post-text">${post.posttext}</div>`;
-                            }
+    mediaContent = `<img src="${post.posttext}" style="max-width: 100%; max-height: 400px; border-radius: 5px;">`;
+} else if (isVideoUrl(post.posttext)) {
+    let videoId = `video-${postId}`;
+    let videoUrl = post.posttext;
+    let videoElement = document.createElement("video");
+    videoElement.src = videoUrl;
+
+    // Create a thumbnail from the video using the 'canvas' element to capture a frame
+    let thumbnail = "";
+    videoElement.onloadeddata = () => {
+        let canvas = document.createElement('canvas');
+        let context = canvas.getContext('2d');
+        context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+        thumbnail = canvas.toDataURL("image/png");
+    };
+
+    mediaContent = `
+        <div class="video-container" style="
+            position: relative;
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 5px;
+            overflow: hidden;
+            background: #000;
+            cursor: pointer;
+        ">
+            <img src="${thumbnail}" class="video-thumbnail" style="
+                width: 100%;
+                height: auto;
+                display: block;
+            ">
+            <button class="play-btn" onclick="togglePlay('${videoId}')" style="
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(0, 0, 0, 0.6);
+                border: none;
+                color: white;
+                font-size: 24px;
+                padding: 10px 15px;
+                border-radius: 50%;
+                cursor: pointer;
+                transition: 0.3s;
+            ">
+                <i class="fa fa-play"></i>
+            </button>
+            <video id="${videoId}" class="custom-video" onloadedmetadata="setDuration('${videoId}')" onclick="togglePlay('${videoId}')" ontimeupdate="updateTime('${videoId}')" onplay="showControls('${videoId}')" onpause="hideControls('${videoId}')" style="
+                width: 100%;
+                display: none;
+            ">
+                <source src="${videoUrl}" type="video/mp4">
+            </video>
+            <div class="video-duration" style="
+                position: absolute;
+                bottom: 10px;
+                right: 10px;
+                background: rgba(0, 0, 0, 0.7);
+                color: white;
+                padding: 4px 8px;
+                font-size: 12px;
+                border-radius: 3px;
+            " id="duration-${videoId}">00:00</div>
+
+            <div class="controls" id="controls-${videoId}" style="
+                position: absolute;
+                bottom: 0;
+                width: 100%;
+                background: rgba(0, 0, 0, 0.6);
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 5px 10px;
+                opacity: 0;
+                transition: opacity 0.3s;
+            ">
+                <span id="currentTime-${videoId}" style="color: white; font-size: 12px;">00:00</span>
+                <input type="range" id="seekbar-${videoId}" min="0" value="0" step="0.1" oninput="seekVideo('${videoId}')" style="
+                    flex: 1;
+                    margin: 0 10px;
+                ">
+                <button id="playPause-${videoId}" onclick="togglePlay('${videoId}')" style="
+                    background: none;
+                    border: none;
+                    color: white;
+                    font-size: 16px;
+                    cursor: pointer;
+                "><i class="fa fa-pause"></i></button>
+            </div>
+        </div>
+        
+        <script>
+            let timeout;
+
+            function togglePlay(videoId) {
+                let video = document.getElementById(videoId);
+                let playBtn = video.parentElement.querySelector('.play-btn');
+                let controls = document.getElementById('controls-' + videoId);
+                let playPauseBtn = document.getElementById('playPause-' + videoId);
+                
+                if (video.paused) {
+                    video.play();
+                    playBtn.style.display = "none";
+                    playPauseBtn.innerHTML = "<i class='fa fa-play'></i>";
+                    showControls(videoId);
+                } else {
+                    video.pause();
+                    playPauseBtn.innerHTML = "<i class='fa fa-pause'></i>";
+                    showControls(videoId);
+                }
+            }
+
+            function showControls(videoId) {
+                let controls = document.getElementById('controls-' + videoId);
+                let timeoutDuration = 3000; // 3 seconds of inactivity before hiding controls
+                controls.style.opacity = 1;
+
+                clearTimeout(timeout);
+
+                timeout = setTimeout(() => {
+                    controls.style.opacity = 0;
+                }, timeoutDuration);
+            }
+
+            function hideControls(videoId) {
+                let controls = document.getElementById('controls-' + videoId);
+                controls.style.opacity = 0;
+            }
+
+            function setDuration(videoId) {
+                let video = document.getElementById(videoId);
+                let duration = video.duration;
+                let durationElement = document.getElementById('duration-' + videoId);
+                let totalDuration = formatTime(duration);
+                durationElement.textContent = totalDuration;
+            }
+
+            function updateTime(videoId) {
+                let video = document.getElementById(videoId);
+                let currentTime = video.currentTime;
+                let currentTimeElement = document.getElementById('currentTime-' + videoId);
+                let seekbar = document.getElementById('seekbar-' + videoId);
+                let totalDuration = video.duration;
+
+                currentTimeElement.textContent = formatTime(currentTime);
+                seekbar.value = currentTime;
+                seekbar.max = totalDuration;
+            }
+
+            function seekVideo(videoId) {
+                let video = document.getElementById(videoId);
+                let seekbar = document.getElementById('seekbar-' + videoId);
+                video.currentTime = seekbar.value;
+            }
+
+            function formatTime(seconds) {
+                let minutes = Math.floor(seconds / 60);
+                let secs = Math.floor(seconds % 60);
+                return `${minutes < 10 ? '0' + minutes : minutes}:${secs < 10 ? '0' + secs : secs}`;
+            }
+        </script>
+    `;
+} else {
+    mediaContent = `<div class="post-text">${post.posttext}</div>`;
+}
+
 
                             if (post.description) {
                                 descriptionContent = `
