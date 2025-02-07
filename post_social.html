@@ -932,23 +932,81 @@ function fetchPosts() {
                             `;
 
                             if (isImageUrl(post.posttext)) {
-    mediaContent = `<img src="${post.posttext}" style="max-width: 100%; max-height: 400px; border-radius: 5px;">`;
-} else if (isVideoUrl(post.posttext)) {
-    let videoId = `video-${postId}`;
-    let videoUrl = post.posttext;
+        mediaContent = `<img src="${post.posttext}" style="max-width: 100%; max-height: 400px; border-radius: 5px;">`;
+    } else if (isVideoUrl(post.posttext)) {
+        let videoUrl = post.posttext;
+        createVideoThumbnail(videoUrl, postId).then(thumbnail => {
+            mediaContent = createVideoContent(videoUrl, postId, thumbnail);
+        });
+    } else {
+        mediaContent = `<div class="post-text">${post.posttext}</div>`;
+    }
+
+
+                            if (post.description) {
+                                descriptionContent = `
+                                    <div class="post-description" style="max-height: 3.2em; overflow: hidden;">
+                                        ${post.description.length > 100 ? post.description.substring(0, 100) + '...' : post.description}
+                                    </div>
+                                    ${post.description.length > 100 ? '<button class="see-more-btn" onclick="toggleDescription(this)">See more</button>' : ''}
+                                `;
+                            }
+
+                            postElement.innerHTML = `
+                                <div class="post-header" style="display: flex; align-items: center; justify-content: space-between;">
+                                    <div style="display: flex; align-items: center;">
+                                        <img src="${profilePhotoUrl}" alt="Profile Photo" style="width: 30px; height: 30px; border-radius: 50%; margin-right: 10px;">
+                                        <span>${displayName}</span>
+                                        <img src="verification.jpg" alt="Verified" class="verified-icon" style="width: 16px; height: 16px; margin-left: 5px; display: ${isVerified ? 'inline' : 'none'};">
+                                    </div>
+                                    ${menuDotHTML}
+                                </div>
+                                ${mediaContent}
+                                ${descriptionContent}
+                                <div class="post-footer">${new Date(post.timestamp).toLocaleString()}</div>
+                                ${reactionsContent}
+                            `;
+
+                            postContainer.appendChild(postElement);
+
+                            checkUserReaction(postId);
+                            fetchReactionsCount(postId);
+
+                            let reactionBtn = postElement.querySelector(".reaction-btn");
+                            let reactionOptions = postElement.querySelector(".reactions-options");
+                            reactionOptions.style.display = "none"; 
+                            reactionBtn.addEventListener("mouseenter", () => {
+                                reactionOptions.style.display = "flex"; 
+                            });
+
+                            postElement.addEventListener("mouseleave", () => {
+                                reactionOptions.style.display = "none"; 
+                            });
+                        });
+                    });
+                });
+            });
+        });
+    });
+}
+function createVideoThumbnail(videoUrl, postId) {
     let videoElement = document.createElement("video");
     videoElement.src = videoUrl;
 
-    // Create a thumbnail from the video using the 'canvas' element to capture a frame
-    let thumbnail = "";
-    videoElement.onloadeddata = () => {
-        let canvas = document.createElement('canvas');
-        let context = canvas.getContext('2d');
-        context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
-        thumbnail = canvas.toDataURL("image/png");
-    };
+    return new Promise((resolve) => {
+        videoElement.onloadeddata = () => {
+            let canvas = document.createElement('canvas');
+            let context = canvas.getContext('2d');
+            context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+            let thumbnail = canvas.toDataURL("image/png");
+            resolve(thumbnail);
+        };
+    });
+}
 
-    mediaContent = `
+function createVideoContent(videoUrl, postId, thumbnail) {
+    let videoId = `video-${postId}`;
+    return `
         <div class="video-container" style="
             position: relative;
             max-width: 100%;
@@ -1022,130 +1080,75 @@ function fetchPosts() {
                 "><i class="fa fa-pause"></i></button>
             </div>
         </div>
-        
-        <script>
-            let timeout;
-
-            function togglePlay(videoId) {
-                let video = document.getElementById(videoId);
-                let playBtn = video.parentElement.querySelector('.play-btn');
-                let controls = document.getElementById('controls-' + videoId);
-                let playPauseBtn = document.getElementById('playPause-' + videoId);
-                
-                if (video.paused) {
-                    video.play();
-                    playBtn.style.display = "none";
-                    playPauseBtn.innerHTML = "<i class='fa fa-play'></i>";
-                    showControls(videoId);
-                } else {
-                    video.pause();
-                    playPauseBtn.innerHTML = "<i class='fa fa-pause'></i>";
-                    showControls(videoId);
-                }
-            }
-
-            function showControls(videoId) {
-                let controls = document.getElementById('controls-' + videoId);
-                let timeoutDuration = 3000; // 3 seconds of inactivity before hiding controls
-                controls.style.opacity = 1;
-
-                clearTimeout(timeout);
-
-                timeout = setTimeout(() => {
-                    controls.style.opacity = 0;
-                }, timeoutDuration);
-            }
-
-            function hideControls(videoId) {
-                let controls = document.getElementById('controls-' + videoId);
-                controls.style.opacity = 0;
-            }
-
-            function setDuration(videoId) {
-                let video = document.getElementById(videoId);
-                let duration = video.duration;
-                let durationElement = document.getElementById('duration-' + videoId);
-                let totalDuration = formatTime(duration);
-                durationElement.textContent = totalDuration;
-            }
-
-            function updateTime(videoId) {
-                let video = document.getElementById(videoId);
-                let currentTime = video.currentTime;
-                let currentTimeElement = document.getElementById('currentTime-' + videoId);
-                let seekbar = document.getElementById('seekbar-' + videoId);
-                let totalDuration = video.duration;
-
-                currentTimeElement.textContent = formatTime(currentTime);
-                seekbar.value = currentTime;
-                seekbar.max = totalDuration;
-            }
-
-            function seekVideo(videoId) {
-                let video = document.getElementById(videoId);
-                let seekbar = document.getElementById('seekbar-' + videoId);
-                video.currentTime = seekbar.value;
-            }
-
-            function formatTime(seconds) {
-                let minutes = Math.floor(seconds / 60);
-                let secs = Math.floor(seconds % 60);
-                return `${minutes < 10 ? '0' + minutes : minutes}:${secs < 10 ? '0' + secs : secs}`;
-            }
-        </script>
     `;
-} else {
-    mediaContent = `<div class="post-text">${post.posttext}</div>`;
 }
 
+function togglePlay(videoId) {
+    let video = document.getElementById(videoId);
+    let playBtn = video.parentElement.querySelector('.play-btn');
+    let controls = document.getElementById('controls-' + videoId);
+    let playPauseBtn = document.getElementById('playPause-' + videoId);
 
-                            if (post.description) {
-                                descriptionContent = `
-                                    <div class="post-description" style="max-height: 3.2em; overflow: hidden;">
-                                        ${post.description.length > 100 ? post.description.substring(0, 100) + '...' : post.description}
-                                    </div>
-                                    ${post.description.length > 100 ? '<button class="see-more-btn" onclick="toggleDescription(this)">See more</button>' : ''}
-                                `;
-                            }
-
-                            postElement.innerHTML = `
-                                <div class="post-header" style="display: flex; align-items: center; justify-content: space-between;">
-                                    <div style="display: flex; align-items: center;">
-                                        <img src="${profilePhotoUrl}" alt="Profile Photo" style="width: 30px; height: 30px; border-radius: 50%; margin-right: 10px;">
-                                        <span>${displayName}</span>
-                                        <img src="verification.jpg" alt="Verified" class="verified-icon" style="width: 16px; height: 16px; margin-left: 5px; display: ${isVerified ? 'inline' : 'none'};">
-                                    </div>
-                                    ${menuDotHTML}
-                                </div>
-                                ${mediaContent}
-                                ${descriptionContent}
-                                <div class="post-footer">${new Date(post.timestamp).toLocaleString()}</div>
-                                ${reactionsContent}
-                            `;
-
-                            postContainer.appendChild(postElement);
-
-                            checkUserReaction(postId);
-                            fetchReactionsCount(postId);
-
-                            let reactionBtn = postElement.querySelector(".reaction-btn");
-                            let reactionOptions = postElement.querySelector(".reactions-options");
-                            reactionOptions.style.display = "none"; 
-                            reactionBtn.addEventListener("mouseenter", () => {
-                                reactionOptions.style.display = "flex"; 
-                            });
-
-                            postElement.addEventListener("mouseleave", () => {
-                                reactionOptions.style.display = "none"; 
-                            });
-                        });
-                    });
-                });
-            });
-        });
-    });
+    if (video.paused) {
+        video.play();
+        playBtn.style.display = "none";
+        playPauseBtn.innerHTML = "<i class='fa fa-play'></i>";
+        showControls(videoId);
+    } else {
+        video.pause();
+        playPauseBtn.innerHTML = "<i class='fa fa-pause'></i>";
+        showControls(videoId);
+    }
 }
 
+function showControls(videoId) {
+    let controls = document.getElementById('controls-' + videoId);
+    let timeoutDuration = 3000; // 3 seconds of inactivity before hiding controls
+    controls.style.opacity = 1;
+
+    clearTimeout(timeout);
+
+    timeout = setTimeout(() => {
+        controls.style.opacity = 0;
+    }, timeoutDuration);
+}
+
+function hideControls(videoId) {
+    let controls = document.getElementById('controls-' + videoId);
+    controls.style.opacity = 0;
+}
+
+function setDuration(videoId) {
+    let video = document.getElementById(videoId);
+    let duration = video.duration;
+    let durationElement = document.getElementById('duration-' + videoId);
+    let totalDuration = formatTime(duration);
+    durationElement.textContent = totalDuration;
+}
+
+function updateTime(videoId) {
+    let video = document.getElementById(videoId);
+    let currentTime = video.currentTime;
+    let currentTimeElement = document.getElementById('currentTime-' + videoId);
+    let seekbar = document.getElementById('seekbar-' + videoId);
+    let totalDuration = video.duration;
+
+    currentTimeElement.textContent = formatTime(currentTime);
+    seekbar.value = currentTime;
+    seekbar.max = totalDuration;
+}
+
+function seekVideo(videoId) {
+    let video = document.getElementById(videoId);
+    let seekbar = document.getElementById('seekbar-' + videoId);
+    video.currentTime = seekbar.value;
+}
+
+function formatTime(seconds) {
+    let minutes = Math.floor(seconds / 60);
+    let secs = Math.floor(seconds % 60);
+    return `${minutes < 10 ? '0' + minutes : minutes}:${secs < 10 ? '0' + secs : secs}`;
+}
 // Function to show the post menu
 function showPostMenu(event, postId) {
     event.stopPropagation();
