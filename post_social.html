@@ -1034,17 +1034,19 @@ function togglePlay(postId) {
     }
 }
 
-// Function to show/hide video controls on hover
-function showControls(postId) {
-    let video = document.getElementById("video-" + postId);
-    let controlsContainer = video.parentElement.querySelector('.custom-video-controls');
-    let playButton = document.querySelector(`#video-${postId} + .custom-play-btn`);
+function hideControls(postId) {
+    videoTimeouts[postId] = setTimeout(() => {
+        let video = document.getElementById("video-" + postId);
+        let controlsContainer = video.parentElement.querySelector('.custom-video-controls');
+        let playButton = video.parentElement.querySelector('.custom-play-btn');
 
-    controlsContainer.style.opacity = "1";
-    playButton.style.opacity = "1";
-
-    clearTimeout(videoTimeouts[postId]);
+        if (!video.paused) {
+            controlsContainer.style.opacity = "0";
+            playButton.style.display = "none"; // Instead of opacity, use display for better UX
+        }
+    }, 3000);
 }
+
 
 function hideControls(postId) {
     videoTimeouts[postId] = setTimeout(() => {
