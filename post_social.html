@@ -1027,12 +1027,12 @@ function togglePlay(postId) {
         video.play();
         playButton.classList.remove("fa-play");
         playButton.classList.add("fa-pause");
-        // Start the timeout to hide controls after 3 seconds
         hideControls(postId);
     } else {
         video.pause();
         playButton.classList.remove("fa-pause");
         playButton.classList.add("fa-play");
+        showControls(postId);
     }
 }
 
@@ -1043,8 +1043,8 @@ function hideControls(postId) {
         let playButton = document.querySelector(`#video-${postId} + .custom-play-btn`);
 
         if (!video.paused) {
-            controlsContainer.style.opacity = "0";
-            playButton.style.opacity = "0";
+            controlsContainer.style.display = "none";
+            playButton.style.display = "none";
         }
     }, 3000); // Hide controls after 3 seconds
 }
@@ -1054,14 +1054,14 @@ function showControls(postId) {
     let controlsContainer = video.parentElement.querySelector('.custom-video-controls');
     let playButton = document.querySelector(`#video-${postId} + .custom-play-btn`);
 
-    controlsContainer.style.opacity = "1";
-    playButton.style.opacity = "1";
+    controlsContainer.style.display = "block";
+    playButton.style.display = "block";
 
-    // Clear any ongoing hide timeout to prevent premature hiding
+    // Clear any ongoing hide timeout
     clearTimeout(videoTimeouts[postId]);
 }
 
-// Function to update play/pause icon
+// Function to update play/pause icon and seekbar
 function updateVideoTime(postId) {
     let video = document.getElementById("video-" + postId);
     let currentTime = video.currentTime;
@@ -1099,25 +1099,21 @@ document.querySelectorAll('.custom-video-container').forEach(container => {
     let video = container.querySelector('.custom-video');
     let postId = video.id.split('-')[1];
 
-    // Update video time and seekbar when the video is playing
+    // Update video time and seekbar when playing
     video.addEventListener('timeupdate', () => updateVideoTime(postId));
 
-    // Toggle controls visibility when the video is clicked
+    // Show controls when mouse hovers over the video
+    video.addEventListener('mouseenter', () => showControls(postId));
+    video.addEventListener('mouseleave', () => hideControls(postId));
+
+    // Toggle controls visibility when clicking the video
     video.addEventListener('click', () => {
         let controlsContainer = video.parentElement.querySelector('.custom-video-controls');
-        let playButton = document.querySelector(`#video-${postId} + .custom-play-btn`);
-
-        // If controls are hidden, show them
-        if (controlsContainer.style.opacity === "0") {
+        if (controlsContainer.style.display === "none") {
             showControls(postId);
         } else {
-            // Otherwise, hide them again
             hideControls(postId);
         }
-
-        // Restart video timeout to hide controls again after 3 seconds
-        clearTimeout(videoTimeouts[postId]);
-        hideControls(postId);
     });
 
     // Play/pause button handling
@@ -1132,27 +1128,9 @@ document.querySelectorAll('.custom-video-container').forEach(container => {
         let playButton = document.querySelector(`#video-${postId} + .custom-play-btn i`);
         playButton.classList.remove("fa-pause");
         playButton.classList.add("fa-play");
-        showControls(postId); // Ensure controls are visible when paused
+        showControls(postId);
     });
-
-    // Show controls on mouseover and hide on mouseout
-    video.addEventListener('mouseover', () => {
-        showControls(postId); // Show controls when hovering over the video
-    });
-
-    video.addEventListener('mouseout', () => {
-        // Start hiding the controls after 3 seconds if not playing
-        if (!video.paused) {
-            hideControls(postId);
-        }
-    });
-
-    // Disable default picture-in-picture controls
-    video.setAttribute('controlslist', 'nodownload nofullscreen noremoteplayback');
-    video.setAttribute('disablePictureInPicture', true);
-    video.setAttribute('controls', false);
 });
-
 
 
 // Function to show the post menu
