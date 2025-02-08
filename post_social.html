@@ -713,7 +713,7 @@ function fetchProfilePhotoForAccount(userEmail, callback) {
         .where("uploaderEmail", "==", userEmail)
         .get()
         .then((querySnapshot) => {
-            let latestPhotoUrl = "user_1077114.png"; // Default profile photo
+            let latestPhotoUrl = "profile.png"; // Default profile photo
             let latestTimestamp = 0;
 
             querySnapshot.forEach((doc) => {
