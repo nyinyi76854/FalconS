@@ -12,13 +12,15 @@
    <style>
        body {
     font-family: Arial, sans-serif;
-    background-color: #f5f5f5;
+    background-color: #000; /* Set the background to black */
+    color: #fff; /* Set text color to white for better contrast */
     margin: 0;
     padding: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
 }
+
 .back-btn {
     position: fixed;
     top: 20px;
@@ -42,7 +44,8 @@
 }
 .container {
     width: 40%; /* Reduced the width */
-    background: white;
+    background: #222; /* Dark background for the container */
+    color: #fff; /* White text inside the container */
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
@@ -58,18 +61,18 @@ h1 {
 }
 
 .post {
-    background: white;
+    background: #333; /* Darker background for individual posts */
+    color: #fff; /* White text inside posts */
     padding: 15px;
     margin-bottom: 15px;
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
-
 .post-header {
     display: flex;
     align-items: center;
     font-size: 14px;
-    color: #333;
+    color: #fff;
     font-weight: bold;
 }
 
@@ -85,7 +88,7 @@ h1 {
 
 .post-footer {
     font-size: 12px;
-    color: gray;
+    color: #bbb;
 }
 
 
@@ -130,13 +133,15 @@ h1 {
 }
 
 .modal-content {
-    background: white;
+    background: #222; /* Dark background for modal */
+    color: #fff; /* White text */
     padding: 20px;
     border-radius: 10px;
     width: 40%;
     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
     text-align: center;
 }
+
 
 .modal-content textarea {
     width: 100%;
@@ -167,7 +172,7 @@ h1 {
 #uploadProgressContainer {
     margin-top: 10px;
     padding: 10px;
-    background-color: #f5f5f5;
+    background-color: #333; /* Dark background */
     border-radius: 5px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     width: 80%; /* Adjust this to control the width */
@@ -899,23 +904,21 @@ function fetchPosts() {
 
                             let menuDotHTML = ""; 
                             if (currentUserEmail === post.poster) {
-    menuDotHTML = `
-        <button class="menu-dot" onclick="showPostMenu(event, '${postId}')" 
-            style="
-                background: none; 
-                border: none; 
-                font-size: 20px; 
-                cursor: pointer; 
-                color: #555; 
-                padding: 5px; 
-                position: relative; 
-                margin-left: 15px;
-                outline: none;">
-            &#x22EE;
-        </button>
-    `;
-}
-
+                                menuDotHTML = `
+                                    <button class="menu-dot" onclick="showPostMenu(event, '${postId}')" 
+                                        style="background: none; 
+                                        border: none; 
+                                        font-size: 20px; 
+                                        cursor: pointer; 
+                                        color: #555; 
+                                        padding: 5px; 
+                                        position: relative; 
+                                        margin-left: 15px;
+                                        outline: none;">
+                                    &#x22EE;
+                                    </button>
+                                `;
+                            }
 
                             let mediaContent = "";
                             let descriptionContent = "";
@@ -946,7 +949,7 @@ function fetchPosts() {
                                 </div>
                             `;
 
-                           if (isImageUrl(post.posttext)) {
+                            if (isImageUrl(post.posttext)) {
                                 mediaContent = `<img src="${post.posttext}" style="max-width: 100%; max-height: 400px; border-radius: 5px;">`;
                             } else if (isVideoUrl(post.posttext)) {
                                mediaContent = 
@@ -980,16 +983,16 @@ function fetchPosts() {
             </div>
         </div>`;
                             } else {
-                                mediaContent = `<div class="post-text">${post.posttext}</div>`;
+                                mediaContent = `<div class="post-text" style="color: white;">${post.posttext}</div>`;
                             }
 
 
                             if (post.description) {
                                 descriptionContent = `
-                                    <div class="post-description" style="max-height: 3.2em; overflow: hidden;">
+                                    <div class="post-description" style="max-height: 3.2em; overflow: hidden; color: white;">
                                         ${post.description.length > 100 ? post.description.substring(0, 100) + '...' : post.description}
                                     </div>
-                                    ${post.description.length > 100 ? '<button class="see-more-btn" onclick="toggleDescription(this)">See more</button>' : ''}
+                                    ${post.description.length > 100 ? '<button class="see-more-btn" onclick="toggleDescription(this)" style="color: white;">See more</button>' : ''}
                                 `;
                             }
 
@@ -997,14 +1000,14 @@ function fetchPosts() {
                                 <div class="post-header" style="display: flex; align-items: center; justify-content: space-between;">
                                     <div style="display: flex; align-items: center;">
                                         <img src="${profilePhotoUrl}" alt="Profile Photo" style="width: 30px; height: 30px; border-radius: 50%; margin-right: 10px;">
-                                        <span>${displayName}</span>
+                                        <span style="color: white;">${displayName}</span>
                                         <img src="verification.jpg" alt="Verified" class="verified-icon" style="width: 16px; height: 16px; margin-left: 5px; display: ${isVerified ? 'inline' : 'none'};">
                                     </div>
                                     ${menuDotHTML}
                                 </div>
                                 ${mediaContent}
                                 ${descriptionContent}
-                                <div class="post-footer">${new Date(post.timestamp).toLocaleString()}</div>
+                                <div class="post-footer" style="color: white;">${new Date(post.timestamp).toLocaleString()}</div>
                                 ${reactionsContent}
                             `;
 
@@ -1030,6 +1033,7 @@ function fetchPosts() {
         });
     });
 }
+
 
 let videoTimeouts = {}; // Track timeouts for each video
 
