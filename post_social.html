@@ -1016,63 +1016,51 @@ function fetchPosts() {
     });
 }
 
+let videoTimeouts = {}; // Object to track timeouts for each video
+
+// Function to toggle play/pause
 function togglePlay(postId) {
     let video = document.getElementById("video-" + postId);
     let playButton = document.querySelector(`#video-${postId} + .custom-play-btn`);
-    let controls = document.querySelector(`#video-${postId} ~ .custom-video-controls`);
-
+    let controls = document.querySelector(`#video-${postId}`).parentElement.querySelector('.custom-video-controls');
+    
     if (video.paused) {
         video.play();
         playButton.innerHTML = "&#x23F8;"; // Pause icon
         playButton.style.display = "none"; // Hide play button when playing
-        controls.style.display = "none"; // Hide controls after inactivity
-        startInactivityTimer(postId); // Start inactivity timer
+        controls.style.display = "flex"; // Show controls when playing
+        
+        resetVideoTimeout(postId); // Reset the timeout when playing
     } else {
         video.pause();
         playButton.innerHTML = "&#x25B6;"; // Play icon
         playButton.style.display = "block"; // Show play button when paused
-        controls.style.display = "flex"; // Show controls
-        clearTimeout(inactivityTimers[postId]); // Prevent hiding when manually paused
     }
 }
 
-
-let inactivityTimers = {};
-
-function startInactivityTimer(postId) {
-    let controls = document.querySelector(`#video-${postId} ~ .custom-video-controls`);
-    let playButton = document.querySelector(`#video-${postId} + .custom-play-btn`);
-
-    clearTimeout(inactivityTimers[postId]); // Reset timer
-    inactivityTimers[postId] = setTimeout(() => {
-        controls.style.display = "none"; // Hide controls
-        playButton.style.display = "none"; // Hide play button
-    }, 3000); // 3s timeout
-}
-function resetInactivityTimer(postId) {
-    let controls = document.querySelector(`#video-${postId} ~ .custom-video-controls`);
-    let playButton = document.querySelector(`#video-${postId} + .custom-play-btn`);
-
-    controls.style.display = "flex"; // Show controls
-    playButton.style.display = "block"; // Show play button
-
-    startInactivityTimer(postId); // Restart the timer
+// Function to hide video controls after 3 seconds of inactivity
+function resetVideoTimeout(postId) {
+    // Clear any existing timeout
+    if (videoTimeouts[postId]) {
+        clearTimeout(videoTimeouts[postId]);
+    }
+    
+    // Set a new timeout to hide controls after 3 seconds
+    videoTimeouts[postId] = setTimeout(() => {
+        let controls = document.querySelector(`#video-${postId}`).parentElement.querySelector('.custom-video-controls');
+        let playButton = document.querySelector(`#video-${postId} + .custom-play-btn`);
+        if (!document.getElementById("video-" + postId).paused) {
+            controls.style.display = "none"; // Hide controls
+            playButton.style.display = "none"; // Hide play button
+        }
+    }, 3000); // 3 seconds
 }
 
-// Attach event listeners to detect user activity
-document.addEventListener("mousemove", (event) => {
-    let postId = event.target.closest(".custom-video-container")?.id?.split("-")[1];
-    if (postId) resetInactivityTimer(postId);
-});
-
-document.addEventListener("touchstart", (event) => {
-    let postId = event.target.closest(".custom-video-container")?.id?.split("-")[1];
-    if (postId) resetInactivityTimer(postId);
-});
 // Function to seek video
 function seekVideo(postId, value) {
     let video = document.getElementById("video-" + postId);
     video.currentTime = (video.duration / 100) * value;
+    resetVideoTimeout(postId); // Reset timeout when seeking
 }
 
 // Function to update video time & seek bar
@@ -1087,20 +1075,40 @@ function updateVideoTime(postId) {
     let totalMinutes = Math.floor(video.duration / 60);
     let totalSeconds = Math.floor(video.duration % 60);
 
-    currentTimeElement.innerHTML = ${currentMinutes}:${currentSeconds < 10 ? "0" + currentSeconds : currentSeconds};
-    durationElement.innerHTML = ${totalMinutes}:${totalSeconds < 10 ? "0" + totalSeconds : totalSeconds};
+    currentTimeElement.innerHTML = `${currentMinutes}:${currentSeconds < 10 ? "0" + currentSeconds : currentSeconds}`;
+    durationElement.innerHTML = `${totalMinutes}:${totalSeconds < 10 ? "0" + totalSeconds : totalSeconds}`;
 
     seekbar.value = (video.currentTime / video.duration) * 100;
+
+    resetVideoTimeout(postId); // Reset timeout when updating video time
 }
 
 // Automatically show play button when video ends
 document.addEventListener("ended", function(event) {
     if (event.target && event.target.classList.contains('custom-video')) {
         let postId = event.target.id.split('-')[1];
-        let playButton = document.querySelector(#video-${postId} + .custom-play-btn);
+        let playButton = document.querySelector(`#video-${postId} + .custom-play-btn`);
         playButton.style.display = "block";
     }
 });
+
+// Attach event listener to video play/pause state change
+document.querySelectorAll('.custom-video').forEach(video => {
+    video.addEventListener('play', () => {
+        let postId = video.id.split('-')[1];
+        let playButton = document.querySelector(`#video-${postId} + .custom-play-btn`);
+        let controls = document.querySelector(`#video-${postId}`).parentElement.querySelector('.custom-video-controls');
+        controls.style.display = "flex"; // Show controls when playing
+        resetVideoTimeout(postId); // Reset timeout
+    });
+
+    video.addEventListener('pause', () => {
+        let postId = video.id.split('-')[1];
+        let playButton = document.querySelector(`#video-${postId} + .custom-play-btn`);
+        playButton.style.display = "block"; // Show play button when paused
+    });
+});
+
 // Function to show the post menu
 function showPostMenu(event, postId) {
     event.stopPropagation();
