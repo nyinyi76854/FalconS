@@ -1027,6 +1027,8 @@ function togglePlay(postId) {
         video.play();
         playButton.classList.remove("fa-play");
         playButton.classList.add("fa-pause");
+        // Start the timeout to hide controls after 3 seconds
+        hideControls(postId);
     } else {
         video.pause();
         playButton.classList.remove("fa-pause");
@@ -1038,17 +1040,26 @@ function hideControls(postId) {
     videoTimeouts[postId] = setTimeout(() => {
         let video = document.getElementById("video-" + postId);
         let controlsContainer = video.parentElement.querySelector('.custom-video-controls');
-        let playButton = video.parentElement.querySelector('.custom-play-btn');
+        let playButton = document.querySelector(`#video-${postId} + .custom-play-btn`);
 
         if (!video.paused) {
             controlsContainer.style.opacity = "0";
-            playButton.style.display = "none"; // Instead of opacity, use display for better UX
+            playButton.style.opacity = "0";
         }
-    }, 3000);
+    }, 3000); // Hide controls after 3 seconds
 }
 
+function showControls(postId) {
+    let video = document.getElementById("video-" + postId);
+    let controlsContainer = video.parentElement.querySelector('.custom-video-controls');
+    let playButton = document.querySelector(`#video-${postId} + .custom-play-btn`);
 
+    controlsContainer.style.opacity = "1";
+    playButton.style.opacity = "1";
 
+    // Clear any ongoing hide timeout to prevent premature hiding
+    clearTimeout(videoTimeouts[postId]);
+}
 
 // Function to update play/pause icon
 function updateVideoTime(postId) {
@@ -1083,7 +1094,7 @@ function seekVideo(postId, value) {
     video.currentTime = (value / 100) * duration;
 }
 
-// Attach event listeners for hover effects
+// Attach event listeners for video controls
 document.querySelectorAll('.custom-video-container').forEach(container => {
     let video = container.querySelector('.custom-video');
     let postId = video.id.split('-')[1];
@@ -1091,21 +1102,32 @@ document.querySelectorAll('.custom-video-container').forEach(container => {
     // Update video time and seekbar when the video is playing
     video.addEventListener('timeupdate', () => updateVideoTime(postId));
 
-    // Event listeners for hover effects
-    container.addEventListener('mouseenter', () => showControls(postId));
-    container.addEventListener('mouseleave', () => hideControls(postId));
+    // Toggle controls visibility when the video is clicked
+    video.addEventListener('click', () => {
+        let controlsContainer = video.parentElement.querySelector('.custom-video-controls');
+        let playButton = document.querySelector(`#video-${postId} + .custom-play-btn`);
+
+        // If controls are hidden, show them
+        if (controlsContainer.style.opacity === "0") {
+            showControls(postId);
+        } else {
+            hideControls(postId);
+        }
+    });
 
     // Play/pause button handling
     video.addEventListener('play', () => {
         let playButton = document.querySelector(`#video-${postId} + .custom-play-btn i`);
         playButton.classList.remove("fa-play");
         playButton.classList.add("fa-pause");
+        hideControls(postId); // Hide controls after 3 seconds
     });
 
     video.addEventListener('pause', () => {
         let playButton = document.querySelector(`#video-${postId} + .custom-play-btn i`);
         playButton.classList.remove("fa-pause");
         playButton.classList.add("fa-play");
+        showControls(postId); // Ensure controls are visible when paused
     });
 });
 
