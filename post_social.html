@@ -1048,28 +1048,39 @@ function hideControls(postId) {
 }
 
 
-function hideControls(postId) {
-    videoTimeouts[postId] = setTimeout(() => {
-        let video = document.getElementById("video-" + postId);
-        let controlsContainer = video.parentElement.querySelector('.custom-video-controls');
-        let playButton = document.querySelector(`#video-${postId} + .custom-play-btn`);
 
-        if (!video.paused) {
-            controlsContainer.style.opacity = "0";
-            playButton.style.opacity = "0";
-        }
-    }, 3000);
-}
 
 // Function to update play/pause icon
 function updateVideoTime(postId) {
     let video = document.getElementById("video-" + postId);
-    let playButton = document.querySelector(`#video-${postId} + .custom-play-btn i`);
+    let currentTime = video.currentTime;
+    let duration = video.duration;
 
-    if (!video.paused) {
-        playButton.classList.remove("fa-play");
-        playButton.classList.add("fa-pause");
+    // Update current time
+    document.getElementById("current-time-" + postId).textContent = formatTime(currentTime);
+    
+    // Update duration
+    document.getElementById("duration-" + postId).textContent = formatTime(duration);
+
+    // Update seekbar
+    let seekbar = document.getElementById("seekbar-" + postId);
+    if (duration > 0) {
+        seekbar.value = (currentTime / duration) * 100;
     }
+}
+
+// Helper function to format time as mm:ss
+function formatTime(seconds) {
+    let minutes = Math.floor(seconds / 60);
+    let remainingSeconds = Math.floor(seconds % 60);
+    return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+}
+
+// Function to seek video
+function seekVideo(postId, value) {
+    let video = document.getElementById("video-" + postId);
+    let duration = video.duration;
+    video.currentTime = (value / 100) * duration;
 }
 
 // Attach event listeners for hover effects
@@ -1077,9 +1088,14 @@ document.querySelectorAll('.custom-video-container').forEach(container => {
     let video = container.querySelector('.custom-video');
     let postId = video.id.split('-')[1];
 
+    // Update video time and seekbar when the video is playing
+    video.addEventListener('timeupdate', () => updateVideoTime(postId));
+
+    // Event listeners for hover effects
     container.addEventListener('mouseenter', () => showControls(postId));
     container.addEventListener('mouseleave', () => hideControls(postId));
 
+    // Play/pause button handling
     video.addEventListener('play', () => {
         let playButton = document.querySelector(`#video-${postId} + .custom-play-btn i`);
         playButton.classList.remove("fa-play");
@@ -1092,7 +1108,6 @@ document.querySelectorAll('.custom-video-container').forEach(container => {
         playButton.classList.add("fa-play");
     });
 });
-
 
 
 // Function to show the post menu
