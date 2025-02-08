@@ -935,18 +935,18 @@ function fetchPosts() {
                                 mediaContent = `<img src="${post.posttext}" style="max-width: 100%; max-height: 400px; border-radius: 5px;">`;
                             } else if (isVideoUrl(post.posttext)) {
                                 mediaContent = 
-                                    `<div class="custom-video-container">
-                                        <video id="video-${postId}" class="custom-video" style="max-width: 100%; max-height: 400px; border-radius: 5px;">
-                                            <source src="${post.posttext}" type="video/mp4">
-                                            Your browser does not support the video tag.
-                                        </video>
-                                        <div class="custom-video-controls">
-                                            <button class="custom-play-btn" onclick="togglePlay('${postId}')">&#x25B6;</button>
-                                            <span class="current-time" id="current-time-${postId}">0:00</span>
-                                            <input type="range" class="custom-seekbar" id="seekbar-${postId}" value="0" max="100" onclick="seekVideo('${postId}', this.value)" />
-                                            <span class="duration" id="duration-${postId}">0:00</span>
-                                        </div>
-                                    </div>`;
+        `<div class="custom-video-container" style="position: relative; width: 100%; max-height: 400px; border-radius: 5px; overflow: hidden; background-color: black;">
+            <video id="video-${postId}" class="custom-video" style="width: 100%; height: auto; display: block;">
+                <source src="${post.posttext}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+            <div class="custom-video-controls" style="position: absolute; bottom: 10px; left: 10px; right: 10px; display: flex; justify-content: space-between; align-items: center; color: white; padding: 5px 10px; background: rgba(0, 0, 0, 0.6); border-radius: 15px; width: calc(100% - 20px);">
+                <button class="custom-play-btn" onclick="togglePlay('${postId}')" style="background: none; border: none; color: white; font-size: 24px; cursor: pointer;">&#x25B6;</button>
+                <span class="current-time" id="current-time-${postId}" style="font-size: 14px; padding: 0 5px;">0:00</span>
+                <input type="range" class="custom-seekbar" id="seekbar-${postId}" value="0" max="100" onclick="seekVideo('${postId}', this.value)" style="flex-grow: 1; margin: 0 10px; -webkit-appearance: none; background: rgba(255, 255, 255, 0.3); height: 5px; border-radius: 5px; outline: none;">
+                <span class="duration" id="duration-${postId}" style="font-size: 14px; padding: 0 5px;">0:00</span>
+            </div>
+        </div>`;
                             } else {
                                 mediaContent = `<div class="post-text">${post.posttext}</div>`;
                             }
