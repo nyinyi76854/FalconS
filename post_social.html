@@ -327,6 +327,21 @@ h1 {
     margin-bottom: 10px;
     font-size: 16px;
 }
+/* Hide all controls initially */
+.custom-video-controls, .custom-play-btn {
+    display: none;
+}
+
+/* Show controls when hovering over video container */
+.custom-video-container:hover .custom-video-controls,
+.custom-video-container:hover .custom-play-btn {
+    display: block !important;
+}
+
+/* Remove default web video controls */
+video::-webkit-media-controls {
+    display: none !important;
+}
 
 
 
@@ -1038,11 +1053,10 @@ function togglePlay(postId) {
 
 function hideControls(postId) {
     videoTimeouts[postId] = setTimeout(() => {
-        let video = document.getElementById("video-" + postId);
-        let controlsContainer = video.parentElement.querySelector('.custom-video-controls');
+        let controlsContainer = document.querySelector(`#controls-${postId}`);
         let playButton = document.querySelector(`#video-${postId} + .custom-play-btn`);
 
-        if (!video.paused) {
+        if (!document.getElementById(`video-${postId}`).paused) {
             controlsContainer.style.display = "none";
             playButton.style.display = "none";
         }
@@ -1050,15 +1064,13 @@ function hideControls(postId) {
 }
 
 function showControls(postId) {
-    let video = document.getElementById("video-" + postId);
-    let controlsContainer = video.parentElement.querySelector('.custom-video-controls');
+    let controlsContainer = document.querySelector(`#controls-${postId}`);
     let playButton = document.querySelector(`#video-${postId} + .custom-play-btn`);
 
     controlsContainer.style.display = "block";
     playButton.style.display = "block";
 
-    // Clear any ongoing hide timeout
-    clearTimeout(videoTimeouts[postId]);
+    clearTimeout(videoTimeouts[postId]); // Clear any existing timeout
 }
 
 // Function to update play/pause icon and seekbar
@@ -1067,24 +1079,13 @@ function updateVideoTime(postId) {
     let currentTime = video.currentTime;
     let duration = video.duration;
 
-    // Update current time
     document.getElementById("current-time-" + postId).textContent = formatTime(currentTime);
-    
-    // Update duration
     document.getElementById("duration-" + postId).textContent = formatTime(duration);
 
-    // Update seekbar
     let seekbar = document.getElementById("seekbar-" + postId);
     if (duration > 0) {
         seekbar.value = (currentTime / duration) * 100;
     }
-}
-
-// Helper function to format time as mm:ss
-function formatTime(seconds) {
-    let minutes = Math.floor(seconds / 60);
-    let remainingSeconds = Math.floor(seconds % 60);
-    return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
 }
 
 // Function to seek video
@@ -1094,34 +1095,43 @@ function seekVideo(postId, value) {
     video.currentTime = (value / 100) * duration;
 }
 
+// Helper function to format time as mm:ss
+function formatTime(seconds) {
+    let minutes = Math.floor(seconds / 60);
+    let remainingSeconds = Math.floor(seconds % 60);
+    return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+}
+
 // Attach event listeners for video controls
 document.querySelectorAll('.custom-video-container').forEach(container => {
     let video = container.querySelector('.custom-video');
     let postId = video.id.split('-')[1];
 
-    // Update video time and seekbar when playing
+    // Remove default video controls
+    video.removeAttribute("controls");
+
+    // Disable PiP and Enhance button
+    video.setAttribute("controlsList", "nodownload nofullscreen noremoteplayback");
+
+    // Update time & seekbar when playing
     video.addEventListener('timeupdate', () => updateVideoTime(postId));
 
-    // Show controls when mouse hovers over the video
-    video.addEventListener('mouseenter', () => showControls(postId));
-    video.addEventListener('mouseleave', () => hideControls(postId));
+    // Show controls on hover
+    container.addEventListener('mouseenter', () => showControls(postId));
+    container.addEventListener('mouseleave', () => hideControls(postId));
 
-    // Toggle controls visibility when clicking the video
+    // Toggle controls when clicking video
     video.addEventListener('click', () => {
-        let controlsContainer = video.parentElement.querySelector('.custom-video-controls');
-        if (controlsContainer.style.display === "none") {
-            showControls(postId);
-        } else {
-            hideControls(postId);
-        }
+        let controlsContainer = document.querySelector(`#controls-${postId}`);
+        controlsContainer.style.display = (controlsContainer.style.display === "none") ? "block" : "none";
     });
 
-    // Play/pause button handling
+    // Play/Pause Button Update
     video.addEventListener('play', () => {
         let playButton = document.querySelector(`#video-${postId} + .custom-play-btn i`);
         playButton.classList.remove("fa-play");
         playButton.classList.add("fa-pause");
-        hideControls(postId); // Hide controls after 3 seconds
+        hideControls(postId);
     });
 
     video.addEventListener('pause', () => {
@@ -1131,6 +1141,7 @@ document.querySelectorAll('.custom-video-container').forEach(container => {
         showControls(postId);
     });
 });
+
 
 
 // Function to show the post menu
