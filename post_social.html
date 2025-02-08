@@ -1016,27 +1016,27 @@ function fetchPosts() {
     });
 }
 
-let videoTimeouts = {}; // Object to track timeouts for each video
+let videoTimeouts = {}; // Track timeouts for each video
 
 // Function to toggle play/pause
 function togglePlay(postId) {
     let video = document.getElementById("video-" + postId);
-    let controlsContainer = document.querySelector(`#video-${postId}`).parentElement.querySelector('.custom-video-controls');
+    let controlsContainer = video.parentElement.querySelector('.custom-video-controls');
     let playButton = document.querySelector(`#video-${postId} + .custom-play-btn`);
 
     if (video.paused) {
         video.play();
-        playButton.style.display = "none"; // Hide play button when playing
-        controlsContainer.style.display = "none"; // Hide controls when playing
+        playButton.style.opacity = "0"; // Hide play button
+        controlsContainer.style.opacity = "0"; // Hide controls
         resetVideoTimeout(postId);
     } else {
         video.pause();
-        playButton.style.display = "block"; // Show play button when paused
-        controlsContainer.style.display = "flex"; // Show controls when paused
+        playButton.style.opacity = "1"; // Show play button
+        controlsContainer.style.opacity = "1"; // Show controls
     }
 }
 
-// Function to hide video controls after 3 seconds of inactivity
+// Function to hide video controls after 3 seconds
 function resetVideoTimeout(postId) {
     if (videoTimeouts[postId]) {
         clearTimeout(videoTimeouts[postId]);
@@ -1044,14 +1044,14 @@ function resetVideoTimeout(postId) {
 
     videoTimeouts[postId] = setTimeout(() => {
         let video = document.getElementById("video-" + postId);
-        let controlsContainer = document.querySelector(`#video-${postId}`).parentElement.querySelector('.custom-video-controls');
+        let controlsContainer = video.parentElement.querySelector('.custom-video-controls');
         let playButton = document.querySelector(`#video-${postId} + .custom-play-btn`);
 
         if (!video.paused) {
-            controlsContainer.style.display = "none"; // Hide controls
-            playButton.style.display = "none"; // Hide play button
+            controlsContainer.style.opacity = "0"; // Smoothly hide controls
+            playButton.style.opacity = "0"; // Smoothly hide play button
         }
-    }, 3000); // 3 seconds
+    }, 3000);
 }
 
 // Function to seek video
@@ -1086,7 +1086,7 @@ document.addEventListener("ended", function(event) {
     if (event.target && event.target.classList.contains('custom-video')) {
         let postId = event.target.id.split('-')[1];
         let playButton = document.querySelector(`#video-${postId} + .custom-play-btn`);
-        playButton.style.display = "block";
+        playButton.style.opacity = "1";
     }
 });
 
@@ -1097,20 +1097,20 @@ document.querySelectorAll('.custom-video').forEach(video => {
     let playButton = document.querySelector(`#video-${postId} + .custom-play-btn`);
 
     video.addEventListener('play', () => {
-        playButton.style.display = "none"; // Hide play button when playing
-        controlsContainer.style.display = "none"; // Hide controls when playing
+        playButton.style.opacity = "0"; // Hide play button smoothly
+        controlsContainer.style.opacity = "0"; // Hide controls smoothly
         resetVideoTimeout(postId);
     });
 
     video.addEventListener('pause', () => {
-        playButton.style.display = "block"; // Show play button when paused
-        controlsContainer.style.display = "flex"; // Show controls when paused
+        playButton.style.opacity = "1"; // Show play button
+        controlsContainer.style.opacity = "1"; // Show controls
     });
 
     // Show controls on hover
     video.parentElement.addEventListener('mouseenter', () => {
-        playButton.style.display = "block"; // Show play button
-        controlsContainer.style.display = "flex"; // Show controls
+        playButton.style.opacity = "1"; // Show play button smoothly
+        controlsContainer.style.opacity = "1"; // Show controls smoothly
         if (videoTimeouts[postId]) {
             clearTimeout(videoTimeouts[postId]); // Prevent timeout while hovering
         }
