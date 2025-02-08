@@ -1111,8 +1111,13 @@ document.querySelectorAll('.custom-video-container').forEach(container => {
         if (controlsContainer.style.opacity === "0") {
             showControls(postId);
         } else {
+            // Otherwise, hide them again
             hideControls(postId);
         }
+
+        // Restart video timeout to hide controls again after 3 seconds
+        clearTimeout(videoTimeouts[postId]);
+        hideControls(postId);
     });
 
     // Play/pause button handling
