@@ -949,8 +949,8 @@ function fetchPosts() {
                             `;
 
                             if (isImageUrl(post.posttext)) {
-                                mediaContent = `<img src="${post.posttext}" style="max-width: 100%; max-height: 400px; border-radius: 5px;">`;
-                            } else if (isVideoUrl(post.posttext)) {
+    mediaContent = `<img src="${post.posttext}" style="max-width: 100%; max-height: 400px; border-radius: 5px; display: block; margin: 0 auto;">`;
+} else if (isVideoUrl(post.posttext)) {
                                mediaContent = 
         `<div class="custom-video-container" style="position: relative; width: 100%; max-height: 400px; border-radius: 5px; overflow: hidden; background-color: black;">
             <video id="video-${postId}" class="custom-video" style="width: 100%; height: auto; display: block;" ontimeupdate="updateVideoTime('${postId}')">
