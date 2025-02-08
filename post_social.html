@@ -1134,7 +1134,25 @@ document.querySelectorAll('.custom-video-container').forEach(container => {
         playButton.classList.add("fa-play");
         showControls(postId); // Ensure controls are visible when paused
     });
+
+    // Show controls on mouseover and hide on mouseout
+    video.addEventListener('mouseover', () => {
+        showControls(postId); // Show controls when hovering over the video
+    });
+
+    video.addEventListener('mouseout', () => {
+        // Start hiding the controls after 3 seconds if not playing
+        if (!video.paused) {
+            hideControls(postId);
+        }
+    });
+
+    // Disable default picture-in-picture controls
+    video.setAttribute('controlslist', 'nodownload nofullscreen noremoteplayback');
+    video.setAttribute('disablePictureInPicture', true);
+    video.setAttribute('controls', false);
 });
+
 
 
 // Function to show the post menu
