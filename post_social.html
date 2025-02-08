@@ -941,13 +941,12 @@ function fetchPosts() {
                 Your browser does not support the video tag.
             </video>
 
-            <!-- Play Button at Center -->
             <button class="custom-play-btn" onclick="togglePlay('${postId}')"
-                style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
-                background: rgba(0, 0, 0, 0.5); border: none; color: white; font-size: 36px; 
-                cursor: pointer; border-radius: 50%; padding: 15px;">
-                &#x25B6;
-            </button>
+        style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+        background: rgba(0, 0, 0, 0.6); border: none; color: white; font-size: 24px; 
+        cursor: pointer; border-radius: 50%; padding: 10px;">
+        &#x25B6;
+    </button>
 
             <!-- Video Controls at Bottom -->
             <div class="custom-video-controls" style="position: absolute; bottom: 10px; left: 10px; right: 10px; 
@@ -1022,18 +1021,18 @@ let videoTimeouts = {}; // Track timeouts for each video
 function togglePlay(postId) {
     let video = document.getElementById("video-" + postId);
     let controlsContainer = video.parentElement.querySelector('.custom-video-controls');
-    let playButton = document.querySelector(`#video-${postId} + .custom-play-btn`);
+    let playButton = document.querySelector(`#video-${postId} + .custom-play-btn i`);
 
     if (video.paused) {
         video.play();
-        playButton.style.opacity = "0"; // Hide play button
-        controlsContainer.style.opacity = "0"; // Hide controls
-        resetVideoTimeout(postId);
+        playButton.classList.remove("fa-play");
+        playButton.classList.add("fa-pause");
     } else {
         video.pause();
-        playButton.style.opacity = "1"; // Show play button
-        controlsContainer.style.opacity = "1"; // Show controls
+        playButton.classList.remove("fa-pause");
+        playButton.classList.add("fa-play");
     }
+    resetVideoTimeout(postId);
 }
 
 // Function to hide video controls after 3 seconds
@@ -1048,17 +1047,10 @@ function resetVideoTimeout(postId) {
         let playButton = document.querySelector(`#video-${postId} + .custom-play-btn`);
 
         if (!video.paused) {
-            controlsContainer.style.opacity = "0"; // Smoothly hide controls
-            playButton.style.opacity = "0"; // Smoothly hide play button
+            controlsContainer.style.opacity = "0"; // Hide controls smoothly
+            playButton.style.opacity = "0"; // Hide play/pause button smoothly
         }
     }, 3000);
-}
-
-// Function to seek video
-function seekVideo(postId, value) {
-    let video = document.getElementById("video-" + postId);
-    video.currentTime = (video.duration / 100) * value;
-    resetVideoTimeout(postId);
 }
 
 // Function to update video time & seek bar
@@ -1085,8 +1077,9 @@ function updateVideoTime(postId) {
 document.addEventListener("ended", function(event) {
     if (event.target && event.target.classList.contains('custom-video')) {
         let postId = event.target.id.split('-')[1];
-        let playButton = document.querySelector(`#video-${postId} + .custom-play-btn`);
-        playButton.style.opacity = "1";
+        let playButton = document.querySelector(`#video-${postId} + .custom-play-btn i`);
+        playButton.classList.remove("fa-pause");
+        playButton.classList.add("fa-play");
     }
 });
 
@@ -1094,23 +1087,33 @@ document.addEventListener("ended", function(event) {
 document.querySelectorAll('.custom-video').forEach(video => {
     let postId = video.id.split('-')[1];
     let controlsContainer = video.parentElement.querySelector('.custom-video-controls');
-    let playButton = document.querySelector(`#video-${postId} + .custom-play-btn`);
+    let playButton = document.querySelector(`#video-${postId} + .custom-play-btn i`);
 
     video.addEventListener('play', () => {
-        playButton.style.opacity = "0"; // Hide play button smoothly
-        controlsContainer.style.opacity = "0"; // Hide controls smoothly
+        playButton.classList.remove("fa-play");
+        playButton.classList.add("fa-pause");
         resetVideoTimeout(postId);
     });
 
     video.addEventListener('pause', () => {
-        playButton.style.opacity = "1"; // Show play button
-        controlsContainer.style.opacity = "1"; // Show controls
+        playButton.classList.remove("fa-pause");
+        playButton.classList.add("fa-play");
     });
 
-    // Show controls on hover
+    // Show controls and update icon on hover
     video.parentElement.addEventListener('mouseenter', () => {
-        playButton.style.opacity = "1"; // Show play button smoothly
+        let buttonContainer = document.querySelector(`#video-${postId} + .custom-play-btn`);
+        buttonContainer.style.opacity = "1"; // Show button smoothly
         controlsContainer.style.opacity = "1"; // Show controls smoothly
+
+        if (video.paused) {
+            playButton.classList.remove("fa-pause");
+            playButton.classList.add("fa-play");
+        } else {
+            playButton.classList.remove("fa-play");
+            playButton.classList.add("fa-pause");
+        }
+
         if (videoTimeouts[postId]) {
             clearTimeout(videoTimeouts[postId]); // Prevent timeout while hovering
         }
@@ -1121,6 +1124,7 @@ document.querySelectorAll('.custom-video').forEach(video => {
         resetVideoTimeout(postId);
     });
 });
+
 
 
 // Function to show the post menu
