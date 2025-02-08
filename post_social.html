@@ -1016,22 +1016,59 @@ function fetchPosts() {
     });
 }
 
-// Function to toggle play/pause
 function togglePlay(postId) {
     let video = document.getElementById("video-" + postId);
-    let playButton = document.querySelector(`#video-${postId} + .custom-play-btn`); 
+    let playButton = document.querySelector(`#video-${postId} + .custom-play-btn`);
+    let controls = document.querySelector(`#video-${postId} ~ .custom-video-controls`);
 
     if (video.paused) {
         video.play();
         playButton.innerHTML = "&#x23F8;"; // Pause icon
         playButton.style.display = "none"; // Hide play button when playing
+        controls.style.display = "none"; // Hide controls after inactivity
+        startInactivityTimer(postId); // Start inactivity timer
     } else {
         video.pause();
         playButton.innerHTML = "&#x25B6;"; // Play icon
         playButton.style.display = "block"; // Show play button when paused
+        controls.style.display = "flex"; // Show controls
+        clearTimeout(inactivityTimers[postId]); // Prevent hiding when manually paused
     }
 }
 
+
+let inactivityTimers = {};
+
+function startInactivityTimer(postId) {
+    let controls = document.querySelector(`#video-${postId} ~ .custom-video-controls`);
+    let playButton = document.querySelector(`#video-${postId} + .custom-play-btn`);
+
+    clearTimeout(inactivityTimers[postId]); // Reset timer
+    inactivityTimers[postId] = setTimeout(() => {
+        controls.style.display = "none"; // Hide controls
+        playButton.style.display = "none"; // Hide play button
+    }, 3000); // 3s timeout
+}
+function resetInactivityTimer(postId) {
+    let controls = document.querySelector(`#video-${postId} ~ .custom-video-controls`);
+    let playButton = document.querySelector(`#video-${postId} + .custom-play-btn`);
+
+    controls.style.display = "flex"; // Show controls
+    playButton.style.display = "block"; // Show play button
+
+    startInactivityTimer(postId); // Restart the timer
+}
+
+// Attach event listeners to detect user activity
+document.addEventListener("mousemove", (event) => {
+    let postId = event.target.closest(".custom-video-container")?.id?.split("-")[1];
+    if (postId) resetInactivityTimer(postId);
+});
+
+document.addEventListener("touchstart", (event) => {
+    let postId = event.target.closest(".custom-video-container")?.id?.split("-")[1];
+    if (postId) resetInactivityTimer(postId);
+});
 // Function to seek video
 function seekVideo(postId, value) {
     let video = document.getElementById("video-" + postId);
@@ -1050,8 +1087,8 @@ function updateVideoTime(postId) {
     let totalMinutes = Math.floor(video.duration / 60);
     let totalSeconds = Math.floor(video.duration % 60);
 
-    currentTimeElement.innerHTML = `${currentMinutes}:${currentSeconds < 10 ? "0" + currentSeconds : currentSeconds}`;
-    durationElement.innerHTML = `${totalMinutes}:${totalSeconds < 10 ? "0" + totalSeconds : totalSeconds}`;
+    currentTimeElement.innerHTML = ${currentMinutes}:${currentSeconds < 10 ? "0" + currentSeconds : currentSeconds};
+    durationElement.innerHTML = ${totalMinutes}:${totalSeconds < 10 ? "0" + totalSeconds : totalSeconds};
 
     seekbar.value = (video.currentTime / video.duration) * 100;
 }
@@ -1060,7 +1097,7 @@ function updateVideoTime(postId) {
 document.addEventListener("ended", function(event) {
     if (event.target && event.target.classList.contains('custom-video')) {
         let postId = event.target.id.split('-')[1];
-        let playButton = document.querySelector(`#video-${postId} + .custom-play-btn`);
+        let playButton = document.querySelector(#video-${postId} + .custom-play-btn);
         playButton.style.display = "block";
     }
 });
