@@ -1214,24 +1214,23 @@ function showPostMenu(event, postId) {
 }
 
 function deletePost(postId) {
-    const postRef = firestore.collection("postforall").doc(postId);
+    if (!confirm("Are you sure you want to delete this post?")) return;
 
-    postRef.delete().then(() => {
-        // Remove the post element from the UI
-        const postElement = document.getElementById(`post-${postId}`);
-        if (postElement) {
-            postElement.remove();
-        }
+    firestore.collection("postforall").doc(postId).delete()
+        .then(() => {
+            console.log("Post successfully deleted!");
+            document.getElementById("post-" + postId)?.remove(); // Remove post from UI
+        })
+        .catch(error => {
+            console.error("Error deleting post: ", error);
+            alert("Failed to delete post. Please try again.");
+        });
 
-        // Remove the menu after deletion
-        let existingMenu = document.getElementById("postMenu");
-        if (existingMenu) existingMenu.remove();
-
-        console.log("Post deleted successfully!");
-    }).catch((error) => {
-        console.error("Error deleting post:", error);
-    });
+    // Remove the post menu after deletion
+    let existingMenu = document.getElementById("postMenu");
+    if (existingMenu) existingMenu.remove();
 }
+
 
 
 
