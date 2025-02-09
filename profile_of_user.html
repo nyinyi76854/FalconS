@@ -66,6 +66,9 @@
     padding: 10px; /* Added padding for the circular effect */
     border-radius: 50%; /* Makes the button circular */
 }
+.post-container h2 {
+    color: white;
+}
 
 
 .user-info {
@@ -389,7 +392,6 @@ function fetchPosts(userEmail) {
         .orderBy("timestamp", "desc")
         .onSnapshot(snapshot => {
             const postContainer = document.querySelector(".post-container");
-            postContainer.innerHTML = "<h2 style='color: white;'>User Posts</h2>"; // Clear previous posts
 
             snapshot.forEach(doc => {
                 let post = doc.data();
