@@ -9,58 +9,66 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-         body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 0;
-            padding: 20px;
-            background-color: #f4f4f4;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            height: 100vh;
-        }
-        .container {
-            display: flex;
-            gap: 20px;
-            width: 80%;
-            max-width: 900px;
-        }
-        .profile-container {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-            width: 300px;
-        }
-        .profile-photo {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 3px solid #ddd;
-        }
-        .post-container {
-            flex: 1;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-        }
-        .back-button {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            background: none;
-            border: none;
-            font-size: 20px;
-            cursor: pointer;
-        }
-        .user-info {
-            margin-top: 10px;
-            font-size: 18px;
-        }
-        /* Style for the reaction button */
+       body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin: 0;
+    padding: 20px;
+    background-color: #000; /* Changed to black */
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    height: 100vh;
+}
+
+.container {
+    display: flex;
+    gap: 20px;
+    width: 80%;
+    max-width: 900px;
+}
+
+.profile-container {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    width: 300px;
+}
+
+.profile-photo {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #ddd;
+}
+
+.post-container {
+    flex: 1;
+    background: #000; /* Changed to black */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+.back-button {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.user-info {
+    margin-top: 10px;
+    font-size: 18px;
+    color: white; /* Changed user info text color to white */
+}
+
+/* Style for the reaction button */
 .reaction-btn {
     display: inline-block;
     background-color: #f2f2f2;
@@ -82,6 +90,7 @@
 .reaction-btn:hover {
     background-color: #ddd;
 }
+
 .reactions-options {
     display: none; /* Ensure it's hidden initially */
     position: absolute;
@@ -95,6 +104,7 @@
     flex-wrap: wrap;
     gap: 8px;
 }
+
     </style>
 </head>
 <body>
@@ -387,6 +397,27 @@ function fetchPosts(userEmail) {
                 fetchAndDisplayNameForPost(post.poster, (displayName) => {
                     fetchProfilePhoto(post.poster, (profilePhotoUrl) => {
                         checkVerifiedOrNot(post.poster, (isVerified) => {
+                            firebase.auth().onAuthStateChanged(user => {
+                            if (!user) return;
+                            const currentUserEmail = user.email;
+
+                            let menuDotHTML = ""; 
+                            if (currentUserEmail === post.poster) {
+                                menuDotHTML = `
+                                    <button class="menu-dot" onclick="showPostMenu(event, '${postId}')" 
+                                        style="background: none; 
+                                        border: none; 
+                                        font-size: 20px; 
+                                        cursor: pointer; 
+                                        color: #555; 
+                                        padding: 5px; 
+                                        position: relative; 
+                                        margin-left: 15px;
+                                        outline: none;">
+                                    &#x22EE;
+                                    </button>
+                                `;
+                            }
                             let mediaContent = "";
                             let descriptionContent = "";
 
@@ -417,15 +448,39 @@ function fetchPosts(userEmail) {
                             `;
 
                             // ✅ Improved Media Handling
-                            if (isImageUrl(post.posttext)) {
-                                mediaContent = `<img src="${post.posttext}" style="max-width: 100%; max-height: 400px; border-radius: 5px;">`;
-                            } else if (isVideoUrl(post.posttext)) {
-                                mediaContent = `
-                                    <video controls style="max-width: 100%; max-height: 400px; border-radius: 5px;">
-                                        <source src="${post.posttext}" type="video/mp4">
-                                        Your browser does not support the video tag.
-                                    </video>
-                                `;
+                           if (isImageUrl(post.posttext)) {
+    mediaContent = `<img src="${post.posttext}" style="max-width: 100%; max-height: 400px; border-radius: 5px; display: block; margin: 0 auto;">`;
+} else if (isVideoUrl(post.posttext)) {
+                               mediaContent = 
+        `<div class="custom-video-container" style="position: relative; width: 100%; max-height: 400px; border-radius: 5px; overflow: hidden; background-color: black;">
+            <video id="video-${postId}" class="custom-video" style="width: 100%; height: auto; display: block;" ontimeupdate="updateVideoTime('${postId}')">
+                <source src="${post.posttext}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+
+            <button class="custom-play-btn" onclick="togglePlay('${postId}')"
+    style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+    background: rgba(0, 0, 0, 0.6); border: none; color: white; font-size: 24px; 
+    cursor: pointer; border-radius: 50%; padding: 10px;">
+    <i class="fas fa-play"></i> <!-- FontAwesome Icon Inside -->
+</button>
+
+
+            <!-- Video Controls at Bottom -->
+            <div class="custom-video-controls" style="position: absolute; bottom: 10px; left: 10px; right: 10px; 
+                display: flex; justify-content: space-between; align-items: center; color: white; 
+                padding: 5px 10px; background: rgba(0, 0, 0, 0.6); border-radius: 10px;">
+                
+                <span class="current-time" id="current-time-${postId}" style="font-size: 14px;">0:00</span>
+                
+                <input type="range" class="custom-seekbar" id="seekbar-${postId}" value="0" max="100" 
+                    onclick="seekVideo('${postId}', this.value)"
+                    style="flex-grow: 1; margin: 0 10px; -webkit-appearance: none; background: rgba(255, 255, 255, 0.3);
+                    height: 5px; border-radius: 5px; outline: none; cursor: pointer;">
+                
+                <span class="duration" id="duration-${postId}" style="font-size: 14px;">0:00</span>
+            </div>
+        </div>`;
                             } else {
                                 mediaContent = `<div class="post-text">${post.posttext}</div>`;
                             }
@@ -439,17 +494,21 @@ function fetchPosts(userEmail) {
                                 `;
                             }
 
-                            postElement.innerHTML = `
-                                <div class="post-header" style="display: flex; align-items: center;">
-                                    <img src="${profilePhotoUrl}" alt="Profile Photo" style="width: 30px; height: 30px; border-radius: 50%; margin-right: 10px;">
-                                    <span>${displayName}</span>
-                                    <img src="verification.png" alt="Verified" class="verified-icon" style="width: 16px; height: 16px; margin-left: 5px; display: ${isVerified ? 'inline' : 'none'};">
-                                </div>
-                                ${mediaContent}
-                                ${descriptionContent}
-                                <div class="post-footer">${new Date(post.timestamp).toLocaleString()}</div>
-                                ${reactionsContent}
-                            `;
+                           postElement.innerHTML = `
+    <div class="post-header" style="display: flex; align-items: center; color: white;">
+        <img src="${profilePhotoUrl}" alt="Profile Photo" style="width: 30px; height: 30px; border-radius: 50%; margin-right: 10px;">
+        <span>${displayName}</span>
+        <img src="verification.png" alt="Verified" class="verified-icon" style="width: 16px; height: 16px; margin-left: 5px; display: ${isVerified ? 'inline' : 'none'};">
+    </div>
+    ${mediaContent}
+    <div class="post-description" style="max-height: 3.2em; overflow: hidden; color: white;">
+        ${post.description.length > 100 ? post.description.substring(0, 100) + '...' : post.description}
+    </div>
+    ${post.description.length > 100 ? '<button class="see-more-btn" onclick="toggleDescription(this)">See more</button>' : ''}
+    <div class="post-footer" style="color: white;">${new Date(post.timestamp).toLocaleString()}</div>
+    ${reactionsContent}
+`;
+
 
                             postContainer.appendChild(postElement);
 
@@ -481,6 +540,117 @@ function fetchPosts(userEmail) {
             }
         });
 }
+        let videoTimeouts = {}; // Track timeouts for each video
+
+// Function to toggle play/pause
+function togglePlay(postId) {
+    let video = document.getElementById("video-" + postId);
+    let playButton = document.querySelector(`#video-${postId} + .custom-play-btn i`);
+
+    if (video.paused) {
+        video.play();
+        playButton.classList.remove("fa-play");
+        playButton.classList.add("fa-pause");
+        hideControls(postId);
+    } else {
+        video.pause();
+        playButton.classList.remove("fa-pause");
+        playButton.classList.add("fa-play");
+        showControls(postId);
+    }
+}
+
+function hideControls(postId) {
+    videoTimeouts[postId] = setTimeout(() => {
+        let controlsContainer = document.querySelector(`#controls-${postId}`);
+        let playButton = document.querySelector(`#video-${postId} + .custom-play-btn`);
+
+        if (!document.getElementById(`video-${postId}`).paused) {
+            controlsContainer.style.display = "none";
+            playButton.style.display = "none";
+        }
+    }, 3000); // Hide controls after 3 seconds
+}
+
+function showControls(postId) {
+    let controlsContainer = document.querySelector(`#controls-${postId}`);
+    let playButton = document.querySelector(`#video-${postId} + .custom-play-btn`);
+
+    controlsContainer.style.display = "block";
+    playButton.style.display = "block";
+
+    clearTimeout(videoTimeouts[postId]); // Clear any existing timeout
+}
+
+// Function to update play/pause icon and seekbar
+function updateVideoTime(postId) {
+    let video = document.getElementById("video-" + postId);
+    let currentTime = video.currentTime;
+    let duration = video.duration;
+
+    document.getElementById("current-time-" + postId).textContent = formatTime(currentTime);
+    document.getElementById("duration-" + postId).textContent = formatTime(duration);
+
+    let seekbar = document.getElementById("seekbar-" + postId);
+    if (duration > 0) {
+        seekbar.value = (currentTime / duration) * 100;
+    }
+}
+
+// Function to seek video
+function seekVideo(postId, value) {
+    let video = document.getElementById("video-" + postId);
+    let duration = video.duration;
+    video.currentTime = (value / 100) * duration;
+}
+
+// Helper function to format time as mm:ss
+function formatTime(seconds) {
+    let minutes = Math.floor(seconds / 60);
+    let remainingSeconds = Math.floor(seconds % 60);
+    return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+}
+
+// Attach event listeners for video controls
+document.querySelectorAll('.custom-video-container').forEach(container => {
+    let video = container.querySelector('.custom-video');
+    let postId = video.id.split('-')[1];
+
+    // Remove default video controls
+    video.removeAttribute("controls");
+
+    // Disable PiP and Enhance button
+    video.setAttribute("controlsList", "nodownload nofullscreen noremoteplayback");
+
+    // Update time & seekbar when playing
+    video.addEventListener('timeupdate', () => updateVideoTime(postId));
+
+    // Show controls on hover
+    container.addEventListener('mouseenter', () => showControls(postId));
+    container.addEventListener('mouseleave', () => hideControls(postId));
+
+    // Toggle controls when clicking video
+    video.addEventListener('click', () => {
+        let controlsContainer = document.querySelector(`#controls-${postId}`);
+        controlsContainer.style.display = (controlsContainer.style.display === "none") ? "block" : "none";
+    });
+
+    // Play/Pause Button Update
+    video.addEventListener('play', () => {
+        let playButton = document.querySelector(`#video-${postId} + .custom-play-btn i`);
+        playButton.classList.remove("fa-play");
+        playButton.classList.add("fa-pause");
+        hideControls(postId);
+    });
+
+    video.addEventListener('pause', () => {
+        let playButton = document.querySelector(`#video-${postId} + .custom-play-btn i`);
+        playButton.classList.remove("fa-pause");
+        playButton.classList.add("fa-play");
+        showControls(postId);
+    });
+});
+
 function reactToPost(postId, reactionType, btn) {
     const userEmail = firebase.auth().currentUser.email;
     const reactionsCollection = firestore.collection("postforall").doc(postId).collection("falconspostreaction");
@@ -514,6 +684,158 @@ function reactToPost(postId, reactionType, btn) {
         }
     });
 
+}
+// Function to show the post menu
+function showPostMenu(event, postId) {
+    event.stopPropagation();
+
+    // Remove any existing menu
+    let existingMenu = document.getElementById("postMenu");
+    if (existingMenu) existingMenu.remove();
+
+    // Create menu
+    let menu = document.createElement("div");
+    menu.id = "postMenu";
+    menu.style.position = "fixed"; 
+    menu.style.top = `${event.clientY}px`;
+    menu.style.left = `${event.clientX}px`;
+    menu.style.background = "#fff";
+    menu.style.padding = "10px";
+    menu.style.borderRadius = "8px";
+    menu.style.boxShadow = "0px 4px 10px rgba(0, 0, 0, 0.2)";
+    menu.style.zIndex = "9999"; 
+    menu.style.minWidth = "120px";
+    menu.style.display = "flex";
+    menu.style.flexDirection = "column";
+    menu.style.alignItems = "center";
+
+    // Menu option
+    menu.innerHTML = `
+        <button onclick="showDeleteDialog('${postId}')"
+            style="display: flex; align-items: center; justify-content: center; width: 100%; padding: 8px; border: none; background: none; font-size: 14px; cursor: pointer; color: red; font-weight: bold;">
+            <i class="fa fa-trash" style="margin-right: 8px;"></i> Delete
+        </button>
+    `;
+
+    document.body.appendChild(menu);
+
+    // Adjust menu position to prevent overflow outside viewport
+    let menuRect = menu.getBoundingClientRect();
+    let viewportWidth = window.innerWidth;
+    let viewportHeight = window.innerHeight;
+
+    if (menuRect.right > viewportWidth) {
+        menu.style.left = `${viewportWidth - menuRect.width - 10}px`;
+    }
+    if (menuRect.bottom > viewportHeight) {
+        menu.style.top = `${viewportHeight - menuRect.height - 10}px`;
+    }
+
+    // Close menu when clicking outside
+    document.addEventListener("click", function closeMenu(event) {
+        if (!menu.contains(event.target)) {
+            menu.remove();
+            document.removeEventListener("click", closeMenu);
+        }
+    });
+}
+
+// Function to show custom delete confirmation dialog
+function showDeleteDialog(postId) {
+    // Remove any existing dialog
+    let existingDialog = document.getElementById("deleteDialog");
+    if (existingDialog) existingDialog.remove();
+
+    // Create the dialog container
+    let dialog = document.createElement("div");
+    dialog.id = "deleteDialog";
+    dialog.style.position = "fixed";
+    dialog.style.top = "50%";
+    dialog.style.left = "50%";
+    dialog.style.transform = "translate(-50%, -50%)";
+    dialog.style.background = "#fff";
+    dialog.style.padding = "20px";
+    dialog.style.borderRadius = "10px";
+    dialog.style.boxShadow = "0px 5px 15px rgba(0, 0, 0, 0.3)";
+    dialog.style.zIndex = "10000";
+    dialog.style.textAlign = "center";
+    dialog.style.width = "300px";
+
+    // Dialog content
+    dialog.innerHTML = `
+        <h3 style="margin-bottom: 10px; font-size: 18px;">Confirm Delete</h3>
+        <p style="color: #666;">Are you sure you want to delete this post?</p>
+        <div style="margin-top: 15px;">
+            <button onclick="deletePost('${postId}')"
+                style="background: red; color: white; padding: 8px 16px; border: none; border-radius: 5px; cursor: pointer;">
+                Delete
+            </button>
+            <button onclick="closeDeleteDialog()"
+                style="margin-left: 10px; background: gray; color: white; padding: 8px 16px; border: none; border-radius: 5px; cursor: pointer;">
+                Cancel
+            </button>
+        </div>
+    `;
+
+    document.body.appendChild(dialog);
+}
+
+// Function to close the delete confirmation dialog
+function closeDeleteDialog() {
+    let dialog = document.getElementById("deleteDialog");
+    if (dialog) dialog.remove();
+}
+
+// Function to delete the post
+function deletePost(postId) {
+    firestore.collection("postforall").doc(postId).delete()
+        .then(() => {
+            showToast("Post deleted successfully!", "success");
+            document.getElementById("post-" + postId)?.remove(); // Remove post from UI
+        })
+        .catch(error => {
+            console.error("Error deleting post: ", error);
+            showToast("Failed to delete post. Try again!", "error");
+        })
+        .finally(() => {
+            closeDeleteDialog();
+        });
+}
+
+// Function to show toast messages
+function showToast(message, type) {
+    let toast = document.createElement("div");
+    toast.className = `toast ${type}`;
+    toast.innerText = message;
+
+    // Toast styles
+    toast.style.position = "fixed";
+    toast.style.bottom = "20px";
+    toast.style.left = "50%";
+    toast.style.transform = "translateX(-50%)";
+    toast.style.padding = "10px 20px";
+    toast.style.borderRadius = "5px";
+    toast.style.color = "#fff";
+    toast.style.fontSize = "14px";
+    toast.style.zIndex = "9999";
+    toast.style.boxShadow = "0px 4px 10px rgba(0, 0, 0, 0.2)";
+    toast.style.transition = "opacity 0.3s ease-in-out";
+    toast.style.opacity = "1";
+
+    // Different styles for success and error
+    if (type === "success") {
+        toast.style.background = "green";
+    } else if (type === "error") {
+        toast.style.background = "red";
+    }
+
+    document.body.appendChild(toast);
+
+    // Auto-remove toast after 3 seconds
+    setTimeout(() => {
+        toast.style.opacity = "0";
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
 }
 
 
