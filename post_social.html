@@ -897,27 +897,7 @@ function fetchPosts() {
             fetchAndDisplayName(post.poster, (displayName) => {
                 fetchProfilePhoto(post.poster, (profilePhotoUrl) => {
                     checkVerifiedOrNot(post.poster, (isVerified) => {
-                        firebase.auth().onAuthStateChanged(user => {
-                            if (!user) return;
-                            const currentUserEmail = user.email;
-
-                            let menuDotHTML = ""; 
-                            if (currentUserEmail === post.poster) {
-                                menuDotHTML = `
-                                    <button class="menu-dot" onclick="showPostMenu(event, '${postId}')" 
-                                        style="background: none; 
-                                        border: none; 
-                                        font-size: 20px; 
-                                        cursor: pointer; 
-                                        color: #555; 
-                                        padding: 5px; 
-                                        position: relative; 
-                                        margin-left: 15px;
-                                        outline: none;">
-                                    &#x22EE;
-                                    </button>
-                                `;
-                            }
+                       
 
                             let mediaContent = "";
                             let descriptionContent = "";
@@ -949,38 +929,14 @@ function fetchPosts() {
                             `;
 
                             if (isImageUrl(post.posttext)) {
-    mediaContent = `<img src="${post.posttext}" style="max-width: 100%; max-height: 400px; border-radius: 5px; display: block; margin: 0 auto;">`;
-} else if (isVideoUrl(post.posttext)) {
-                               mediaContent = 
-        `<div class="custom-video-container" style="position: relative; width: 100%; max-height: 400px; border-radius: 5px; overflow: hidden; background-color: black;">
-            <video id="video-${postId}" class="custom-video" style="width: 100%; height: auto; display: block;" ontimeupdate="updateVideoTime('${postId}')">
-                <source src="${post.posttext}" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
-
-            <button class="custom-play-btn" onclick="togglePlay('${postId}')"
-    style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
-    background: rgba(0, 0, 0, 0.6); border: none; color: white; font-size: 24px; 
-    cursor: pointer; border-radius: 50%; padding: 10px;">
-    <i class="fas fa-play"></i> <!-- FontAwesome Icon Inside -->
-</button>
-
-
-            <!-- Video Controls at Bottom -->
-            <div class="custom-video-controls" style="position: absolute; bottom: 10px; left: 10px; right: 10px; 
-                display: flex; justify-content: space-between; align-items: center; color: white; 
-                padding: 5px 10px; background: rgba(0, 0, 0, 0.6); border-radius: 10px;">
-                
-                <span class="current-time" id="current-time-${postId}" style="font-size: 14px;">0:00</span>
-                
-                <input type="range" class="custom-seekbar" id="seekbar-${postId}" value="0" max="100" 
-                    onclick="seekVideo('${postId}', this.value)"
-                    style="flex-grow: 1; margin: 0 10px; -webkit-appearance: none; background: rgba(255, 255, 255, 0.3);
-                    height: 5px; border-radius: 5px; outline: none; cursor: pointer;">
-                
-                <span class="duration" id="duration-${postId}" style="font-size: 14px;">0:00</span>
-            </div>
-        </div>`;
+                                mediaContent = <img src="${post.posttext}" style="max-width: 100%; max-height: 400px; border-radius: 5px;">;
+                            } else if (isVideoUrl(post.posttext)) {
+                                mediaContent = 
+                                    <video controls style="max-width: 100%; max-height: 400px; border-radius: 5px;">
+                                        <source src="${post.posttext}" type="video/mp4">
+                                        Your browser does not support the video tag.
+                                    </video>
+                                ;
                             } else {
                                 mediaContent = `<div class="post-text" style="color: white;">${post.posttext}</div>`;
                             }
