@@ -19,6 +19,7 @@
     justify-content: center;
     align-items: flex-start;
     height: 100vh;
+           overflow: hidden;
 }
 
 .container {
@@ -35,6 +36,9 @@
     border-radius: 10px;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
     width: 300px;
+    position: fixed; /* Fix profile section */
+    left: 10%;
+    top: 20px;
 }
 
 .profile-photo {
@@ -53,20 +57,22 @@
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
     border: 1px solid white;
     border-bottom: 1px solid white;
+    height: calc(100vh - 40px); /* Set height to fit the screen */
+    overflow-y: auto; /* Enable scrolling */
+    margin-left: 320px; /* Push posts next to the fixed profile */
 }
-
 .back-button {
-    position: absolute;
+    position: fixed; /* Fix the back button */
     top: 15px;
     left: 15px;
     background-color: white; /* White background */
     border: none;
     font-size: 20px;
     cursor: pointer;
-    padding: 10px; /* Added padding for the circular effect */
+    padding: 10px;
     border-radius: 50%; /* Makes the button circular */
+    z-index: 1000; /* Ensure it stays above */
 }
-
 
 .user-info {
     margin-top: 10px;
@@ -342,7 +348,7 @@ function fetchAndDisplayNameForPost(email, callback) {
         profilesPhotoRef.where("uploaderEmail", "==", userEmail)
             .get()
             .then((querySnapshot) => {
-                let latestPhotoUrl = "user_1077114.png"; // Default profile photo
+                let latestPhotoUrl = "profile.png"; // Default profile photo
                 let latestTimestamp = 0;
 
                 querySnapshot.forEach((doc) => {
@@ -861,7 +867,7 @@ function checkVerifiedOrNot(userEmail, callback) {
             profilesPhotoRef.where("uploaderEmail", "==", email)
                 .get()
                 .then((querySnapshot) => {
-                    let latestPhotoUrl = "user_1077114.png";
+                    let latestPhotoUrl = "profile.png";
                     let latestTimestamp = 0;
 
                     querySnapshot.forEach((doc) => {
