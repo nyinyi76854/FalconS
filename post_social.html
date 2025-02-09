@@ -1146,7 +1146,6 @@ document.querySelectorAll('.custom-video-container').forEach(container => {
 });
 
 
-
 // Function to show the post menu
 function showPostMenu(event, postId) {
     event.stopPropagation();
@@ -1158,14 +1157,14 @@ function showPostMenu(event, postId) {
     // Create menu
     let menu = document.createElement("div");
     menu.id = "postMenu";
-    menu.style.position = "fixed";
+    menu.style.position = "fixed"; 
     menu.style.top = `${event.clientY}px`;
     menu.style.left = `${event.clientX}px`;
     menu.style.background = "#fff";
     menu.style.padding = "10px";
     menu.style.borderRadius = "8px";
     menu.style.boxShadow = "0px 4px 10px rgba(0, 0, 0, 0.2)";
-    menu.style.zIndex = "9999";
+    menu.style.zIndex = "9999"; 
     menu.style.minWidth = "120px";
     menu.style.display = "flex";
     menu.style.flexDirection = "column";
@@ -1174,18 +1173,7 @@ function showPostMenu(event, postId) {
     // Menu option
     menu.innerHTML = `
         <button onclick="showDeleteDialog('${postId}')"
-            style="
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                width: 100%;
-                padding: 8px;
-                border: none;
-                background: none;
-                font-size: 14px;
-                cursor: pointer;
-                color: red;
-                font-weight: bold;">
+            style="display: flex; align-items: center; justify-content: center; width: 100%; padding: 8px; border: none; background: none; font-size: 14px; cursor: pointer; color: red; font-weight: bold;">
             <i class="fa fa-trash" style="margin-right: 8px;"></i> Delete
         </button>
     `;
@@ -1215,11 +1203,11 @@ function showPostMenu(event, postId) {
 
 // Function to show custom delete confirmation dialog
 function showDeleteDialog(postId) {
-    // Remove existing dialog
+    // Remove any existing dialog
     let existingDialog = document.getElementById("deleteDialog");
     if (existingDialog) existingDialog.remove();
 
-    // Create dialog
+    // Create the dialog container
     let dialog = document.createElement("div");
     dialog.id = "deleteDialog";
     dialog.style.position = "fixed";
@@ -1229,21 +1217,22 @@ function showDeleteDialog(postId) {
     dialog.style.background = "#fff";
     dialog.style.padding = "20px";
     dialog.style.borderRadius = "10px";
-    dialog.style.boxShadow = "0px 4px 15px rgba(0, 0, 0, 0.3)";
+    dialog.style.boxShadow = "0px 5px 15px rgba(0, 0, 0, 0.3)";
     dialog.style.zIndex = "10000";
     dialog.style.textAlign = "center";
     dialog.style.width = "300px";
 
+    // Dialog content
     dialog.innerHTML = `
-        <h3 style="margin-bottom: 15px;">Delete Post?</h3>
-        <p style="font-size: 14px; color: #555;">This action cannot be undone.</p>
-        <div style="display: flex; justify-content: space-between; margin-top: 20px;">
-            <button onclick="deletePost('${postId}')" 
-                style="background: red; color: white; padding: 8px 12px; border: none; border-radius: 5px; cursor: pointer; width: 45%;">
+        <h3 style="margin-bottom: 10px; font-size: 18px;">Confirm Delete</h3>
+        <p style="color: #666;">Are you sure you want to delete this post?</p>
+        <div style="margin-top: 15px;">
+            <button onclick="deletePost('${postId}')"
+                style="background: red; color: white; padding: 8px 16px; border: none; border-radius: 5px; cursor: pointer;">
                 Delete
             </button>
-            <button onclick="closeDeleteDialog()" 
-                style="background: #ddd; color: black; padding: 8px 12px; border: none; border-radius: 5px; cursor: pointer; width: 45%;">
+            <button onclick="closeDeleteDialog()"
+                style="margin-left: 10px; background: gray; color: white; padding: 8px 16px; border: none; border-radius: 5px; cursor: pointer;">
                 Cancel
             </button>
         </div>
@@ -1252,62 +1241,63 @@ function showDeleteDialog(postId) {
     document.body.appendChild(dialog);
 }
 
-// Function to close delete confirmation dialog
+// Function to close the delete confirmation dialog
 function closeDeleteDialog() {
     let dialog = document.getElementById("deleteDialog");
     if (dialog) dialog.remove();
 }
 
-// Function to delete post
+// Function to delete the post
 function deletePost(postId) {
-    closeDeleteDialog(); // Close dialog
-
     firestore.collection("postforall").doc(postId).delete()
         .then(() => {
-            console.log("Post successfully deleted!");
+            showToast("Post deleted successfully!", "success");
             document.getElementById("post-" + postId)?.remove(); // Remove post from UI
-            showToast("Post deleted successfully", "success");
         })
         .catch(error => {
             console.error("Error deleting post: ", error);
-            showToast("Failed to delete post. Please try again.", "error");
+            showToast("Failed to delete post. Try again!", "error");
+        })
+        .finally(() => {
+            closeDeleteDialog();
         });
-
-    // Remove post menu
-    let existingMenu = document.getElementById("postMenu");
-    if (existingMenu) existingMenu.remove();
 }
 
-// Function to show toast notification
+// Function to show toast messages
 function showToast(message, type) {
     let toast = document.createElement("div");
     toast.className = `toast ${type}`;
     toast.innerText = message;
+
+    // Toast styles
     toast.style.position = "fixed";
     toast.style.bottom = "20px";
     toast.style.left = "50%";
     toast.style.transform = "translateX(-50%)";
-    toast.style.background = type === "success" ? "#4CAF50" : "#f44336";
-    toast.style.color = "#fff";
     toast.style.padding = "10px 20px";
     toast.style.borderRadius = "5px";
+    toast.style.color = "#fff";
+    toast.style.fontSize = "14px";
+    toast.style.zIndex = "9999";
     toast.style.boxShadow = "0px 4px 10px rgba(0, 0, 0, 0.2)";
-    toast.style.zIndex = "10000";
+    toast.style.transition = "opacity 0.3s ease-in-out";
     toast.style.opacity = "1";
-    toast.style.transition = "opacity 0.5s ease-in-out";
+
+    // Different styles for success and error
+    if (type === "success") {
+        toast.style.background = "green";
+    } else if (type === "error") {
+        toast.style.background = "red";
+    }
 
     document.body.appendChild(toast);
 
+    // Auto-remove toast after 3 seconds
     setTimeout(() => {
         toast.style.opacity = "0";
-        setTimeout(() => toast.remove(), 500);
-    }, 2000);
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
 }
-
-
-
-
-
 
 // Function to fetch real-time reaction count updates
 function fetchReactionsCount(postId) {
