@@ -1213,42 +1213,26 @@ function showPostMenu(event, postId) {
     });
 }
 
-// Function to delete post
 function deletePost(postId) {
-    let postElement = document.getElementById(`post-${postId}`);
-    
-    if (!postElement) {
-        console.error("Post element not found");
-        return;
-    }
+    const postRef = firestore.collection("postforall").doc(postId);
 
-    // Confirm before deleting
-    if (!confirm("Are you sure you want to delete this post?")) {
-        return;
-    }
+    postRef.delete().then(() => {
+        // Remove the post element from the UI
+        const postElement = document.getElementById(`post-${postId}`);
+        if (postElement) {
+            postElement.remove();
+        }
 
-    // Delete from Firestore without refreshing the entire list
-    firebase.firestore().collection("postforall").doc(postId)
-        .delete()
-        .then(() => {
-            console.log(`Post with ID ${postId} deleted successfully.`);
+        // Remove the menu after deletion
+        let existingMenu = document.getElementById("postMenu");
+        if (existingMenu) existingMenu.remove();
 
-            // Smoothly remove the post from UI with animation
-            postElement.style.transition = "opacity 0.3s ease-out";
-            postElement.style.opacity = "0";
-
-            setTimeout(() => {
-                postElement.remove();
-            }, 300); // Give time for animation before removal
-
-            // Remove menu if open
-            let postMenu = document.getElementById("postMenu");
-            if (postMenu) postMenu.remove();
-        })
-        .catch(error => {
-            console.error("Error deleting post:", error);
-        });
+        console.log("Post deleted successfully!");
+    }).catch((error) => {
+        console.error("Error deleting post:", error);
+    });
 }
+
 
 
 
