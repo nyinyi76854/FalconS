@@ -382,14 +382,12 @@ function fetchAndDisplayNameForPost(email, callback) {
             });
         }
 function fetchPosts(userEmail) {
-    
-
    firestore.collection("postforall")
         .where("poster", "==", userEmail) // Filter by userEmail
         .orderBy("timestamp", "desc")
         .onSnapshot(snapshot => {
             const postContainer = document.querySelector(".post-container");
-            postContainer.innerHTML = "<h2>User Posts</h2>"; // Clear previous posts
+            postContainer.innerHTML = "<h2 style='color: white;'>User Posts</h2>"; // Clear previous posts
 
             snapshot.forEach(doc => {
                 let post = doc.data();
@@ -421,6 +419,7 @@ function fetchPosts(userEmail) {
                                     </button>
                                 `;
                             }
+
                             let mediaContent = "";
                             let descriptionContent = "";
 
@@ -485,33 +484,32 @@ function fetchPosts(userEmail) {
             </div>
         </div>`;
                             } else {
-                                mediaContent = `<div class="post-text">${post.posttext}</div>`;
+                                mediaContent = `<div class="post-text" style="color: white;">${post.posttext}</div>`;
                             }
 
                             if (post.description) {
                                 descriptionContent = `
-                                    <div class="post-description" style="max-height: 3.2em; overflow: hidden;">
+                                    <div class="post-description" style="max-height: 3.2em; overflow: hidden; color: white;">
                                         ${post.description.length > 100 ? post.description.substring(0, 100) + '...' : post.description}
                                     </div>
-                                    ${post.description.length > 100 ? '<button class="see-more-btn" onclick="toggleDescription(this)">See more</button>' : ''}
+                                    ${post.description.length > 100 ? '<button class="see-more-btn" onclick="toggleDescription(this)" style="color: white;">See more</button>' : ''}
                                 `;
                             }
 
                            postElement.innerHTML = `
     <div class="post-header" style="display: flex; align-items: center; color: white;">
         <img src="${profilePhotoUrl}" alt="Profile Photo" style="width: 30px; height: 30px; border-radius: 50%; margin-right: 10px;">
-        <span>${displayName}</span>
+        <span style="color: white;">${displayName}</span>
         <img src="verification.png" alt="Verified" class="verified-icon" style="width: 16px; height: 16px; margin-left: 5px; display: ${isVerified ? 'inline' : 'none'};">
     </div>
     ${mediaContent}
     <div class="post-description" style="max-height: 3.2em; overflow: hidden; color: white;">
         ${post.description.length > 100 ? post.description.substring(0, 100) + '...' : post.description}
     </div>
-    ${post.description.length > 100 ? '<button class="see-more-btn" onclick="toggleDescription(this)">See more</button>' : ''}
+    ${post.description.length > 100 ? '<button class="see-more-btn" onclick="toggleDescription(this)" style="color: white;">See more</button>' : ''}
     <div class="post-footer" style="color: white;">${new Date(post.timestamp).toLocaleString()}</div>
     ${reactionsContent}
 `;
-
 
                             postContainer.appendChild(postElement);
 
