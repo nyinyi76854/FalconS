@@ -56,11 +56,14 @@
     position: absolute;
     top: 15px;
     left: 15px;
-    background: none;
+    background-color: white; /* White background */
     border: none;
     font-size: 20px;
     cursor: pointer;
+    padding: 10px; /* Added padding for the circular effect */
+    border-radius: 50%; /* Makes the button circular */
 }
+
 
 .user-info {
     margin-top: 10px;
@@ -158,6 +161,7 @@ countFollowers(carrieduserEmail);
     firebase.auth().onAuthStateChanged(user => {
         if (user) {
             const currentUserEmail = user.email;
+            
             const followButton = document.getElementById("followButton");
             const youTag = document.getElementById("youTag");
 
@@ -397,8 +401,7 @@ function fetchPosts(userEmail) {
                 fetchAndDisplayNameForPost(post.poster, (displayName) => {
                     fetchProfilePhoto(post.poster, (profilePhotoUrl) => {
                         checkVerifiedOrNot(post.poster, (isVerified) => {
-                            firebase.auth().onAuthStateChanged(user => {
-                            if (!user) return;
+                            
                             const currentUserEmail = user.email;
 
                             let menuDotHTML = ""; 
