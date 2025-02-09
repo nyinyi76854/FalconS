@@ -1227,14 +1227,19 @@ function deletePost(postId) {
         return;
     }
 
-    // Delete from Firestore
+    // Delete from Firestore without refreshing the entire list
     firebase.firestore().collection("postforall").doc(postId)
         .delete()
         .then(() => {
-            console.log("Post deleted successfully.");
-            
-            // Remove the post from UI
-            postElement.remove();
+            console.log(`Post with ID ${postId} deleted successfully.`);
+
+            // Smoothly remove the post from UI with animation
+            postElement.style.transition = "opacity 0.3s ease-out";
+            postElement.style.opacity = "0";
+
+            setTimeout(() => {
+                postElement.remove();
+            }, 300); // Give time for animation before removal
 
             // Remove menu if open
             let postMenu = document.getElementById("postMenu");
@@ -1244,6 +1249,7 @@ function deletePost(postId) {
             console.error("Error deleting post:", error);
         });
 }
+
 
 
 // Function to fetch real-time reaction count updates
