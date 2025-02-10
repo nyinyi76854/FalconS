@@ -38,6 +38,15 @@
     justify-content: center;
     transition: 0.3s;
 }
+/* Logo Styling */
+#logo {
+    position: fixed;
+    top: 20px;
+    left: 80px; /* Adjust the position to fit the layout */
+    width: 50px; /* Set the size of the logo */
+    height: auto;
+    z-index: 1000; /* Ensure it stays on top */
+}
 
 .back-btn:hover {
     background: #f0f0f0;
@@ -374,6 +383,9 @@ video::-webkit-media-controls {
 <button class="back-btn" onclick="window.location.href='maininterface.html'">
     <i class="fas fa-arrow-left"></i>
 </button>
+    <!-- Logo Image -->
+<img id="logo" src="falcons.png" alt="Logo">
+
     <!-- Floating Create Post Button -->
     <button class="create-post-btn" onclick="openPostDialog()">
         <i class="fas fa-plus"></i>
