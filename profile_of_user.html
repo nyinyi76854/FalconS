@@ -215,7 +215,33 @@ countFollowers(carrieduserEmail);
                 followButton.addEventListener("click", () => {
                     followUser(currentUserEmail, carrieduserEmail, followButton);
                 });
-                
+                // Fetch the latest name of the carried user
+            const namesRef = firestore.collection("names");
+            namesRef
+                .where("email", "==", carriedUserEmail)
+                .get()
+                .then((snapshot) => {
+                    let lastTimestamp = 0;
+                    let latestName = "No name found";
+
+                    snapshot.forEach((doc) => {
+                        const timestamp = doc.get("timestamp") || 0;
+                        const name = doc.get("name");
+
+                        if (timestamp > lastTimestamp && name) {
+                            lastTimestamp = timestamp;
+                            latestName = name;
+                        }
+                    });
+
+                    // When name is retrieved, set up chat button event
+                    chatButton.addEventListener("click", () => {
+                        window.location.href = `chat_layout.html?name=${encodeURIComponent(latestName)}&email=${encodeURIComponent(carriedUserEmail)}`;
+                    });
+                })
+                .catch((error) => {
+                    console.error("Error fetching name:", error);
+                });
             }
         }
     });
