@@ -104,7 +104,20 @@
 .reaction-btn:hover {
     background-color: #ddd;
 }
+.chat-button {
+    background-color: transparent;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: white;
+    padding: 10px;
+    border-radius: 50%;
+    transition: background-color 0.3s ease;
+}
 
+.chat-button:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
 .reactions-options {
     display: none; /* Ensure it's hidden initially */
     position: absolute;
@@ -128,7 +141,14 @@
     </button>
 <div class="container">
     <div class="profile-container">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
         <img id="currentUserProfilePhoto" class="profile-photo" src="user_1077114.png" alt="Profile Photo">
+        
+        <!-- Chat Button -->
+        <button id="chatButton" class="chat-button" onclick="openChat()">
+            <i class="fas fa-comment-alt"></i>
+        </button>
+    </div>
         <p class="user-info"><strong>Followers:</strong> <span id="followerCount">Loading...</span></p>
 
         <p class="user-info">
@@ -138,6 +158,7 @@
         <button id="followButton" style="visibility: hidden; padding: 5px 10px; margin-left: 10px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
             Follow
         </button>
+            
     </p>
         <p class="user-info"><strong>Username:</strong> <span id="userUsername">Loading...</span></p>
         <p class="user-info"><strong>Age:</strong> <span id="userAge">Loading...</span></p>
@@ -173,15 +194,19 @@ countFollowers(carrieduserEmail);
             const currentUserEmail = user.email;
             
             const followButton = document.getElementById("followButton");
+            const chatButton = document.getElementById("chatButton");
             const youTag = document.getElementById("youTag");
 
             if (carrieduserEmail === currentUserEmail) {
                 // Viewing own profile
                 youTag.style.display = "inline";
                 followButton.style.display = "none";
+                chatButton.style.display = "none";
+                
             } else {
                 // Viewing another user's profile
                 followButton.style.visibility = "visible";
+                chatButton.style.visibility = "visible";
                 checkFollowedOrNot(currentUserEmail, carrieduserEmail, followButton);
                 followButton.addEventListener("click", () => {
                     followUser(currentUserEmail, carrieduserEmail, followButton);
@@ -189,6 +214,7 @@ countFollowers(carrieduserEmail);
             }
         }
     });
+        
 function countFollowers(targetUserEmail) {
     const agesRef = firestore.collection("ages");
 
