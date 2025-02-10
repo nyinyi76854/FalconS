@@ -148,7 +148,7 @@
         <p class="user-info"><strong>Age:</strong> <span id="userAge">Loading...</span></p>
         <p class="user-info"><strong>Gender:</strong> <span id="userGender">Loading...</span></p>
         <p class="user-info"><strong>Region:</strong> <span id="userRegion">Loading...</span></p>
-        <button id="chatButton" class="chat-button" onclick="openChat()" style="display: none; align-items: center; gap: 8px; margin-top: 10px; background-color: #007bff; color: white; padding: 10px 15px; border-radius: 8px;">
+        <button id="chatButton" class="chat-button" style="display: none; align-items: center; gap: 8px; margin-top: 10px; background-color: #007bff; color: white; padding: 10px 15px; border-radius: 8px;">
     <i class="fas fa-paper-plane"></i> Start sending message to this user!
 </button>
 
@@ -176,40 +176,48 @@
     // Get userEmail from URL
     const urlParams = new URLSearchParams(window.location.search);
     const carrieduserEmail = urlParams.get("userEmail");
-        function openChat() {
-    const email = carriedUserEmail; // Use the already defined carriedUserEmail
-
-    const namesRef = firestore.collection("names");
-    namesRef.where("email", "==", email).get().then((snapshot) => {
-        let lastTimestamp = 0;
-        let latestName = null;
-
-        snapshot.forEach((doc) => {
-            const timestamp = doc.get("timestamp") || 0;
-            const name = doc.get("name");
-
-            if (timestamp > lastTimestamp && name) {
-                lastTimestamp = timestamp;
-                latestName = name;
-            }
+        const chatButton = document.getElementById("chatButton");
+        chatButton.addEventListener("click", () => {
+            fetchUserName(carriedUserEmail);
         });
+        function fetchUserName(email) {
+        const namesRef = firestore.collection("names");
 
-        if (latestName) {
-            window.location.href = `chat_layout.html?name=${encodeURIComponent(latestName)}&email=${encodeURIComponent(email)}`;
-        } else {
-            console.error("No name found for this email.");
-        }
-    }).catch((error) => {
-        console.error("Error fetching user name:", error);
-    });
-}
+        namesRef.where("email", "==", email).get().then((snapshot) => {
+            let lastTimestamp = 0;
+            let latestName = null;
+
+            snapshot.forEach((doc) => {
+                const timestamp = doc.get("timestamp") || 0;
+                const name = doc.get("name");
+
+                if (timestamp > lastTimestamp && name) {
+                    lastTimestamp = timestamp;
+                    latestName = name;
+                }
+            });
+
+            if (latestName) {
+                redirectToChat(latestName, email);
+            } else {
+                console.error("No name found for this email.");
+            }
+        }).catch((error) => {
+            console.error("Error fetching user name:", error);
+        });
+    }
+
+    // Function to navigate to chat_layout.html
+    function redirectToChat(name, email) {
+        window.location.href = `chat_layout.html?name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}`;
+    }
 countFollowers(carrieduserEmail);
     firebase.auth().onAuthStateChanged(user => {
         if (user) {
             const currentUserEmail = user.email;
             
             const followButton = document.getElementById("followButton");
-            const chatButton = document.getElementById("chatButton");
+           
             const youTag = document.getElementById("youTag");
 
             if (carrieduserEmail === currentUserEmail) {
