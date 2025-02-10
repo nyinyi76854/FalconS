@@ -148,9 +148,7 @@
         <p class="user-info"><strong>Age:</strong> <span id="userAge">Loading...</span></p>
         <p class="user-info"><strong>Gender:</strong> <span id="userGender">Loading...</span></p>
         <p class="user-info"><strong>Region:</strong> <span id="userRegion">Loading...</span></p>
-        <button id="chatButton" class="chat-button" style="display: none; align-items: center; gap: 8px; margin-top: 10px; background-color: #007bff; color: white; padding: 10px 15px; border-radius: 8px;">
-    <i class="fas fa-paper-plane"></i> Start sending message to this user!
-</button>
+        
 
     </div>
 <div class="post-container">
@@ -177,52 +175,11 @@
     const urlParams = new URLSearchParams(window.location.search);
     const carrieduserEmail = urlParams.get("userEmail");
        
-      function getLatestUserName(email) {
-    return new Promise((resolve, reject) => {
-        const namesRef = firestore.collection("names");
-        namesRef.where("email", "==", email).get().then((snapshot) => {
-            let lastTimestamp = 0;
-            let latestName = null;
-
-            snapshot.forEach((doc) => {
-                const timestamp = doc.get("timestamp") || 0;
-                const name = doc.get("name");
-
-                if (timestamp > lastTimestamp && name) {
-                    lastTimestamp = timestamp;
-                    latestName = name;
-                }
-            });
-
-            if (latestName) {
-                resolve(latestName);
-            } else {
-                reject("No name found for this email.");
-            }
-        }).catch((error) => {
-            reject("Error fetching user name: " + error);
-        });
-    });
-}
-
-// Function to handle the button click and navigate to the chat page
-function openChat() {
-    const email = carriedUserEmail; // Use the already defined carriedUserEmail
-
-    getLatestUserName(email).then((latestName) => {
-        window.location.href = `chat_layout.html?name=${encodeURIComponent(latestName)}&email=${encodeURIComponent(email)}`;
-    }).catch((error) => {
-        console.error(error);
-    });
-}
-
-// Adding click event listener to the chat button
-document.getElementById("chatButton").addEventListener("click", openChat);
+     
 countFollowers(carrieduserEmail);
     firebase.auth().onAuthStateChanged(user => {
         if (user) {
             const currentUserEmail = user.email;
-            const chatButton = document.getElementById("chatButton");
             const followButton = document.getElementById("followButton");
            
             const youTag = document.getElementById("youTag");
@@ -231,12 +188,10 @@ countFollowers(carrieduserEmail);
                 // Viewing own profile
                 youTag.style.display = "inline";
                 followButton.style.display = "none";
-                chatButton.style.display = "none";
                 
             } else {
                 // Viewing another user's profile
                 followButton.style.visibility = "visible";
-                chatButton.style.display = "flex";
                 checkFollowedOrNot(currentUserEmail, carrieduserEmail, followButton);
                 followButton.addEventListener("click", () => {
                     followUser(currentUserEmail, carrieduserEmail, followButton);
