@@ -70,6 +70,20 @@
     color: white;
 }
 
+#startSendingMessages {
+    margin-top: 20px;
+    color: white; /* Ensure the text is white */
+    font-size: 18px; /* Adjust the font size */
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+#startSendingMessages i {
+    margin-left: 5px;
+    font-size: 20px;
+    color: #007bff; /* Optional color for the send icon */
+}
 
 .user-info {
     margin-top: 10px;
@@ -148,7 +162,10 @@
         <p class="user-info"><strong>Age:</strong> <span id="userAge">Loading...</span></p>
         <p class="user-info"><strong>Gender:</strong> <span id="userGender">Loading...</span></p>
         <p class="user-info"><strong>Region:</strong> <span id="userRegion">Loading...</span></p>
-        
+       <p class="user-info" id="startSendingMessages">
+    <span>Start sending messages </span>
+    <i class="fas fa-paper-plane"></i> <!-- Send icon from Font Awesome -->
+</p>
 
     </div>
 <div class="post-container">
@@ -181,21 +198,24 @@ countFollowers(carrieduserEmail);
         if (user) {
             const currentUserEmail = user.email;
             const followButton = document.getElementById("followButton");
-           
+            const chatButton = document.getElementById("startSendingMessages");
             const youTag = document.getElementById("youTag");
 
             if (carrieduserEmail === currentUserEmail) {
                 // Viewing own profile
                 youTag.style.display = "inline";
                 followButton.style.display = "none";
+                chatButton.style.display = "none";
                 
             } else {
                 // Viewing another user's profile
                 followButton.style.visibility = "visible";
+                chatButton.style.display = "flex";
                 checkFollowedOrNot(currentUserEmail, carrieduserEmail, followButton);
                 followButton.addEventListener("click", () => {
                     followUser(currentUserEmail, carrieduserEmail, followButton);
                 });
+                
             }
         }
     });
