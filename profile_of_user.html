@@ -176,10 +176,7 @@
     // Get userEmail from URL
     const urlParams = new URLSearchParams(window.location.search);
     const carrieduserEmail = urlParams.get("userEmail");
-        const chatButton = document.getElementById("chatButton");
-        chatButton.addEventListener("click", () => {
-            fetchUserName(carriedUserEmail);
-        });
+       
       function getLatestUserName(email) {
     return new Promise((resolve, reject) => {
         const namesRef = firestore.collection("names");
