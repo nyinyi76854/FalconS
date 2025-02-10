@@ -188,6 +188,33 @@
     // Get userEmail from URL
     const urlParams = new URLSearchParams(window.location.search);
     const carrieduserEmail = urlParams.get("userEmail");
+        function openChat() {
+    const email = carriedUserEmail; // Use the already defined carriedUserEmail
+
+    const namesRef = firestore.collection("names");
+    namesRef.where("email", "==", email).get().then((snapshot) => {
+        let lastTimestamp = 0;
+        let latestName = null;
+
+        snapshot.forEach((doc) => {
+            const timestamp = doc.get("timestamp") || 0;
+            const name = doc.get("name");
+
+            if (timestamp > lastTimestamp && name) {
+                lastTimestamp = timestamp;
+                latestName = name;
+            }
+        });
+
+        if (latestName) {
+            window.location.href = `chat_layout.html?name=${encodeURIComponent(latestName)}&email=${encodeURIComponent(email)}`;
+        } else {
+            console.error("No name found for this email.");
+        }
+    }).catch((error) => {
+        console.error("Error fetching user name:", error);
+    });
+}
 countFollowers(carrieduserEmail);
     firebase.auth().onAuthStateChanged(user => {
         if (user) {
