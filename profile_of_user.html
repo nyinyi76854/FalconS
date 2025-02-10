@@ -104,20 +104,7 @@
 .reaction-btn:hover {
     background-color: #ddd;
 }
-.chat-button {
-    background-color: transparent;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
-    color: white;
-    padding: 10px;
-    border-radius: 50%;
-    transition: background-color 0.3s ease;
-}
 
-.chat-button:hover {
-    background-color: rgba(255, 255, 255, 0.2);
-}
 .reactions-options {
     display: none; /* Ensure it's hidden initially */
     position: absolute;
@@ -164,6 +151,10 @@
         <p class="user-info"><strong>Age:</strong> <span id="userAge">Loading...</span></p>
         <p class="user-info"><strong>Gender:</strong> <span id="userGender">Loading...</span></p>
         <p class="user-info"><strong>Region:</strong> <span id="userRegion">Loading...</span></p>
+        <button id="chatButton" class="chat-button" onclick="openChat()" style="display: none; align-items: center; gap: 8px; margin-top: 10px; background-color: #007bff; color: white; padding: 10px 15px; border-radius: 8px;">
+    <i class="fas fa-paper-plane"></i> Start sending message to this user!
+</button>
+
     </div>
 <div class="post-container">
             <h2>User Posts</h2>
@@ -233,7 +224,7 @@ countFollowers(carrieduserEmail);
             } else {
                 // Viewing another user's profile
                 followButton.style.visibility = "visible";
-                chatButton.style.visibility = "visible";
+                chatButton.style.display = "flex";
                 checkFollowedOrNot(currentUserEmail, carrieduserEmail, followButton);
                 followButton.addEventListener("click", () => {
                     followUser(currentUserEmail, carrieduserEmail, followButton);
