@@ -639,6 +639,23 @@ function loadMessages() {
                     video.style.maxWidth = "200px";
                     video.style.borderRadius = "10px";
                     messageDiv.appendChild(video);
+                } else if (isLink(data.text)) {
+                    // If message is a link, make it pink and clickable
+                    const linkElement = document.createElement("a");
+                    linkElement.href = data.text.startsWith("http") ? data.text : "https://" + data.text;
+                    linkElement.textContent = data.text;
+                    linkElement.target = "_blank"; // Open in a new tab
+                    linkElement.style.color = "pink";
+                    linkElement.style.textDecoration = "underline";
+                    linkElement.style.cursor = "pointer";
+
+                    // Open in Microsoft Edge
+                    linkElement.addEventListener("click", (event) => {
+                        event.preventDefault(); // Prevent default browser behavior
+                        openInEdge(linkElement.href);
+                    });
+
+                    messageDiv.appendChild(linkElement);
                 } else {
                     const textElement = document.createElement("p");
                     textElement.textContent = data.text;
@@ -664,7 +681,15 @@ function loadMessages() {
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         });
 }
+function isLink(text) {
+    return text.startsWith("https://") || text.startsWith("www.");
+}
 
+// Function to open URL in Microsoft Edge
+function openInEdge(url) {
+    const edgeUrl = `microsoft-edge:${url}`;
+    window.open(edgeUrl, "_blank");
+}
 function selectMessage(messageId, messageDiv) {
     // Toggle the 'selected' class
     if (messageDiv.classList.contains("selected")) {
