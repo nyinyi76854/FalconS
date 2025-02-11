@@ -685,11 +685,17 @@ function isLink(text) {
     return text.startsWith("https://") || text.startsWith("www.");
 }
 
+const { shell } = require("electron");
+
 // Function to open URL in Microsoft Edge
 function openInEdge(url) {
-    const edgeUrl = `microsoft-edge:${url}`;
-    window.open(edgeUrl, "_blank");
+    // Ensure the URL has https:// if it starts with www.
+    const formattedUrl = url.startsWith("http") ? url : `https://${url}`;
+
+    // Open the URL in Microsoft Edge
+    shell.openExternal(`microsoft-edge:${formattedUrl}`);
 }
+
 function selectMessage(messageId, messageDiv) {
     // Toggle the 'selected' class
     if (messageDiv.classList.contains("selected")) {
