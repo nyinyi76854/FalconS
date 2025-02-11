@@ -71,29 +71,16 @@
 }
 
 #startSendingMessages {
-    margin-top: 20px;
-    color: white; /* Ensure the text is white */
-    font-size: 18px; /* Adjust the font size */
-    display: none;
+    display: none !important;
+    background-color: gray; /* Add gray background */
+    color: white;
+    font-size: 18px;
     align-items: center;
     justify-content: center;
-    background-color: #808080; /* Gray background */
-    padding: 10px 15px; /* Adjust padding for better spacing */
-    border-radius: 8px; /* Rounded corners */
-    border: none; /* Remove default border */
-    cursor: pointer; /* Add pointer cursor */
-    transition: background-color 0.3s ease-in-out; /* Smooth hover effect */
+    padding: 10px;
+    border-radius: 5px;
 }
 
-#startSendingMessages:hover {
-    background-color: #6c757d; /* Darker gray on hover */
-}
-
-#startSendingMessages i {
-    margin-left: 5px;
-    font-size: 20px;
-    color: #007bff; /* Optional color for the send icon */
-}
 
 .user-info {
     margin-top: 10px;
@@ -172,10 +159,8 @@
         <p class="user-info"><strong>Age:</strong> <span id="userAge">Loading...</span></p>
         <p class="user-info"><strong>Gender:</strong> <span id="userGender">Loading...</span></p>
         <p class="user-info"><strong>Region:</strong> <span id="userRegion">Loading...</span></p>
-       <p class="user-info" id="startSendingMessages">
-    <span>Start sending messages </span>
-    <i class="fas fa-paper-plane"></i> <!-- Send icon from Font Awesome -->
-</p>
+       <button id="startSendingMessages">Chat</button>
+
 
     </div>
 <div class="post-container">
