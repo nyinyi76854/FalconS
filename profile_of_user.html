@@ -226,6 +226,11 @@ countFollowers(carrieduserEmail);
                     followUser(currentUserEmail, carrieduserEmail, followButton);
                 });
               
+chatButton.addEventListener("click", () => {
+    fetchNameForRedirection(carriedUserEmail, (latestName) => {
+        window.location.href = `chat_layout.html?name=${encodeURIComponent(latestName)}&email=${encodeURIComponent(carriedUserEmail)}`;
+    });
+});
             }
         }
     });
@@ -252,14 +257,7 @@ countFollowers(carrieduserEmail);
     });
 }
 
-// Add event listener to chat button
-const chatButton = document.getElementById("startSendingMessages");
 
-chatButton.addEventListener("click", () => {
-    fetchNameForRedirection(carriedUserEmail, (latestName) => {
-        window.location.href = `chat_layout.html?name=${encodeURIComponent(latestName)}&email=${encodeURIComponent(carriedUserEmail)}`;
-    });
-});
 function countFollowers(targetUserEmail) {
     const agesRef = firestore.collection("ages");
 
