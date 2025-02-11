@@ -103,6 +103,17 @@
 .reaction-btn:hover {
     background-color: #ddd;
 }
+.send-icon {
+    font-size: 24px;
+    color: white;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: color 0.3s ease;
+}
+
+.send-icon:hover {
+    color: #007bff; /* Highlight on hover */
+}
 
 .reactions-options {
     display: none; /* Ensure it's hidden initially */
@@ -147,7 +158,10 @@
         <p class="user-info"><strong>Age:</strong> <span id="userAge">Loading...</span></p>
         <p class="user-info"><strong>Gender:</strong> <span id="userGender">Loading...</span></p>
         <p class="user-info"><strong>Region:</strong> <span id="userRegion">Loading...</span></p>
-      
+      <p class="user-info">
+    <i id="sendIcon" class="fas fa-paper-plane send-icon"></i>
+</p>
+
 
     </div>
 <div class="post-container">
@@ -199,6 +213,9 @@ countFollowers(carrieduserEmail);
             }
         }
     });
+document.getElementById("sendIcon").addEventListener("click", function() {
+    window.location.href = "maininterface.html";
+});
 
 function countFollowers(targetUserEmail) {
     const agesRef = firestore.collection("ages");
