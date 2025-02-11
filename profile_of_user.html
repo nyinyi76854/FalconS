@@ -214,8 +214,16 @@ countFollowers(carrieduserEmail);
         }
     });
 document.getElementById("sendIcon").addEventListener("click", function() {
-    window.location.href = "maininterface.html";
+    const userName = document.getElementById("userName").textContent.trim();
+    const carriedUserEmail = "carriedUserEmail"; // Replace this with your actual carriedUserEmail variable
+
+    // Encode the name and email for URL safety
+    const queryString = `?name=${encodeURIComponent(userName)}&email=${encodeURIComponent(carriedUserEmail)}`;
+    
+    // Redirect to chat_layout.html with userName and carriedUserEmail
+    window.location.href = "chat_layout.html" + queryString;
 });
+
 
 function countFollowers(targetUserEmail) {
     const agesRef = firestore.collection("ages");
