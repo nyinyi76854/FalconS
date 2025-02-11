@@ -70,18 +70,6 @@
     color: white;
 }
 
-#startSendingMessages {
-    display: flex !important;
-    background-color: gray; /* Add gray background */
-    color: white;
-    font-size: 18px;
-    align-items: center;
-    justify-content: center;
-    padding: 10px;
-    border-radius: 5px;
-}
-
-
 .user-info {
     margin-top: 10px;
     font-size: 18px;
@@ -159,8 +147,7 @@
         <p class="user-info"><strong>Age:</strong> <span id="userAge">Loading...</span></p>
         <p class="user-info"><strong>Gender:</strong> <span id="userGender">Loading...</span></p>
         <p class="user-info"><strong>Region:</strong> <span id="userRegion">Loading...</span></p>
-       <button id="startSendingMessages">Chat</button>
-
+      
 
     </div>
 <div class="post-container">
@@ -193,55 +180,25 @@ countFollowers(carrieduserEmail);
         if (user) {
             const currentUserEmail = user.email;
             const followButton = document.getElementById("followButton");
-            const chatButton = document.getElementById("startSendingMessages");
             const youTag = document.getElementById("youTag");
 
             if (carrieduserEmail === currentUserEmail) {
                 // Viewing own profile
                 youTag.style.display = "inline";
                 followButton.style.display = "none";
-                chatButton.style.display = "none";
-                
+               
             } else {
                 // Viewing another user's profile
                 followButton.style.visibility = "visible";
-                chatButton.style.display = "flex";
                 checkFollowedOrNot(currentUserEmail, carrieduserEmail, followButton);
                 followButton.addEventListener("click", () => {
                     followUser(currentUserEmail, carrieduserEmail, followButton);
                 });
               
-chatButton.addEventListener("click", () => {
-    fetchNameForRedirection(carriedUserEmail, (latestName) => {
-        window.location.href = `chat_layout.html?name=${encodeURIComponent(latestName)}&email=${encodeURIComponent(carriedUserEmail)}`;
-    });
-});
+
             }
         }
     });
-        function fetchNameForRedirection(email, callback) {
-    const namesRef = firestore.collection("names");
-    namesRef.where("email", "==", email).get().then((snapshot) => {
-        let lastTimestamp = 0;
-        let latestName = "Unknown User";
-
-        snapshot.forEach((doc) => {
-            const timestamp = doc.data().timestamp || 0;
-            const name = doc.data().name;
-
-            if (timestamp > lastTimestamp && name) {
-                lastTimestamp = timestamp;
-                latestName = name;
-            }
-        });
-
-        callback(latestName);
-    }).catch(error => {
-        console.error("Error fetching name:", error);
-        callback("Unknown User");
-    });
-}
-
 
 function countFollowers(targetUserEmail) {
     const agesRef = firestore.collection("ages");
