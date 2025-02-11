@@ -216,7 +216,7 @@ countFollowers(carrieduserEmail);
     });
 document.getElementById("sendIcon").addEventListener("click", function() {
     const userName = document.getElementById("userName").textContent.trim();
-    
+    const carriedUserEmail = carriedUserEmail
     // Encode the name and email for URL safety
     const queryString = `?name=${encodeURIComponent(userName)}&email=${encodeURIComponent(carriedUserEmail)}`;
     
