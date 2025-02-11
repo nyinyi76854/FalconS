@@ -104,6 +104,7 @@
     background-color: #ddd;
 }
 .send-icon {
+    display: none;
     font-size: 24px;
     color: white;
     cursor: pointer;
@@ -195,15 +196,16 @@ countFollowers(carrieduserEmail);
             const currentUserEmail = user.email;
             const followButton = document.getElementById("followButton");
             const youTag = document.getElementById("youTag");
-
+            const chatButton = document.getElementById("sendIcon");
             if (carrieduserEmail === currentUserEmail) {
                 // Viewing own profile
                 youTag.style.display = "inline";
                 followButton.style.display = "none";
-               
+                chatButton.style.display = "none";
             } else {
                 // Viewing another user's profile
                 followButton.style.visibility = "visible";
+                chatButton.style.visibility = "visible";
                 checkFollowedOrNot(currentUserEmail, carrieduserEmail, followButton);
                 followButton.addEventListener("click", () => {
                     followUser(currentUserEmail, carrieduserEmail, followButton);
