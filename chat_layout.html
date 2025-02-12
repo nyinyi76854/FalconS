@@ -649,11 +649,10 @@ function loadMessages() {
                     linkElement.style.textDecoration = "underline";
                     linkElement.style.cursor = "pointer";
 
-                    // Open in Microsoft Edge
                     linkElement.addEventListener("click", (event) => {
-                        event.preventDefault(); // Prevent default browser behavior
-                        openInBrower(linkElement.href);
-                    });
+        event.preventDefault(); // Prevent default behavior
+        window.open(linkElement.href, "_blank"); // Open in the default browser
+    });
 
                     messageDiv.appendChild(linkElement);
                 } else {
@@ -685,10 +684,7 @@ function isLink(text) {
     return text.startsWith("https://") || text.startsWith("www.");
 }
 
-// Function to open URL in the default web browser
-function openInBrowser(url) {
-    window.open(url, "_blank");
-}
+
 
 
 function selectMessage(messageId, messageDiv) {
