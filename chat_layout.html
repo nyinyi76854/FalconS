@@ -250,7 +250,22 @@
     pointer-events: auto;
     transform: translateY(0);
 }
-
+ #customMenu {
+            display: none;
+            position: absolute;
+            background: white;
+            border: 1px solid #ccc;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+            padding: 5px;
+            border-radius: 5px;
+        }
+        .menu-item {
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+        .menu-item:hover {
+            background: lightgray;
+        }
 .options-menu button {
     display: flex;
     align-items: center;
@@ -379,6 +394,9 @@
 
         <div id="inputContainer">
             <input type="text" id="messageInput" placeholder="Type a message..." oninput="toggleSendButton()">
+            <div id="customMenu">
+        <div id="pasteOption" class="menu-item">Paste</div>
+    </div>
             <button id="sendButton" onclick="sendMessage()">
                 <i class="fas fa-paper-plane"></i>
             </button>
@@ -732,7 +750,46 @@ function toggleSelectionMode() {
     }
 }
 
+const messageInput = document.getElementById("messageInput");
+            const customMenu = document.getElementById("customMenu");
+            const pasteOption = document.getElementById("pasteOption");
 
+            messageInput.addEventListener("contextmenu", async (event) => {
+                event.preventDefault(); // Prevent default right-click menu
+                
+                try {
+                    const clipboardText = await navigator.clipboard.readText();
+                    if (clipboardText) {
+                        pasteOption.style.display = "block"; // Show paste option
+                    } else {
+                        pasteOption.style.display = "none"; // Hide if no text
+                    }
+                } catch (error) {
+                    pasteOption.style.display = "none"; // Hide if access is denied
+                }
+
+                customMenu.style.top = `${event.clientY}px`;
+                customMenu.style.left = `${event.clientX}px`;
+                customMenu.style.display = "block";
+            });
+
+            // Hide menu on click anywhere else
+            document.addEventListener("click", () => {
+                customMenu.style.display = "none";
+            });
+
+            // Handle Paste Click
+            pasteOption.addEventListener("click", async () => {
+                try {
+                    const clipboardText = await navigator.clipboard.readText();
+                    if (clipboardText) {
+                        messageInput.value += clipboardText; // Paste text
+                    }
+                } catch (error) {
+                    console.error("Failed to paste:", error);
+                }
+                customMenu.style.display = "none"; // Hide menu after pasting
+            });
 
 function showOptions(message, messageDiv, event) {
     event.stopPropagation();
