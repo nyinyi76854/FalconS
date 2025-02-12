@@ -784,6 +784,7 @@ const messageInput = document.getElementById("messageInput");
                     const clipboardText = await navigator.clipboard.readText();
                     if (clipboardText) {
                         messageInput.value += clipboardText; // Paste text
+                        toggleSendButton();
                     }
                 } catch (error) {
                     console.error("Failed to paste:", error);
