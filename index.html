@@ -51,6 +51,7 @@
             width: 100%;
             height: 100%;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             overflow: hidden;
@@ -61,13 +62,23 @@
         /* Container for centered content */
         .container {
             text-align: center;
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         /* Image styling */
         #splashImage {
             width: 50%; /* Reduced size for the image */
             height: auto;
-            margin-bottom: 20px;
+        }
+
+        /* Footer text */
+        .footer {
+            color: gray;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
         }
     </style>
 </head>
@@ -76,5 +87,8 @@
         <!-- Centered image -->
         <img id="splashImage" src="convo.png" alt="Splash Image">
     </div>
+
+    <!-- Footer text -->
+    <div class="footer">Owned by Genix</div>
 </body>
 </html>
