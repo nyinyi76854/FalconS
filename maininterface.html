@@ -344,7 +344,7 @@ button:disabled {
     color: #555;
     flex-grow: 1;
     display: block;
-    margin-bottom: 2px; /* Reduce gap */
+    margin-bottom: 0; /* Remove gap between last message and name */
 }
 
 /* Timestamp */
@@ -364,19 +364,19 @@ button:disabled {
 .chat-items-container {
     max-height: 300px;
     overflow-y: auto;
-    margin: 10px 0; /* Less margin */
+    margin: 10px 0;
     background: #f9f9f9;
     border: 1px solid #ddd;
-    border-radius: 6px; /* Smaller border radius */
-    padding: 8px; /* Less padding */
+    border-radius: 6px;
+    padding: 8px;
 }
 
 /* Chat item */
 .chat-item {
     display: flex;
-    align-items: center;
-    padding: 8px; /* Reduce padding */
-    margin-bottom: 5px; /* Reduce space between items */
+    align-items: flex-start; /* Align items to the top */
+    padding: 8px;
+    margin-bottom: 5px;
     background: #fff;
     border: 1px solid #ccc;
     border-radius: 5px;
@@ -387,7 +387,7 @@ button:disabled {
 /* Hover effect */
 .chat-item:hover {
     background-color: #f0f8ff;
-    transform: scale(1.01); /* Slight scale effect */
+    transform: scale(1.01);
 }
 
 /* Selected chat item */
@@ -398,19 +398,21 @@ button:disabled {
 
 /* Profile photo */
 .profile-photo {
-    width: 35px; /* Slightly smaller */
+    width: 35px;
     height: 35px;
     border-radius: 50%;
-    margin-right: 8px; /* Reduce spacing */
+    margin-right: 8px;
 }
 
 /* Name */
 .name {
     font-weight: bold;
-    font-size: 14px; /* Keep readable */
+    font-size: 14px;
     color: #333;
-    margin-top: 1px;
+    margin-top: 0; /* Remove extra space above the name */
+    margin-bottom: 2px; /* Reduce space below the name */
 }
+
 
 .left-section {
     width: 50%; /* Take up half of the screen width */
