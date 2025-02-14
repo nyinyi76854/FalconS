@@ -35,17 +35,18 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background-color: #fafafa; /* Light gray background, similar to Instagram */
+    background-color: #e1f5fe; /* Soft blue background */
 }
+
 
 .chatContainer {
     display: flex;
     flex-direction: column;
     background-color: #ffffff;
-    border-radius: 12px; /* Softer edges for a more modern look */
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); /* More subtle shadow */
+    border-radius: 15px; /* Softer edges */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* Stronger shadow */
     width: 90%;
-    max-width: 480px; /* Instagram-like width */
+    max-width: 500px;
     height: 90vh;
     overflow: hidden;
 }
@@ -53,35 +54,32 @@ body {
 #chatHeader {
     display: flex;
     align-items: center;
-    justify-content: space-between; /* Ensures the elements are spaced out */
     padding: 15px;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 2px solid #00acc1; /* Light teal border */
     background-color: #ffffff;
-    color: #333;
+    color: #000000;
 }
-
 
 #backButton {
     font-size: 1.2rem;
-    color: #262626; /* Darker gray, similar to Instagram */
+    color: #29b6f6; /* Brighter blue */
     cursor: pointer;
     margin-right: 15px;
 }
 
 #profilePhoto {
-    width: 40px;
-    height: 40px;
+    width: 45px;
+    height: 45px;
     border-radius: 50%;
-    margin-right: 12px;
-    background-color: #e1e1e1; /* Light gray placeholder */
+    margin-right: 10px;
+    background-color: #ffcc80; /* Soft orange */
     object-fit: cover;
 }
 
 #chatHeader h2 {
-    font-size: 1.1rem;
-    color: #262626;
-    font-weight: bold;
-    margin-right: 10px; /* Space between the h2 and the verification image */
+    font-size: 1.2rem;
+    color: #37474f; /* Darker gray */
+    display: inline;
 }
 
 #messagesContainer {
@@ -90,50 +88,49 @@ body {
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 12px; /* More space between messages */
-    background-color: #fafafa; /* Very light gray */
+    gap: 8px; /* Slightly increased gap for clarity */
+    background-color: #e0f7fa; /* Pale teal background */
 }
-
 .message {
-    margin: 4px 0;
-    padding: 12px 16px;
-    border-radius: 18px; /* Softer, larger message bubble */
-    max-width: 75%;
+    margin: 4px 0; /* Compact spacing between messages */
+    padding: 10px 14px; /* Comfortable padding for readability */
+    border-radius: 20px; /* Rounder bubble shape */
+    max-width: 75%; /* Moderate width */
     display: inline-block;
     word-wrap: break-word;
-    font-size: 15px; /* Larger text for readability */
-    line-height: 1.5;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    font-size: 14px; /* Standard font size for clarity */
+    line-height: 1.5; /* Comfortable line spacing */
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15); /* Subtle shadow for depth */
 }
 
 /* Sent message styles */
 .sent {
     align-self: flex-end;
-    background-color: #0095f6; /* Instagram blue */
-    color: #ffffff;
-    border-bottom-right-radius: 6px;
+    background-color: #0084ff; /* Messenger blue */
+    color: #ffffff; /* White text for contrast */
+    border-bottom-right-radius: 5px; /* Slightly sharper edge for the tail effect */
 }
 
 /* Received message styles */
 .received {
     align-self: flex-start;
-    background-color: #efefef; /* Soft light gray */
-    color: #262626;
-    border-bottom-left-radius: 6px;
+    background-color: #f1f0f0; /* Light gray for received messages */
+    color: #000000; /* Black text for better readability */
+    border-bottom-left-radius: 5px; /* Slightly sharper edge for the tail effect */
 }
 
 /* Adjustments for media elements within messages */
 .media {
     max-width: 100%;
-    max-height: 180px;
-    border-radius: 12px;
-    margin-top: 8px;
+    max-height: 180px; /* Slightly smaller media height for a clean layout */
+    border-radius: 12px; /* Rounded media edges for consistency with bubbles */
+    margin-top: 5px;
 }
 
-/* Extra style for text messages */
+/* Extra style for text messages to ensure alignment */
 .text-message {
     margin: 0;
-    text-align: left;
+    text-align: left; /* Text aligned to the left for a clean look */
 }
 
 /* Input container styling */
@@ -141,7 +138,7 @@ body {
     display: flex;
     align-items: center;
     padding: 12px;
-    border-top: 1px solid #ddd;
+    border-top: 2px solid #00acc1; /* Light teal border */
     background-color: #ffffff;
 }
 
@@ -150,23 +147,23 @@ body {
     padding: 12px;
     border: none;
     border-radius: 25px;
-    background-color: #fafafa;
+    background-color: #e1f5fe; /* Pale blue */
     outline: none;
     font-size: 15px;
-    color: #333;
+    color: #37474f; /* Darker gray */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 #sendButton {
     padding: 10px;
     margin-left: 10px;
-    background-color: #0095f6; /* Instagram blue */
+    background-color: #29b6f6; /* Bright blue */
     color: #ffffff;
     border: none;
     border-radius: 50%;
     cursor: pointer;
     display: none;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Button shadow */
 }
 
 #sendButton.visible {
@@ -182,61 +179,60 @@ body {
 #folderButton {
     padding: 10px;
     margin-left: 10px;
-    background-color: #f0a500; /* Instagram-like yellow for media */
+    background-color: #ffa726; /* Soft orange */
     color: #ffffff;
     border: none;
     border-radius: 50%;
     cursor: pointer;
     display: none;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Button shadow */
 }
 
 #folderButton i {
     font-size: 1.5rem;
 }
 
+
 #echoStatus {
     display: none;
     font-size: 0.9rem;
-    color: #0095f6; /* Instagram blue */
+    color: #007bff;
 }
 
 #verificationImage {
-    width: 18px;
+    width: 18px; /* Larger image for verification */
     height: 18px;
     margin-left: 5px;
 }
 
 #chatContainer:hover {
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2); /* Larger shadow on hover */
 }
-
 .message.selected {
-    background-color: #d4f1f9; /* Light cyan */
-    border: 2px solid #0095f6; /* Instagram blue border */
-    border-radius: 10px;
-    padding: 16px;
-    margin: 6px 0;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 100%;
+    background-color: #d1ecf1; /* Light cyan background for clarity */
+    border: 2px solid #007bff; /* Bold blue border for emphasis */
+    border-radius: 10px; /* Rounded corners for a modern look */
+    padding: 15px; /* Increased padding for spaciousness */
+    margin: 5px 0; /* Extra spacing for visual separation */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    width: 100%; /* Ensure the message spans the full width of the container */
 }
 
 .message.selected .text-message {
-    font-weight: bold;
-    color: #0077b6; /* Slightly darker blue */
+    font-weight: bold; /* Bold text for better visibility */
+    color: #004085; /* Darker text color for contrast */
 }
-
 .message.selected:hover {
-    background-color: #c0e7f1;
-    border-color: #006db3;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-    transition: all 0.2s ease;
+    background-color: #c8e6e8; /* Slightly darker cyan on hover */
+    border-color: #0056b3; /* Darker border color for hover */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* Enhanced shadow on hover */
+    transition: all 0.2s ease; /* Smooth transition for hover effects */
 }
 
 .options-menu {
     display: flex;
     flex-direction: column;
-    background: #ffffff;
+    background: #fff;
     border: 1px solid #ddd;
     border-radius: 8px;
     position: absolute;
@@ -254,19 +250,34 @@ body {
     pointer-events: auto;
     transform: translateY(0);
 }
-
+ #customMenu {
+            display: none;
+            position: absolute;
+            background: white;
+            border: 1px solid #ccc;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+            padding: 5px;
+            border-radius: 5px;
+        }
+        .menu-item {
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+        .menu-item:hover {
+            background: lightgray;
+        }
 .options-menu button {
     display: flex;
     align-items: center;
     gap: 10px;
     padding: 12px 16px;
-    background: linear-gradient(135deg, #f0f0f0, #fafafa);
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
     border: none;
     border-radius: 6px;
     cursor: pointer;
     font-size: 15px;
     font-weight: 500;
-    color: #333;
+    color: #495057;
     text-align: left;
     transition: all 0.2s ease;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -274,12 +285,12 @@ body {
 
 .options-menu button i {
     font-size: 18px;
-    color: #888;
+    color: #6c757d;
     transition: color 0.2s ease;
 }
 
 .options-menu button:hover {
-    background: #0095f6;
+    background: #007bff;
     color: #fff;
     box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
 }
@@ -289,71 +300,75 @@ body {
 }
 
 .options-menu button:active {
-    background: #006bb3;
+    background: #0056b3;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) inset;
     transform: scale(0.98);
 }
-
+/* Container to hold buttons horizontally */
 .buttonsContainer {
     display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    padding: 10px 0;
+    justify-content: flex-end; /* Align buttons to the right */
+    gap: 10px; /* Space between buttons */
+    padding: 10px 0; /* Padding for container */
 }
 
+/* Basic styling for the buttons */
 #deleteSelectedButton,
 #copySelectedButton {
-    display: none;
+    display: none; /* Initially hidden */
     padding: 8px 16px;
     font-size: 14px;
     border-radius: 8px;
-    background-color: #ffffff;
+    background-color: #f0f0f0; /* Light background */
     color: #333;
-    border: 2px solid #ddd;
+    border: 2px solid #ccc;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.3s ease; /* Smooth transition for effects */
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 8px; /* Add space between the icon and text */
 }
 
+/* Icon styling */
 #deleteSelectedButton i,
 #copySelectedButton i {
-    font-size: 18px;
+    font-size: 18px; /* Icon size */
 }
 
+/* Hover effect */
 #deleteSelectedButton:hover,
 #copySelectedButton:hover {
-    background-color: #f8d7da;
-    color: #d9534f;
-    border-color: #d9534f;
+    background-color: #f8d7da; /* Light red for delete */
+    color: #d9534f; /* Red text for delete */
+    border-color: #d9534f; /* Red border for delete */
 }
 
 #deleteSelectedButton:hover i,
 #copySelectedButton:hover i {
-    color: #d9534f;
+    color: #d9534f; /* Change icon color to red when hovered */
 }
 
+/* Active button effect */
 #deleteSelectedButton:active,
 #copySelectedButton:active {
-    background-color: #d9534f;
+    background-color: #d9534f; /* Darker red for active state */
     color: white;
-    border-color: #d43f00;
+    border-color: #d43f00; /* Darker border when pressed */
 }
 
+/* Positioning buttons */
 #deleteSelectedButton,
 #copySelectedButton {
-    margin: 0;
-    align-self: center;
+    margin: 0; /* Remove individual margin */
+    align-self: center; /* Align buttons to the center vertically */
 }
 
+/* For improved accessibility: Add focus styles */
 #deleteSelectedButton:focus,
 #copySelectedButton:focus {
-    outline: 2px solid #0095f6;
+    outline: 2px solid #0056b3; /* Blue outline when focused */
     outline-offset: 2px;
 }
-
-
     </style>
 </head>
 <body>
