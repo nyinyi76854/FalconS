@@ -53,11 +53,13 @@ body {
 #chatHeader {
     display: flex;
     align-items: center;
+    justify-content: space-between; /* Ensures the elements are spaced out */
     padding: 15px;
-    border-bottom: 1px solid #ddd; /* Subtle border */
+    border-bottom: 1px solid #ddd;
     background-color: #ffffff;
     color: #333;
 }
+
 
 #backButton {
     font-size: 1.2rem;
@@ -77,8 +79,9 @@ body {
 
 #chatHeader h2 {
     font-size: 1.1rem;
-    color: #262626; /* Dark text */
+    color: #262626;
     font-weight: bold;
+    margin-right: 10px; /* Space between the h2 and the verification image */
 }
 
 #messagesContainer {
