@@ -315,49 +315,7 @@ body.fade-out {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-.chat-items-container {
-    max-height: 300px;
-    overflow-y: auto;
-    margin: 20px 0;
-    background: #f9f9f9;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 10px;
-}
-.chat-item {
-    display: flex;
-    align-items: center; /* Ensure elements align vertically */
-    padding: 10px;
-    margin-bottom: 10px;
-    background: #fff;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-}
 
-.chat-item:hover {
-    background-color: #f0f8ff;
-    transform: scale(1.02);
-}
-
-.chat-item.selected {
-    background-color: #d1ecf1;
-    border-color: #17a2b8;
-}
-
-.profile-photo {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    margin-right: 10px;
-}
-
-.name {
-    font-weight: bold;
-    color: #333;
-    margin-top: 2px; /* Slight adjustment to move it up */
-}
 button {
     padding: 8px 16px;
     margin-top: 10px;
@@ -379,27 +337,79 @@ button:disabled {
 
 /* Last message */
 .chat-item-content .lastMessage {
-    white-space: nowrap; /* Prevents text from wrapping to the next line */
-    overflow: hidden; /* Hides overflowed text */
-    text-overflow: ellipsis; /* Adds '...' when the text overflows */
-    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 13px; /* Slightly smaller font */
     color: #555;
-    flex-grow: 1; /* Make the last message take up available space */
-    display: block; /* Ensures it behaves as a block-level element */
+    flex-grow: 1;
+    display: block;
+    margin-bottom: 2px; /* Reduce gap */
 }
 
 /* Timestamp */
 .chat-item-content .timestamp {
-    font-size: 12px;
+    font-size: 11px; /* Reduce size */
     color: #888;
-    margin-top: 5px;
 }
 
-/* Timestamp container to prevent overflow */
+/* Timestamp container */
 .chat-item-content .timestamp-container {
     display: flex;
     justify-content: flex-end;
     width: 100%;
+}
+
+/* Chat container */
+.chat-items-container {
+    max-height: 300px;
+    overflow-y: auto;
+    margin: 10px 0; /* Less margin */
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 6px; /* Smaller border radius */
+    padding: 8px; /* Less padding */
+}
+
+/* Chat item */
+.chat-item {
+    display: flex;
+    align-items: center;
+    padding: 8px; /* Reduce padding */
+    margin-bottom: 5px; /* Reduce space between items */
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+/* Hover effect */
+.chat-item:hover {
+    background-color: #f0f8ff;
+    transform: scale(1.01); /* Slight scale effect */
+}
+
+/* Selected chat item */
+.chat-item.selected {
+    background-color: #d1ecf1;
+    border-color: #17a2b8;
+}
+
+/* Profile photo */
+.profile-photo {
+    width: 35px; /* Slightly smaller */
+    height: 35px;
+    border-radius: 50%;
+    margin-right: 8px; /* Reduce spacing */
+}
+
+/* Name */
+.name {
+    font-weight: bold;
+    font-size: 14px; /* Keep readable */
+    color: #333;
+    margin-top: 1px;
 }
 
 .left-section {
