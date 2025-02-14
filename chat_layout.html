@@ -30,41 +30,38 @@
     </script>
 
     <style>
-/* General Page Styling */
 body {
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background-color: #fafafa; /* Instagram-like background */
-    font-family: 'Arial', sans-serif;
+    background-color: #fafafa; /* Light gray background, similar to Instagram */
 }
 
-/* Chat Container */
 .chatContainer {
     display: flex;
     flex-direction: column;
     background-color: #ffffff;
-    border-radius: 15px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 12px; /* Softer edges for a more modern look */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); /* More subtle shadow */
     width: 90%;
-    max-width: 500px;
+    max-width: 480px; /* Instagram-like width */
     height: 90vh;
     overflow: hidden;
 }
 
-/* Header */
 #chatHeader {
     display: flex;
     align-items: center;
     padding: 15px;
-    border-bottom: 1px solid #dbdbdb;
+    border-bottom: 1px solid #ddd; /* Subtle border */
     background-color: #ffffff;
+    color: #333;
 }
 
 #backButton {
-    font-size: 1.4rem;
-    color: #262626;
+    font-size: 1.2rem;
+    color: #262626; /* Darker gray, similar to Instagram */
     cursor: pointer;
     margin-right: 15px;
 }
@@ -73,70 +70,75 @@ body {
     width: 40px;
     height: 40px;
     border-radius: 50%;
+    margin-right: 12px;
+    background-color: #e1e1e1; /* Light gray placeholder */
     object-fit: cover;
-    margin-right: 10px;
-    border: 1px solid #dbdbdb;
 }
 
 #chatHeader h2 {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: #262626;
+    font-size: 1.1rem;
+    color: #262626; /* Dark text */
+    font-weight: bold;
 }
 
-/* Messages Container */
 #messagesContainer {
     flex: 1;
     padding: 15px;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 5px;
-    background-color: #ffffff;
+    gap: 12px; /* More space between messages */
+    background-color: #fafafa; /* Very light gray */
 }
 
-/* Message Bubbles */
 .message {
     margin: 4px 0;
-    padding: 10px 14px;
-    border-radius: 20px;
+    padding: 12px 16px;
+    border-radius: 18px; /* Softer, larger message bubble */
     max-width: 75%;
     display: inline-block;
     word-wrap: break-word;
-    font-size: 14px;
+    font-size: 15px; /* Larger text for readability */
     line-height: 1.5;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
 }
 
-/* Sent Messages */
+/* Sent message styles */
 .sent {
     align-self: flex-end;
-    background-color: #0095f6;
+    background-color: #0095f6; /* Instagram blue */
     color: #ffffff;
-    border-bottom-right-radius: 5px;
+    border-bottom-right-radius: 6px;
 }
 
-/* Received Messages */
+/* Received message styles */
 .received {
     align-self: flex-start;
-    background-color: #efefef;
+    background-color: #efefef; /* Soft light gray */
     color: #262626;
-    border-bottom-left-radius: 5px;
+    border-bottom-left-radius: 6px;
 }
 
-/* Media Messages */
+/* Adjustments for media elements within messages */
 .media {
     max-width: 100%;
     max-height: 180px;
     border-radius: 12px;
-    margin-top: 5px;
+    margin-top: 8px;
 }
 
-/* Input Container */
+/* Extra style for text messages */
+.text-message {
+    margin: 0;
+    text-align: left;
+}
+
+/* Input container styling */
 #inputContainer {
     display: flex;
     align-items: center;
-    padding: 10px;
-    border-top: 1px solid #dbdbdb;
+    padding: 12px;
+    border-top: 1px solid #ddd;
     background-color: #ffffff;
 }
 
@@ -145,25 +147,27 @@ body {
     padding: 12px;
     border: none;
     border-radius: 25px;
-    background-color: #efefef;
+    background-color: #fafafa;
     outline: none;
     font-size: 15px;
-    color: #262626;
+    color: #333;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 #sendButton {
     padding: 10px;
     margin-left: 10px;
-    background-color: #0095f6;
+    background-color: #0095f6; /* Instagram blue */
     color: #ffffff;
     border: none;
     border-radius: 50%;
     cursor: pointer;
     display: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 #sendButton.visible {
-    display: flex;
+    display: inline-flex;
     justify-content: center;
     align-items: center;
 }
@@ -172,59 +176,64 @@ body {
     font-size: 1.2rem;
 }
 
-/* Folder Button */
 #folderButton {
     padding: 10px;
     margin-left: 10px;
-    background-color: #ff9800;
+    background-color: #f0a500; /* Instagram-like yellow for media */
     color: #ffffff;
     border: none;
     border-radius: 50%;
     cursor: pointer;
     display: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 #folderButton i {
     font-size: 1.5rem;
 }
 
-/* Echo Status */
 #echoStatus {
     display: none;
     font-size: 0.9rem;
-    color: #0095f6;
+    color: #0095f6; /* Instagram blue */
 }
 
-/* Chat Hover Effect */
+#verificationImage {
+    width: 18px;
+    height: 18px;
+    margin-left: 5px;
+}
+
 #chatContainer:hover {
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
 }
 
-/* Selected Messages */
 .message.selected {
-    background-color: #d3eaff;
-    border: 2px solid #0095f6;
+    background-color: #d4f1f9; /* Light cyan */
+    border: 2px solid #0095f6; /* Instagram blue border */
     border-radius: 10px;
-    padding: 15px;
-    margin: 5px 0;
+    padding: 16px;
+    margin: 6px 0;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
 }
 
 .message.selected .text-message {
     font-weight: bold;
-    color: #004085;
+    color: #0077b6; /* Slightly darker blue */
 }
 
 .message.selected:hover {
-    background-color: #c2e0ff;
-    border-color: #0073d2;
+    background-color: #c0e7f1;
+    border-color: #006db3;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
     transition: all 0.2s ease;
 }
 
-/* Options Menu */
 .options-menu {
     display: flex;
     flex-direction: column;
-    background: #fff;
+    background: #ffffff;
     border: 1px solid #ddd;
     border-radius: 8px;
     position: absolute;
@@ -243,56 +252,45 @@ body {
     transform: translateY(0);
 }
 
-/* Context Menu */
-#customMenu {
-    display: none;
-    position: absolute;
-    background: white;
-    border: 1px solid #ccc;
-    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
-    padding: 5px;
-    border-radius: 5px;
-}
-
-.menu-item {
-    padding: 8px 12px;
-    cursor: pointer;
-}
-
-.menu-item:hover {
-    background: lightgray;
-}
-
-/* Buttons in Options Menu */
 .options-menu button {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 10px 14px;
-    background: #fafafa;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #f0f0f0, #fafafa);
     border: none;
     border-radius: 6px;
     cursor: pointer;
-    font-size: 14px;
-    color: #262626;
+    font-size: 15px;
+    font-weight: 500;
+    color: #333;
+    text-align: left;
     transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .options-menu button i {
-    font-size: 16px;
-    color: #6c757d;
+    font-size: 18px;
+    color: #888;
+    transition: color 0.2s ease;
 }
 
 .options-menu button:hover {
     background: #0095f6;
     color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
 }
 
 .options-menu button:hover i {
     color: #fff;
 }
 
-/* Action Buttons */
+.options-menu button:active {
+    background: #006bb3;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) inset;
+    transform: scale(0.98);
+}
+
 .buttonsContainer {
     display: flex;
     justify-content: flex-end;
@@ -306,15 +304,50 @@ body {
     padding: 8px 16px;
     font-size: 14px;
     border-radius: 8px;
-    background-color: #0095f6;
-    color: #fff;
-    border: none;
+    background-color: #ffffff;
+    color: #333;
+    border: 2px solid #ddd;
     cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#deleteSelectedButton i,
+#copySelectedButton i {
+    font-size: 18px;
 }
 
 #deleteSelectedButton:hover,
 #copySelectedButton:hover {
-    background-color: #0073d2;
+    background-color: #f8d7da;
+    color: #d9534f;
+    border-color: #d9534f;
+}
+
+#deleteSelectedButton:hover i,
+#copySelectedButton:hover i {
+    color: #d9534f;
+}
+
+#deleteSelectedButton:active,
+#copySelectedButton:active {
+    background-color: #d9534f;
+    color: white;
+    border-color: #d43f00;
+}
+
+#deleteSelectedButton,
+#copySelectedButton {
+    margin: 0;
+    align-self: center;
+}
+
+#deleteSelectedButton:focus,
+#copySelectedButton:focus {
+    outline: 2px solid #0095f6;
+    outline-offset: 2px;
 }
 
 
