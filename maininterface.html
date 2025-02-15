@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Main Interface</title>
+    <title>Falcon S Powered by Genix</title>
     <link rel="icon" type="image/x-icon" href="FalconS.ico">
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -334,17 +334,21 @@ button:disabled {
     background-color: #ccc;
 }
 
-
-/* Last message */
+.chat-item-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px; /* Reduce space between name & last message */
+}
 .chat-item-content .lastMessage {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-size: 13px; /* Slightly smaller font */
+    font-size: 13px;
     color: #555;
     flex-grow: 1;
     display: block;
-    margin-bottom: 0; /* Remove gap between last message and name */
+    margin-bottom: 0px; /* Remove unnecessary gap */
 }
 
 /* Timestamp */
@@ -404,15 +408,12 @@ button:disabled {
     margin-right: 8px;
 }
 
-/* Name */
 .name {
     font-weight: bold;
     font-size: 14px;
     color: #333;
-    margin-top: 0; /* Remove extra space above the name */
-    margin-bottom: 2px; /* Reduce space below the name */
+    margin-bottom: 0px; /* Remove extra space below name */
 }
-
 
 .left-section {
     width: 50%; /* Take up half of the screen width */
