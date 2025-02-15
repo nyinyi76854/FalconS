@@ -334,86 +334,78 @@ button:disabled {
     background-color: #ccc;
 }
 
-.chat-item-content {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 2px; /* Reduce space between name & last message */
-}
+/* Last message */
 .chat-item-content .lastMessage {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    font-size: 13px;
+    white-space: nowrap; /* Prevents text from wrapping to the next line */
+    overflow: hidden; /* Hides overflowed text */
+    text-overflow: ellipsis; /* Adds '...' when the text overflows */
+    font-size: 13px; /* Slightly smaller font size */
     color: #555;
-    flex-grow: 1;
-    display: block;
-    margin-bottom: 0px; /* Remove unnecessary gap */
+    flex-grow: 1; /* Make the last message take up available space */
+    display: block; /* Ensures it behaves as a block-level element */
 }
 
 /* Timestamp */
 .chat-item-content .timestamp {
-    font-size: 11px; /* Reduce size */
+    font-size: 11px; /* Smaller timestamp font */
     color: #888;
+    margin-top: 3px; /* Reduced margin */
 }
 
-/* Timestamp container */
+/* Timestamp container to prevent overflow */
 .chat-item-content .timestamp-container {
     display: flex;
     justify-content: flex-end;
     width: 100%;
 }
 
-/* Chat container */
 .chat-items-container {
-    max-height: 300px;
+    max-height: 250px; /* Reduce height to make chat more compact */
     overflow-y: auto;
-    margin: 10px 0;
+    margin: 10px 0; /* Reduced margin for compactness */
     background: #f9f9f9;
     border: 1px solid #ddd;
-    border-radius: 6px;
-    padding: 8px;
+    border-radius: 8px;
+    padding: 8px; /* Slightly less padding */
 }
 
-/* Chat item */
 .chat-item {
     display: flex;
-    align-items: flex-start; /* Align items to the top */
-    padding: 8px;
-    margin-bottom: 5px;
+    align-items: center; /* Ensure elements align vertically */
+    padding: 8px; /* Reduced padding for compactness */
+    margin-bottom: 8px; /* Reduced margin between items */
     background: #fff;
     border: 1px solid #ccc;
-    border-radius: 5px;
+    border-radius: 6px;
     cursor: pointer;
-    transition: background-color 0.2s ease, transform 0.1s ease;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    font-size: 13px; /* Slightly smaller font for the chat items */
 }
 
-/* Hover effect */
 .chat-item:hover {
     background-color: #f0f8ff;
-    transform: scale(1.01);
+    transform: scale(1.02);
 }
 
-/* Selected chat item */
 .chat-item.selected {
     background-color: #d1ecf1;
     border-color: #17a2b8;
 }
 
-/* Profile photo */
 .profile-photo {
-    width: 35px;
-    height: 35px;
+    width: 35px; /* Reduced photo size */
+    height: 35px; /* Reduced photo size */
     border-radius: 50%;
-    margin-right: 8px;
+    margin-right: 8px; /* Reduced margin between photo and text */
 }
 
 .name {
     font-weight: bold;
-    font-size: 14px;
     color: #333;
-    margin-bottom: 0px; /* Remove extra space below name */
+    font-size: 14px; /* Slightly smaller font size for the name */
+    margin-top: 1px; /* Further reduced margin */
 }
+
 
 .left-section {
     width: 50%; /* Take up half of the screen width */
