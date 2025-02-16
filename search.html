@@ -12,21 +12,24 @@
       font-family: Arial, sans-serif;
       margin: 0;
       padding: 0;
-      background-color: #f4f4f9;
+      background-color: #000; /* Black background */
+      color: white; /* White text for contrast */
     }
     #searchContainer {
       text-align: center;
       margin-top: 50px;
     }
     #searchInput {
-      padding: 10px;
+      padding: 12px;
       width: 80%;
-      max-width: 400px;
-      border: 2px solid #ccc;
-      border-radius: 30px;
+      max-width: 500px;
+      border: none;
+      border-radius: 50px;
       font-size: 16px;
-      background-color: #f0f8ff;
+      background-color: #333; /* Dark input background */
+      color: white;
       outline: none;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
     }
     #searchResults {
       margin-top: 20px;
@@ -35,16 +38,24 @@
     .resultItem {
       display: flex;
       align-items: center;
-      margin-bottom: 15px;
-      border-bottom: 1px solid #ddd;
-      padding-bottom: 10px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #555;
+      padding-bottom: 15px;
       cursor: pointer;
+      background-color: #222; /* Dark background for result items */
+      border-radius: 10px;
+      transition: transform 0.2s ease, background-color 0.3s ease;
+    }
+    .resultItem:hover {
+      transform: scale(1.05);
+      background-color: #444; /* Hover effect with lighter background */
     }
     .profilePhoto {
-      width: 50px;
-      height: 50px;
+      width: 60px;
+      height: 60px;
       border-radius: 50%;
       margin-right: 20px;
+      border: 2px solid #fff; /* Adding white border around profile photo */
     }
     .userInfo {
       text-align: left;
@@ -55,17 +66,17 @@
     }
     .name {
       font-weight: bold;
-      display: inline-block;
+      font-size: 18px;
     }
     .echo {
       font-size: 12px;
-      color: blue;
+      color: #00bcd4; /* Cyan text color for verified label */
       margin-left: 10px;
       display: none;
     }
     .verificationImage {
-      width: 15px;
-      height: 15px;
+      width: 18px;
+      height: 18px;
       margin-left: 5px;
       display: none;
     }
@@ -75,7 +86,7 @@
       left: 20px;
       font-size: 20px;
       cursor: pointer;
-      color: #333;
+      color: white;
       background: none;
       border: none;
     }
