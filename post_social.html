@@ -712,8 +712,11 @@ function checkFollowedOrNot(currentUserEmail, targetUserEmail, followButton) {
 }
 function updateFollowButton(followButton, isFollowed) {
     if (isFollowed) {
-        followButton.innerHTML = `<span class="check-icon">&#10003;</span> Followed`;
-        followButton.style.background = "gray";
+        followButton.innerHTML = `<span class="check-icon" style="font-weight: bold;">✔</span> Followed`;
+        followButton.style.background = "linear-gradient(45deg, #28a745, #85e085)"; // Green gradient
+        followButton.style.color = "white";
+        followButton.style.border = "none";
+        followButton.style.boxShadow = "0px 4px 6px rgba(0, 0, 0, 0.2)";
     } else {
         followButton.innerHTML = `<span class="plus-icon">+</span> Follow`;
         followButton.style.background = "linear-gradient(45deg, #007bff, #00c6ff)";
