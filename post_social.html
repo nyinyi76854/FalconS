@@ -514,125 +514,175 @@ document.addEventListener("DOMContentLoaded", () => {
     const searchContainer = document.querySelector(".search-container");
     const searchInput = document.getElementById("searchInput");
     const searchIcon = document.querySelector(".search-icon");
-    const accountsContainer = document.getElementById("accountsContainer");
 
+    // Expand search bar when clicking the icon
     searchIcon.addEventListener("click", () => {
         searchContainer.classList.toggle("expanded");
         if (searchContainer.classList.contains("expanded")) {
             searchInput.focus();
         } else {
-            searchInput.value = "";
-            fetchUsersAndDisplay(); // Reset user list
+            searchInput.value = ""; // Clear search when closed
+            fetchUsersAndDisplay(); // Reset list
         }
     });
 
+    // Close search when clicking outside
     document.addEventListener("click", (event) => {
         if (!searchContainer.contains(event.target)) {
             searchContainer.classList.remove("expanded");
             searchInput.value = "";
-            fetchUsersAndDisplay();
+            fetchUsersAndDisplay(); // Reset list
         }
     });
 
-    searchInput.addEventListener("input", fetchUsersAndDisplay);
-
-    fetchUsersAndDisplay();
+    fetchUsersAndDisplay(); // Load all users initially
 });
 
 function fetchUsersAndDisplay() {
-    const searchQuery = document.getElementById("searchInput").value.trim().toLowerCase();
+    const searchQuery = document.getElementById("searchInput").value.toLowerCase();
     const namesRef = firestore.collection("names");
     const usersRef = firestore.collection("users");
-    const currentUserEmail = firebase.auth().currentUser.email;
-    
-    accountsContainer.innerHTML = ""; // Clear previous content
-    let displayedEmails = new Set(); // Track displayed emails
+    const accountsContainer = document.getElementById("accountsContainer");
+    accountsContainer.innerHTML = ""; // Clear the accounts container
 
+    const currentUserEmail = firebase.auth().currentUser.email;
+
+    // If search is empty, display all users
     if (!searchQuery) {
-        usersRef.get().then(snapshot => displayUsers(snapshot.docs, displayedEmails, currentUserEmail));
+        usersRef.get().then(displayUsersFromSnapshot);
         return;
     }
 
-    namesRef.where("name", ">=", searchQuery).where("name", "<=", searchQuery + "\uf8ff").get().then(snapshot => {
-            let matchedEmails = new Set();
-            snapshot.forEach(doc => matchedEmails.add(doc.data().email));
+    let matchedEmails = new Set(); // To store emails of users that match search query
 
-            if (matchedEmails.size === 0) {
-                accountsContainer.innerHTML = "<p style='color: white;'>No matching users found</p>";
-                return;
+    // Step 1: Get all emails associated with the searched name
+    namesRef.get().then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+            const name = doc.data().name || "Unknown User";
+            const email = doc.data().email;
+
+            // If name matches search, add the corresponding email (if it's not already added)
+            if (name.toLowerCase().includes(searchQuery)) {
+                matchedEmails.add(email); // The Set ensures emails are unique
             }
-
-            usersRef.get().then(snapshot => {
-                let filteredUsers = snapshot.docs.filter(doc => matchedEmails.has(doc.data().email));
-                displayUsers(filteredUsers, displayedEmails, currentUserEmail);
-            });
         });
+
+        if (matchedEmails.size === 0) {
+            accountsContainer.innerHTML = "<p style='color: white;'>No matching users found</p>";
+            return;
+        }
+
+        // Step 2: Get users from the "users" collection who match those emails
+        usersRef.get().then((querySnapshot) => {
+            const uniqueUsers = [];
+            querySnapshot.docs.forEach((doc) => {
+                const userEmail = doc.data().email;
+                // Add user to uniqueUsers if the email is in the matchedEmails set and not already added
+                if (matchedEmails.has(userEmail) && !uniqueUsers.some(user => user.data().email === userEmail) && userEmail !== currentUserEmail) {
+                    uniqueUsers.push(doc);
+                }
+            });
+
+            if (uniqueUsers.length === 0) {
+                accountsContainer.innerHTML = "<p style='color: white;'>No matching users found</p>";
+            } else {
+                displayUsersFromSnapshot(uniqueUsers); // Display the filtered users
+            }
+        });
+    });
 }
 
-function displayUsers(userDocs, displayedEmails, currentUserEmail) {
-    if (userDocs.length === 0) {
-        accountsContainer.innerHTML = "<p style='color: white;'>No matching users found</p>";
-        return;
-    }
 
-    userDocs.forEach(doc => {
-        const userData = doc.data();
-        const userEmail = userData.email;
+// Function to display users from a snapshot (filtered list)
+function displayUsersFromSnapshot(usersArray) {
+    const accountsContainer = document.getElementById("accountsContainer");
+    const currentUserEmail = firebase.auth().currentUser.email;
 
-        if (!userEmail || userEmail === currentUserEmail || displayedEmails.has(userEmail)) return;
+    let displayedUsers = new Set(); // To track already displayed users (by email)
 
-        displayedEmails.add(userEmail); // Mark email as displayed
+    usersArray.forEach((doc) => {
+        const userEmail = doc.data().email;
+
+        // Skip if user is already displayed, is the current user, or the email is already processed
+        if (!userEmail || userEmail === currentUserEmail || displayedUsers.has(userEmail)) return;
+
+        displayedUsers.add(userEmail); // Mark user as displayed
 
         const userDiv = document.createElement("div");
         userDiv.classList.add("user-item");
 
+        // Create profile image element
         const profileImg = document.createElement("img");
         profileImg.classList.add("profile-photo");
         profileImg.addEventListener("click", () => {
             window.location.href = `profile_of_user.html?userEmail=${encodeURIComponent(userEmail)}`;
         });
 
+        // Create name container
         const nameContainer = document.createElement("div");
         nameContainer.classList.add("name-container");
 
+        // Create name element
         const nameSpan = document.createElement("span");
         nameSpan.classList.add("user-name");
 
+        // Create verification icon
         const verificationImg = document.createElement("img");
         verificationImg.src = "verification.png";
         verificationImg.classList.add("verification-icon");
-        verificationImg.style.display = "none";
+        verificationImg.style.display = "none"; // Hidden by default
 
+        // Append name and verification icon to nameContainer
         nameContainer.appendChild(nameSpan);
         nameContainer.appendChild(verificationImg);
 
+        // Create follow button
         const followButton = document.createElement("button");
         followButton.classList.add("follow-btn");
         followButton.innerHTML = `<span class="plus-icon">+</span> Follow`;
 
+        // Hide follow button if the user is viewing their own profile
         if (userEmail === currentUserEmail) {
             followButton.style.display = "none";
         } else {
-            followButton.addEventListener("click", () => followUser(currentUserEmail, userEmail, followButton));
+            followButton.addEventListener("click", () => {
+                followUser(currentUserEmail, userEmail, followButton);
+            });
+
+            // Check if already followed
             checkFollowedOrNot(currentUserEmail, userEmail, followButton);
         }
 
+        // Create user info container
         const userInfoContainer = document.createElement("div");
         userInfoContainer.classList.add("user-info-container");
         userInfoContainer.appendChild(nameContainer);
         userInfoContainer.appendChild(followButton);
 
+        // Append elements to the userDiv
         userDiv.appendChild(profileImg);
         userDiv.appendChild(userInfoContainer);
+
+        // Append userDiv to accountsContainer
         accountsContainer.appendChild(userDiv);
 
-        fetchProfilePhotoForAccount(userEmail, (photoUrl) => profileImg.src = photoUrl);
-        fetchAndDisplayName(userEmail, (userName) => nameSpan.textContent = userName);
+        // Fetch profile photo
+        fetchProfilePhotoForAccount(userEmail, (photoUrl) => {
+            profileImg.src = photoUrl;
+        });
+
+        // Fetch and display name
+        fetchAndDisplayName(userEmail, (userName) => {
+            nameSpan.textContent = userName;
+        });
+
+        // Check verification status
         checkVerifiedOrNotForAccount(userEmail, (isVerified) => {
-            if (isVerified) verificationImg.style.display = "inline-block";
+            if (isVerified) {
+                verificationImg.style.display = "inline-block";
+            }
         });
     });
-
 
     // Add CSS Styles
     const style = document.createElement("style");
@@ -658,7 +708,7 @@ function displayUsers(userDocs, displayedEmails, currentUserEmail) {
         .user-name {
             font-size: 16px;
             font-weight: bold;
-            color: white; /* Changed from #333 to white */
+            color: white;
             margin-right: 6px;
         }
         .verification-icon {
@@ -670,7 +720,7 @@ function displayUsers(userDocs, displayedEmails, currentUserEmail) {
             flex-direction: column;
             align-items: flex-start;
             gap: 5px;
-            width: 150px; /* Consistent width */
+            width: 150px;
         }
         .follow-btn {
             display: flex;
@@ -687,7 +737,7 @@ function displayUsers(userDocs, displayedEmails, currentUserEmail) {
             transition: all 0.3s ease-in-out;
             box-shadow: 0px 4px 6px rgba(0, 123, 255, 0.3);
             outline: none;
-            width: 100px; /* Fixed width */
+            width: 100px;
         }
         .follow-btn:hover {
             background: linear-gradient(45deg, #0056b3, #0086ff);
@@ -701,7 +751,6 @@ function displayUsers(userDocs, displayedEmails, currentUserEmail) {
     `;
     document.head.appendChild(style);
 }
-
 
 function closeAd() {
     const ad = document.getElementById("adContainer");
