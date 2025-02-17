@@ -510,215 +510,211 @@ video::-webkit-media-controls {
             callback("Unknown User");
         });
     }
-   document.addEventListener("DOMContentLoaded", () => {
+ document.addEventListener("DOMContentLoaded", () => {
     const searchContainer = document.querySelector(".search-container");
     const searchInput = document.getElementById("searchInput");
     const searchIcon = document.querySelector(".search-icon");
 
-    // Expand search bar when clicking the icon
+    let allUsers = []; // Store all users for filtering
+
     searchIcon.addEventListener("click", () => {
         searchContainer.classList.toggle("expanded");
         if (searchContainer.classList.contains("expanded")) {
             searchInput.focus();
         } else {
             searchInput.value = ""; // Clear search when closed
-            fetchUsersAndDisplay(); // Reset list
+            displayUsers(allUsers); // Reset list
         }
     });
 
-    // Close search when clicking outside
     document.addEventListener("click", (event) => {
         if (!searchContainer.contains(event.target)) {
             searchContainer.classList.remove("expanded");
             searchInput.value = "";
-            fetchUsersAndDisplay(); // Reset list
+            displayUsers(allUsers); // Reset list
         }
     });
 
-    fetchUsersAndDisplay(); // Load all users initially
+    searchInput.addEventListener("input", () => {
+        const query = searchInput.value.toLowerCase().trim();
+        if (!query) {
+            displayUsers(allUsers); // Show all users when empty
+        } else {
+            const filteredUsers = allUsers.filter(user => 
+                user.name.toLowerCase().includes(query)
+            );
+            displayUsers(filteredUsers);
+        }
+    });
+
+    fetchUsersAndDisplay();
 });
 
 function fetchUsersAndDisplay() {
-    const searchQuery = document.getElementById("searchInput").value.toLowerCase();
     const usersRef = firestore.collection("users");
-    const accountsContainer = document.getElementById("accountsContainer");
-    accountsContainer.innerHTML = "";
-
     const currentUserEmail = firebase.auth().currentUser.email;
 
-    // If search is empty, display all users
-    if (!searchQuery) {
-        usersRef.get().then(displayUsersFromSnapshot);
-        return;
-    }
-
-    // Step 1: Get users from the "users" collection
     usersRef.get().then((querySnapshot) => {
-        const displayedUsers = [];
+        let users = [];
         
         querySnapshot.forEach((doc) => {
             const userEmail = doc.data().email;
-
-            // Skip if user is already displayed or is the current user
             if (!userEmail || userEmail === currentUserEmail) return;
 
-            const userDiv = document.createElement("div");
-            userDiv.classList.add("user-item");
-
-            // Create profile image element
-            const profileImg = document.createElement("img");
-            profileImg.classList.add("profile-photo");
-            profileImg.addEventListener("click", () => {
-                window.location.href = `profile_of_user.html?userEmail=${encodeURIComponent(userEmail)}`;
-            });
-
-            // Create name container
-            const nameContainer = document.createElement("div");
-            nameContainer.classList.add("name-container");
-
-            // Create name element
-            const nameSpan = document.createElement("span");
-            nameSpan.classList.add("user-name");
-
-            // Create verification icon
-            const verificationImg = document.createElement("img");
-            verificationImg.src = "verification.png";
-            verificationImg.classList.add("verification-icon");
-            verificationImg.style.display = "none"; // Hidden by default
-
-            // Append name and verification icon to nameContainer
-            nameContainer.appendChild(nameSpan);
-            nameContainer.appendChild(verificationImg);
-
-            // Create follow button
-            const followButton = document.createElement("button");
-            followButton.classList.add("follow-btn");
-            followButton.innerHTML = "<span class='plus-icon'>+</span> Follow";
-
-            // Hide follow button if the user is viewing their own profile
-            if (userEmail === currentUserEmail) {
-                followButton.style.display = "none";
-            } else {
-                followButton.addEventListener("click", () => {
-                    followUser(currentUserEmail, userEmail, followButton);
-                });
-
-                // Check if already followed
-                checkFollowedOrNot(currentUserEmail, userEmail, followButton);
-            }
-
-            // Create user info container
-            const userInfoContainer = document.createElement("div");
-            userInfoContainer.classList.add("user-info-container");
-            userInfoContainer.appendChild(nameContainer);
-            userInfoContainer.appendChild(followButton);
-
-            // Append elements to the userDiv
-            userDiv.appendChild(profileImg);
-            userDiv.appendChild(userInfoContainer);
-
-            // Append userDiv to accountsContainer
-            accountsContainer.appendChild(userDiv);
-
-            // Fetch profile photo
-            fetchProfilePhotoForAccount(userEmail, (photoUrl) => {
-                profileImg.src = photoUrl;
-            });
-
-            // Fetch and display name
-            fetchAndDisplayName(userEmail, (userName) => {
-                nameSpan.textContent = userName;
-
-                // Match the user name with the search query
-                if (userName.toLowerCase().includes(searchQuery)) {
-                    displayedUsers.push(userDiv);
-                }
-            });
-
-            // Check verification status
-            checkVerifiedOrNotForAccount(userEmail, (isVerified) => {
-                if (isVerified) {
-                    verificationImg.style.display = "inline-block";
-                }
+            users.push({
+                email: userEmail,
+                name: "", // To be fetched later
+                profileUrl: "",
+                isVerified: false
             });
         });
 
-        // Filter the displayed users based on search
-        if (displayedUsers.length === 0) {
-            accountsContainer.innerHTML = "<p style='color: white;'>No matching users found</p>";
-        } else {
-            // Clear the container and append filtered users
-            accountsContainer.innerHTML = "";
-            displayedUsers.forEach(userDiv => accountsContainer.appendChild(userDiv));
-        }
+        // Fetch user names and profile images asynchronously
+        let fetchPromises = users.map(user => 
+            fetchAndDisplayName(user.email, (name) => user.name = name)
+        );
+        let profilePromises = users.map(user => 
+            fetchProfilePhotoForAccount(user.email, (url) => user.profileUrl = url)
+        );
+        let verifyPromises = users.map(user =>
+            checkVerifiedOrNotForAccount(user.email, (isVerified) => user.isVerified = isVerified)
+        );
+
+        Promise.all([...fetchPromises, ...profilePromises, ...verifyPromises]).then(() => {
+            allUsers = users; // Store all users globally
+            displayUsers(allUsers);
+        });
     });
-    const style = document.createElement("style");
-    style.textContent = `
-        .user-item {
-            display: flex;
-            align-items: center;
-            padding: 15px;
-            border-bottom: 1px solid #ddd;
-        }
-        .profile-photo {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-right: 12px;
-        }
-        .name-container {
-            display: flex;
-            align-items: center;
-            margin-bottom: 5px;
-        }
-        .user-name {
-            font-size: 16px;
-            font-weight: bold;
-            color: white; /* Changed from #333 to white */
-            margin-right: 6px;
-        }
-        .verification-icon {
-            width: 18px;
-            height: 18px;
-        }
-        .user-info-container {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 5px;
-            width: 150px; /* Consistent width */
-        }
-        .follow-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(45deg, #007bff, #00c6ff);
-            color: white;
-            border: none;
-            padding: 6px 14px;
-            font-size: 14px;
-            font-weight: bold;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.3s ease-in-out;
-            box-shadow: 0px 4px 6px rgba(0, 123, 255, 0.3);
-            outline: none;
-            width: 100px; /* Fixed width */
-        }
-        .follow-btn:hover {
-            background: linear-gradient(45deg, #0056b3, #0086ff);
-            transform: scale(1.05);
-        }
-        .plus-icon {
-            font-size: 18px;
-            font-weight: bold;
-            margin-right: 6px;
-        }
-    `;
-    document.head.appendChild(style);
 }
 
+function displayUsers(users) {
+    const accountsContainer = document.getElementById("accountsContainer");
+    accountsContainer.innerHTML = "";
+
+    if (users.length === 0) {
+        accountsContainer.innerHTML = "<p style='color: white;'>No matching users found</p>";
+        return;
+    }
+
+    users.forEach(user => {
+        const userDiv = document.createElement("div");
+        userDiv.classList.add("user-item");
+
+        const profileImg = document.createElement("img");
+        profileImg.classList.add("profile-photo");
+        profileImg.src = user.profileUrl;
+        profileImg.addEventListener("click", () => {
+            window.location.href = `profile_of_user.html?userEmail=${encodeURIComponent(user.email)}`;
+        });
+
+        const nameContainer = document.createElement("div");
+        nameContainer.classList.add("name-container");
+
+        const nameSpan = document.createElement("span");
+        nameSpan.classList.add("user-name");
+        nameSpan.textContent = user.name;
+
+        const verificationImg = document.createElement("img");
+        verificationImg.src = "verification.png";
+        verificationImg.classList.add("verification-icon");
+        verificationImg.style.display = user.isVerified ? "inline-block" : "none";
+
+        nameContainer.appendChild(nameSpan);
+        nameContainer.appendChild(verificationImg);
+
+        const followButton = document.createElement("button");
+        followButton.classList.add("follow-btn");
+        followButton.innerHTML = "<span class='plus-icon'>+</span> Follow";
+
+        if (user.email === firebase.auth().currentUser.email) {
+            followButton.style.display = "none";
+        } else {
+            followButton.addEventListener("click", () => {
+                followUser(firebase.auth().currentUser.email, user.email, followButton);
+            });
+
+            checkFollowedOrNot(firebase.auth().currentUser.email, user.email, followButton);
+        }
+
+        const userInfoContainer = document.createElement("div");
+        userInfoContainer.classList.add("user-info-container");
+        userInfoContainer.appendChild(nameContainer);
+        userInfoContainer.appendChild(followButton);
+
+        userDiv.appendChild(profileImg);
+        userDiv.appendChild(userInfoContainer);
+
+        accountsContainer.appendChild(userDiv);
+    });
+
+
+// Injecting CSS dynamically
+const style = document.createElement("style");
+style.textContent = `
+    .user-item {
+        display: flex;
+        align-items: center;
+        padding: 15px;
+        border-bottom: 1px solid #ddd;
+    }
+    .profile-photo {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-right: 12px;
+    }
+    .name-container {
+        display: flex;
+        align-items: center;
+        margin-bottom: 5px;
+    }
+    .user-name {
+        font-size: 16px;
+        font-weight: bold;
+        color: white;
+        margin-right: 6px;
+    }
+    .verification-icon {
+        width: 18px;
+        height: 18px;
+    }
+    .user-info-container {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+        width: 150px;
+    }
+    .follow-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(45deg, #007bff, #00c6ff);
+        color: white;
+        border: none;
+        padding: 6px 14px;
+        font-size: 14px;
+        font-weight: bold;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: all 0.3s ease-in-out;
+        box-shadow: 0px 4px 6px rgba(0, 123, 255, 0.3);
+        outline: none;
+        width: 100px;
+    }
+    .follow-btn:hover {
+        background: linear-gradient(45deg, #0056b3, #0086ff);
+        transform: scale(1.05);
+    }
+    .plus-icon {
+        font-size: 18px;
+        font-weight: bold;
+        margin-right: 6px;
+    }
+`;
+document.head.appendChild(style);
+}
 
 function closeAd() {
     const ad = document.getElementById("adContainer");
