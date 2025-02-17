@@ -510,7 +510,7 @@ video::-webkit-media-controls {
             callback("Unknown User");
         });
     }
-  document.addEventListener("DOMContentLoaded", () => {
+   document.addEventListener("DOMContentLoaded", () => {
     const searchContainer = document.querySelector(".search-container");
     const searchInput = document.getElementById("searchInput");
     const searchIcon = document.querySelector(".search-icon");
@@ -540,189 +540,210 @@ video::-webkit-media-controls {
 
 function fetchUsersAndDisplay() {
     const searchQuery = document.getElementById("searchInput").value.toLowerCase();
+    const namesRef = firestore.collection("names");
     const usersRef = firestore.collection("users");
     const accountsContainer = document.getElementById("accountsContainer");
     accountsContainer.innerHTML = "";
 
     const currentUserEmail = firebase.auth().currentUser.email;
 
-    // Fetch users from the "users" collection
-    usersRef.get().then((querySnapshot) => {
-        let displayedUsers = new Set(); // Track displayed users to prevent duplicates
+    // If search is empty, display all users
+    if (!searchQuery) {
+        usersRef.get().then(displayUsersFromSnapshot);
+        return;
+    }
 
+    let matchedEmails = new Set(); // Use a Set to store unique emails
+
+    // Step 1: Get all emails associated with the searched name
+    namesRef.get().then((querySnapshot) => {
         querySnapshot.forEach((doc) => {
-            const userEmail = doc.data().email;
+            const name = doc.data().name || "Unknown User";
+            const email = doc.data().email;
 
-            // Skip if user is already displayed or is the current user
-            if (!userEmail || userEmail === currentUserEmail || displayedUsers.has(userEmail)) return;
-
-            displayedUsers.add(userEmail); // Add user to the displayed set
-
-            const userDiv = document.createElement("div");
-            userDiv.classList.add("user-item");
-
-            // Create profile image element
-            const profileImg = document.createElement("img");
-            profileImg.classList.add("profile-photo");
-            profileImg.addEventListener("click", () => {
-                window.location.href = profile_of_user.html?userEmail=${encodeURIComponent(userEmail)};
-            });
-
-            // Create name container
-            const nameContainer = document.createElement("div");
-            nameContainer.classList.add("name-container");
-
-            // Create name element
-            const nameSpan = document.createElement("span");
-            nameSpan.classList.add("user-name");
-
-            // Create verification icon
-            const verificationImg = document.createElement("img");
-            verificationImg.src = "verification.png";
-            verificationImg.classList.add("verification-icon");
-            verificationImg.style.display = "none"; // Hidden by default
-
-            // Append name and verification icon to nameContainer
-            nameContainer.appendChild(nameSpan);
-            nameContainer.appendChild(verificationImg);
-
-            // Create follow button
-            const followButton = document.createElement("button");
-            followButton.classList.add("follow-btn");
-            followButton.innerHTML = '<span class="plus-icon">+</span> Follow';
-
-            // Hide follow button if the user is viewing their own profile
-            if (userEmail === currentUserEmail) {
-                followButton.style.display = "none";
-            } else {
-                followButton.addEventListener("click", () => {
-                    followUser(currentUserEmail, userEmail, followButton);
-                });
-
-                // Check if already followed
-                checkFollowedOrNot(currentUserEmail, userEmail, followButton);
-            }
-
-            // Create user info container
-            const userInfoContainer = document.createElement("div");
-            userInfoContainer.classList.add("user-info-container");
-            userInfoContainer.appendChild(nameContainer);
-            userInfoContainer.appendChild(followButton);
-
-            // Append elements to the userDiv
-            userDiv.appendChild(profileImg);
-            userDiv.appendChild(userInfoContainer);
-
-            // Append userDiv to accountsContainer
-            accountsContainer.appendChild(userDiv);
-
-            // Fetch profile photo
-            fetchProfilePhotoForAccount(userEmail, (photoUrl) => {
-                profileImg.src = photoUrl;
-            });
-
-            // Fetch and display name
-            fetchAndDisplayName(userEmail, (userName) => {
-                nameSpan.textContent = userName;
-            });
-
-            // Check verification status
-            checkVerifiedOrNotForAccount(userEmail, (isVerified) => {
-                if (isVerified) {
-                    verificationImg.style.display = "inline-block";
-                }
-            });
-        });
-
-        // Now filter based on search query (if there's one)
-        const userItems = accountsContainer.querySelectorAll('.user-item');
-        userItems.forEach((userItem) => {
-            const nameSpan = userItem.querySelector('.user-name');
-            const userName = nameSpan ? nameSpan.textContent.toLowerCase() : "";
-
-            if (!searchQuery || userName.includes(searchQuery)) {
-                userItem.style.display = 'flex'; // Show user
-            } else {
-                userItem.style.display = 'none'; // Hide user
+            // If name matches search, add the corresponding email (avoid duplicates)
+            if (name.toLowerCase().includes(searchQuery)) {
+                matchedEmails.add(email);
             }
         });
 
-        // If no users match the search query, display a message
-        const visibleUsers = Array.from(userItems).filter(item => item.style.display !== 'none');
-        if (visibleUsers.length === 0) {
-            accountsContainer.innerHTML = "<p style='color: white;'>No matching users found</p>";
+        if (matchedEmails.size === 0) {
+            accountsContainer.innerHTML = `<p style="color: white;">No matching users found</p>`;
+            return;
         }
+
+        // Step 2: Get users from the "users" collection who match those emails
+        usersRef.get().then((querySnapshot) => {
+            const uniqueUsers = querySnapshot.docs.filter((doc) => matchedEmails.has(doc.data().email));
+            
+            if (uniqueUsers.length === 0) {
+                accountsContainer.innerHTML = `<p style="color: white;">No matching users found</p>`;
+            } else {
+                displayUsersFromSnapshot(uniqueUsers);
+            }
+        });
+    });
+}
+
+// Function to display users
+function displayUsersFromSnapshot(querySnapshot) {
+    const accountsContainer = document.getElementById("accountsContainer");
+    const currentUserEmail = firebase.auth().currentUser.email;
+
+    let displayedUsers = new Set(); // Track displayed users to prevent duplicates
+
+    querySnapshot.forEach((doc) => {
+        const userEmail = doc.data().email;
+
+        // Skip if user is already displayed or is the current user
+        if (!userEmail || userEmail === currentUserEmail || displayedUsers.has(userEmail)) return;
+
+        displayedUsers.add(userEmail); // Add user to the displayed set
+
+        const userDiv = document.createElement("div");
+        userDiv.classList.add("user-item");
+
+        // Create profile image element
+        const profileImg = document.createElement("img");
+        profileImg.classList.add("profile-photo");
+        profileImg.addEventListener("click", () => {
+            window.location.href = `profile_of_user.html?userEmail=${encodeURIComponent(userEmail)}`;
+        });
+
+        // Create name container
+        const nameContainer = document.createElement("div");
+        nameContainer.classList.add("name-container");
+
+        // Create name element
+        const nameSpan = document.createElement("span");
+        nameSpan.classList.add("user-name");
+
+        // Create verification icon
+        const verificationImg = document.createElement("img");
+        verificationImg.src = "verification.png";
+        verificationImg.classList.add("verification-icon");
+        verificationImg.style.display = "none"; // Hidden by default
+
+        // Append name and verification icon to nameContainer
+        nameContainer.appendChild(nameSpan);
+        nameContainer.appendChild(verificationImg);
+
+        // Create follow button
+        const followButton = document.createElement("button");
+        followButton.classList.add("follow-btn");
+        followButton.innerHTML = `<span class="plus-icon">+</span> Follow`;
+
+        // Hide follow button if the user is viewing their own profile
+        if (userEmail === currentUserEmail) {
+            followButton.style.display = "none";
+        } else {
+            followButton.addEventListener("click", () => {
+                followUser(currentUserEmail, userEmail, followButton);
+            });
+
+            // Check if already followed
+            checkFollowedOrNot(currentUserEmail, userEmail, followButton);
+        }
+
+        // Create user info container
+        const userInfoContainer = document.createElement("div");
+        userInfoContainer.classList.add("user-info-container");
+        userInfoContainer.appendChild(nameContainer);
+        userInfoContainer.appendChild(followButton);
+
+        // Append elements to the userDiv
+        userDiv.appendChild(profileImg);
+        userDiv.appendChild(userInfoContainer);
+
+        // Append userDiv to accountsContainer
+        accountsContainer.appendChild(userDiv);
+
+        // Fetch profile photo
+        fetchProfilePhotoForAccount(userEmail, (photoUrl) => {
+            profileImg.src = photoUrl;
+        });
+
+        // Fetch and display name
+        fetchAndDisplayName(userEmail, (userName) => {
+            nameSpan.textContent = userName;
+        });
+
+        // Check verification status
+        checkVerifiedOrNotForAccount(userEmail, (isVerified) => {
+            if (isVerified) {
+                verificationImg.style.display = "inline-block";
+            }
+        });
     });
 
-
-
-  const style = document.createElement("style");
-style.textContent = `
-    .user-item {
-        display: flex;
-        align-items: center;
-        padding: 15px;
-        border-bottom: 1px solid #ddd;
-    }
-    .profile-photo {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        object-fit: cover;
-        margin-right: 12px;
-    }
-    .name-container {
-        display: flex;
-        align-items: center;
-        margin-bottom: 5px;
-    }
-    .user-name {
-        font-size: 16px;
-        font-weight: bold;
-        color: white; /* Changed from #333 to white */
-        margin-right: 6px;
-    }
-    .verification-icon {
-        width: 18px;
-        height: 18px;
-    }
-    .user-info-container {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 5px;
-        width: 150px; /* Consistent width */
-    }
-    .follow-btn {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: linear-gradient(45deg, #007bff, #00c6ff);
-        color: white;
-        border: none;
-        padding: 6px 14px;
-        font-size: 14px;
-        font-weight: bold;
-        border-radius: 20px;
-        cursor: pointer;
-        transition: all 0.3s ease-in-out;
-        box-shadow: 0px 4px 6px rgba(0, 123, 255, 0.3);
-        outline: none;
-        width: 100px; /* Fixed width */
-    }
-    .follow-btn:hover {
-        background: linear-gradient(45deg, #0056b3, #0086ff);
-        transform: scale(1.05);
-    }
-    .plus-icon {
-        font-size: 18px;
-        font-weight: bold;
-        margin-right: 6px;
-    }
-`;
-document.head.appendChild(style);
-
+    // Add CSS Styles
+    const style = document.createElement("style");
+    style.textContent = `
+        .user-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+        .profile-photo {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 12px;
+        }
+        .name-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        .user-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: white; /* Changed from #333 to white */
+            margin-right: 6px;
+        }
+        .verification-icon {
+            width: 18px;
+            height: 18px;
+        }
+        .user-info-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 5px;
+            width: 150px; /* Consistent width */
+        }
+        .follow-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(45deg, #007bff, #00c6ff);
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0px 4px 6px rgba(0, 123, 255, 0.3);
+            outline: none;
+            width: 100px; /* Fixed width */
+        }
+        .follow-btn:hover {
+            background: linear-gradient(45deg, #0056b3, #0086ff);
+            transform: scale(1.05);
+        }
+        .plus-icon {
+            font-size: 18px;
+            font-weight: bold;
+            margin-right: 6px;
+        }
+    `;
+    document.head.appendChild(style);
 }
+
 
 function closeAd() {
     const ad = document.getElementById("adContainer");
