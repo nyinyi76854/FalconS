@@ -756,8 +756,13 @@ function openImageModal(src) {
     // Modal background (click to dismiss)
     const modalBackground = document.createElement('div');
     modalBackground.classList.add('modal-background');
-    modalBackground.addEventListener('click', () => closeModal(modal));
-
+    // Add event listener to dismiss the modal when clicking on the background
+modalBackground.addEventListener('click', (event) => {
+    // Check if the click was on the background and not inside the modal content
+    if (event.target === modalBackground) {
+        closeModal(modal);
+    }
+});
     // Create modal content (image in this case)
     const modalContent = document.createElement('div');
     modalContent.classList.add('modal-content');
