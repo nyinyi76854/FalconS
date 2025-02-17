@@ -640,6 +640,7 @@ function fetchUsersAndDisplay() {
             const nameSpan = userItem.querySelector('.user-name');
             const userName = nameSpan ? nameSpan.textContent.toLowerCase() : "";
 
+            // Check if name matches the search query
             if (!searchQuery || userName.includes(searchQuery)) {
                 userItem.style.display = 'flex'; // Show user
             } else {
@@ -653,6 +654,7 @@ function fetchUsersAndDisplay() {
             accountsContainer.innerHTML = "<p style='color: white;'>No matching users found</p>";
         }
     });
+
 
     const style = document.createElement("style");
      style.textContent = 
