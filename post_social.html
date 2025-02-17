@@ -553,10 +553,7 @@ function fetchUsersAndDisplay() {
         return;
     }
 
-    namesRef.where("name_lower", ">=", searchQuery)
-        .where("name_lower", "<=", searchQuery + "\uf8ff")
-        .get()
-        .then(snapshot => {
+    namesRef.where("name", ">=", searchQuery).where("name", "<=", searchQuery + "\uf8ff").get().then(snapshot => {
             let matchedEmails = new Set();
             snapshot.forEach(doc => matchedEmails.add(doc.data().email));
 
