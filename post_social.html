@@ -577,8 +577,8 @@ function fetchUsersAndDisplay() {
             const uniqueUsers = [];
             querySnapshot.docs.forEach((doc) => {
                 const userEmail = doc.data().email;
-                // Add user to uniqueUsers if the email is in the matchedEmails set and not already added
-                if (matchedEmails.has(userEmail) && !uniqueUsers.some(user => user.data().email === userEmail) && userEmail !== currentUserEmail) {
+                // Add user to uniqueUsers if the email is in the matchedEmails set
+                if (matchedEmails.has(userEmail) && !uniqueUsers.some(user => user.data().email === userEmail)) {
                     uniqueUsers.push(doc);
                 }
             });
@@ -592,7 +592,6 @@ function fetchUsersAndDisplay() {
     });
 }
 
-
 // Function to display users from a snapshot (filtered list)
 function displayUsersFromSnapshot(usersArray) {
     const accountsContainer = document.getElementById("accountsContainer");
@@ -603,7 +602,7 @@ function displayUsersFromSnapshot(usersArray) {
     usersArray.forEach((doc) => {
         const userEmail = doc.data().email;
 
-        // Skip if user is already displayed, is the current user, or the email is already processed
+        // Skip if user is already displayed or is the current user
         if (!userEmail || userEmail === currentUserEmail || displayedUsers.has(userEmail)) return;
 
         displayedUsers.add(userEmail); // Mark user as displayed
