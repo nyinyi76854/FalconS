@@ -531,13 +531,13 @@ video::-webkit-media-controls {
         if (!searchContainer.contains(event.target)) {
             searchContainer.classList.remove("expanded");
             searchInput.value = "";
-            fetchUsersAndDisplay(); // Reset list
+            
         }
     });
 
-    fetchUsersAndDisplay(); // Load all users initially
+    
 });
-
+fetchUsersAndDisplay(); // Load all users initially
 function fetchUsersAndDisplay() {
     const searchQuery = document.getElementById("searchInput").value.toLowerCase();
     const usersRef = firestore.collection("users");
