@@ -375,7 +375,7 @@ body {
     outline: 2px solid #0056b3; /* Blue outline when focused */
     outline-offset: 2px;
 }
-        /* Image modal container */
+/* Image modal container */
 .image-modal {
     position: fixed;
     top: 50%;
@@ -415,6 +415,24 @@ body {
     align-items: center;
     overflow: hidden;
 }
+
+/* Close button in the top-right corner */
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+/* Font Awesome close icon */
+.close-btn i {
+    font-size: 30px;
+}
+
 
     </style>
 </head>
@@ -757,12 +775,13 @@ function openImageModal(src) {
     const modalBackground = document.createElement('div');
     modalBackground.classList.add('modal-background');
     // Add event listener to dismiss the modal when clicking on the background
-modalBackground.addEventListener('click', (event) => {
-    // Check if the click was on the background and not inside the modal content
-    if (event.target === modalBackground) {
-        closeModal(modal);
-    }
-});
+    modalBackground.addEventListener('click', (event) => {
+        // Check if the click was on the background and not inside the modal content
+        if (event.target === modalBackground) {
+            closeModal(modal);
+        }
+    });
+
     // Create modal content (image in this case)
     const modalContent = document.createElement('div');
     modalContent.classList.add('modal-content');
@@ -774,6 +793,13 @@ modalBackground.addEventListener('click', (event) => {
     img.style.height = "auto";
     img.style.borderRadius = "10px";
 
+    // Close button (Font Awesome)
+    const closeButton = document.createElement('button');
+    closeButton.classList.add('close-btn');
+    closeButton.innerHTML = '<i class="fas fa-times"></i>'; // Font Awesome close icon
+    closeButton.addEventListener('click', () => closeModal(modal));
+
+    modalContent.appendChild(closeButton);
     modalContent.appendChild(img);
     modal.appendChild(modalBackground);
     modal.appendChild(modalContent);
@@ -785,6 +811,7 @@ modalBackground.addEventListener('click', (event) => {
 function closeModal(modal) {
     document.body.removeChild(modal);
 }
+
 
 function selectMessage(messageId, messageDiv) {
     // Toggle the 'selected' class
