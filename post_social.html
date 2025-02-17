@@ -522,7 +522,7 @@ video::-webkit-media-controls {
             searchInput.focus();
         } else {
             searchInput.value = ""; // Clear search when closed
-            
+            fetchUsersAndDisplay(); // Reset list
         }
     });
 
@@ -546,17 +546,21 @@ function fetchUsersAndDisplay() {
 
     const currentUserEmail = firebase.auth().currentUser.email;
 
-    // Fetch users from the "users" collection
-    usersRef.get().then((querySnapshot) => {
-        let displayedUsers = new Set(); // Track displayed users to prevent duplicates
+    // If search is empty, display all users
+    if (!searchQuery) {
+        usersRef.get().then(displayUsersFromSnapshot);
+        return;
+    }
 
+    // Step 1: Get users from the "users" collection
+    usersRef.get().then((querySnapshot) => {
+        const displayedUsers = [];
+        
         querySnapshot.forEach((doc) => {
             const userEmail = doc.data().email;
 
             // Skip if user is already displayed or is the current user
-            if (!userEmail || userEmail === currentUserEmail || displayedUsers.has(userEmail)) return;
-
-            displayedUsers.add(userEmail); // Add user to the displayed set
+            if (!userEmail || userEmail === currentUserEmail) return;
 
             const userDiv = document.createElement("div");
             userDiv.classList.add("user-item");
@@ -589,7 +593,7 @@ function fetchUsersAndDisplay() {
             // Create follow button
             const followButton = document.createElement("button");
             followButton.classList.add("follow-btn");
-            followButton.innerHTML = '<span class="plus-icon">+</span> Follow';
+            followButton.innerHTML = "<span class='plus-icon'>+</span> Follow";
 
             // Hide follow button if the user is viewing their own profile
             if (userEmail === currentUserEmail) {
@@ -625,8 +629,10 @@ function fetchUsersAndDisplay() {
             fetchAndDisplayName(userEmail, (userName) => {
                 nameSpan.textContent = userName;
 
-                // Now filter based on search query (if there's one)
-                filterUsersBySearchQuery(searchQuery);
+                // Match the user name with the search query
+                if (userName.toLowerCase().includes(searchQuery)) {
+                    displayedUsers.push(userDiv);
+                }
             });
 
             // Check verification status
@@ -637,15 +643,17 @@ function fetchUsersAndDisplay() {
             });
         });
 
-        // If no users match the search query, display a message
-        const userItems = accountsContainer.querySelectorAll('.user-item');
-        const visibleUsers = Array.from(userItems).filter(item => item.style.display !== 'none');
-        if (visibleUsers.length === 0) {
+        // Filter the displayed users based on search
+        if (displayedUsers.length === 0) {
             accountsContainer.innerHTML = "<p style='color: white;'>No matching users found</p>";
+        } else {
+            // Clear the container and append filtered users
+            accountsContainer.innerHTML = "";
+            displayedUsers.forEach(userDiv => accountsContainer.appendChild(userDiv));
         }
     });
     const style = document.createElement("style");
-    style.textContent = 
+    style.textContent = `
         .user-item {
             display: flex;
             align-items: center;
@@ -707,24 +715,8 @@ function fetchUsersAndDisplay() {
             font-weight: bold;
             margin-right: 6px;
         }
-    ;
+    `;
     document.head.appendChild(style);
-}
-
-function filterUsersBySearchQuery(searchQuery) {
-    const accountsContainer = document.getElementById("accountsContainer");
-    const userItems = accountsContainer.querySelectorAll('.user-item');
-    
-    userItems.forEach((userItem) => {
-        const nameSpan = userItem.querySelector('.user-name');
-        const userName = nameSpan ? nameSpan.textContent.toLowerCase() : "";
-
-        if (!searchQuery || userName.includes(searchQuery)) {
-            userItem.style.display = 'flex'; // Show user
-        } else {
-            userItem.style.display = 'none'; // Hide user
-        }
-    });
 }
 
 
