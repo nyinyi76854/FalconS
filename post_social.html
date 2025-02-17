@@ -553,7 +553,7 @@ function fetchUsersAndDisplay() {
         return;
     }
 
-    let matchedEmails = new Set(); // To store emails of users that match search query
+    let matchedEmails = {}; // Use an object instead of Set
 
     // Step 1: Get all emails associated with the searched name
     namesRef.get().then((querySnapshot) => {
@@ -561,32 +561,32 @@ function fetchUsersAndDisplay() {
             const name = doc.data().name || "Unknown User";
             const email = doc.data().email;
 
-            // If name matches search, add the corresponding email (if it's not already added)
+            // If name matches search, add the corresponding email
             if (name.toLowerCase().includes(searchQuery)) {
-                matchedEmails.add(email); // The Set ensures emails are unique
+                matchedEmails[email] = true; // Store as key-value pair to avoid duplicates
             }
         });
 
-        if (matchedEmails.size === 0) {
+        if (Object.keys(matchedEmails).length === 0) {
             accountsContainer.innerHTML = "<p style='color: white;'>No matching users found</p>";
             return;
         }
 
         // Step 2: Get users from the "users" collection who match those emails
         usersRef.get().then((querySnapshot) => {
-            const uniqueUsers = [];
+            const filteredUsers = [];
             querySnapshot.docs.forEach((doc) => {
                 const userEmail = doc.data().email;
-                // Add user to uniqueUsers if the email is in the matchedEmails set
-                if (matchedEmails.has(userEmail) && !uniqueUsers.some(user => user.data().email === userEmail)) {
-                    uniqueUsers.push(doc);
+                if (matchedEmails[userEmail]) {
+                    filteredUsers.push(doc);
+                    delete matchedEmails[userEmail]; // Ensure uniqueness
                 }
             });
 
-            if (uniqueUsers.length === 0) {
+            if (filteredUsers.length === 0) {
                 accountsContainer.innerHTML = "<p style='color: white;'>No matching users found</p>";
             } else {
-                displayUsersFromSnapshot(uniqueUsers); // Display the filtered users
+                displayUsersFromSnapshot(filteredUsers);
             }
         });
     });
@@ -597,15 +597,15 @@ function displayUsersFromSnapshot(usersArray) {
     const accountsContainer = document.getElementById("accountsContainer");
     const currentUserEmail = firebase.auth().currentUser.email;
 
-    let displayedUsers = new Set(); // To track already displayed users (by email)
+    let displayedUsers = {}; // Use object instead of Set
 
     usersArray.forEach((doc) => {
         const userEmail = doc.data().email;
 
         // Skip if user is already displayed or is the current user
-        if (!userEmail || userEmail === currentUserEmail || displayedUsers.has(userEmail)) return;
+        if (!userEmail || userEmail === currentUserEmail || displayedUsers[userEmail]) return;
 
-        displayedUsers.add(userEmail); // Mark user as displayed
+        displayedUsers[userEmail] = true; // Mark user as displayed
 
         const userDiv = document.createElement("div");
         userDiv.classList.add("user-item");
@@ -682,6 +682,7 @@ function displayUsersFromSnapshot(usersArray) {
             }
         });
     });
+
 
     // Add CSS Styles
     const style = document.createElement("style");
