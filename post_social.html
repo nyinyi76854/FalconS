@@ -546,16 +546,17 @@ function fetchUsersAndDisplay() {
 
     const currentUserEmail = firebase.auth().currentUser.email;
 
-    // Step 1: Get users from the "users" collection
+    // Fetch users from the "users" collection
     usersRef.get().then((querySnapshot) => {
-        const allUsers = [];
-        const displayedUsers = [];
+        let displayedUsers = new Set(); // Track displayed users to prevent duplicates
 
         querySnapshot.forEach((doc) => {
             const userEmail = doc.data().email;
 
             // Skip if user is already displayed or is the current user
-            if (!userEmail || userEmail === currentUserEmail) return;
+            if (!userEmail || userEmail === currentUserEmail || displayedUsers.has(userEmail)) return;
+
+            displayedUsers.add(userEmail); // Add user to the displayed set
 
             const userDiv = document.createElement("div");
             userDiv.classList.add("user-item");
@@ -588,7 +589,7 @@ function fetchUsersAndDisplay() {
             // Create follow button
             const followButton = document.createElement("button");
             followButton.classList.add("follow-btn");
-            followButton.innerHTML = "<span class='plus-icon'>+</span> Follow";
+            followButton.innerHTML = '<span class="plus-icon">+</span> Follow';
 
             // Hide follow button if the user is viewing their own profile
             if (userEmail === currentUserEmail) {
@@ -612,8 +613,8 @@ function fetchUsersAndDisplay() {
             userDiv.appendChild(profileImg);
             userDiv.appendChild(userInfoContainer);
 
-            // Append userDiv to allUsers array (for later filtering)
-            allUsers.push({ userDiv, userEmail, nameSpan });
+            // Append userDiv to accountsContainer
+            accountsContainer.appendChild(userDiv);
 
             // Fetch profile photo
             fetchProfilePhotoForAccount(userEmail, (photoUrl) => {
@@ -623,11 +624,6 @@ function fetchUsersAndDisplay() {
             // Fetch and display name
             fetchAndDisplayName(userEmail, (userName) => {
                 nameSpan.textContent = userName;
-
-                // Match the user name with the search query
-                if (!searchQuery || userName.toLowerCase().includes(searchQuery)) {
-                    displayedUsers.push(userDiv);
-                }
             });
 
             // Check verification status
@@ -638,23 +634,26 @@ function fetchUsersAndDisplay() {
             });
         });
 
-        // If no search query, show all users
-        if (!searchQuery) {
-            accountsContainer.innerHTML = "";
-            allUsers.forEach(({ userDiv }) => {
-                accountsContainer.appendChild(userDiv);
-            });
-        } else {
-            // Filter the displayed users based on search
-            if (displayedUsers.length === 0) {
-                accountsContainer.innerHTML = "<p style='color: white;'>No matching users found</p>";
+        // Now filter based on search query (if there's one)
+        const userItems = accountsContainer.querySelectorAll('.user-item');
+        userItems.forEach((userItem) => {
+            const nameSpan = userItem.querySelector('.user-name');
+            const userName = nameSpan ? nameSpan.textContent.toLowerCase() : "";
+
+            if (!searchQuery || userName.includes(searchQuery)) {
+                userItem.style.display = 'flex'; // Show user
             } else {
-                // Clear the container and append filtered users
-                accountsContainer.innerHTML = "";
-                displayedUsers.forEach(userDiv => accountsContainer.appendChild(userDiv));
+                userItem.style.display = 'none'; // Hide user
             }
+        });
+
+        // If no users match the search query, display a message
+        const visibleUsers = Array.from(userItems).filter(item => item.style.display !== 'none');
+        if (visibleUsers.length === 0) {
+            accountsContainer.innerHTML = "<p style='color: white;'>No matching users found</p>";
         }
     });
+
 
 
     const style = document.createElement("style");
