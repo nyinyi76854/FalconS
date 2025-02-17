@@ -531,13 +531,12 @@ video::-webkit-media-controls {
         if (!searchContainer.contains(event.target)) {
             searchContainer.classList.remove("expanded");
             searchInput.value = "";
-            
+            fetchUsersAndDisplay();
         }
     });
-
+fetchUsersAndDisplay();
     
 });
-fetchUsersAndDisplay(); // Load all users initially
 function fetchUsersAndDisplay() {
     const searchQuery = document.getElementById("searchInput").value.toLowerCase();
     const usersRef = firestore.collection("users");
@@ -565,7 +564,7 @@ function fetchUsersAndDisplay() {
             const profileImg = document.createElement("img");
             profileImg.classList.add("profile-photo");
             profileImg.addEventListener("click", () => {
-                window.location.href = profile_of_user.html?userEmail=${encodeURIComponent(userEmail)};
+                window.location.href = `profile_of_user.html?userEmail=${encodeURIComponent(userEmail)}`;
             });
 
             // Create name container
@@ -653,8 +652,6 @@ function fetchUsersAndDisplay() {
             accountsContainer.innerHTML = "<p style='color: white;'>No matching users found</p>";
         }
     });
-
-
 
     const style = document.createElement("style");
     style.textContent = 
