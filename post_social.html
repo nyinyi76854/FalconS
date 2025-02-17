@@ -543,7 +543,7 @@ function fetchUsersAndDisplay() {
     const namesRef = firestore.collection("names");
     const usersRef = firestore.collection("users");
     const accountsContainer = document.getElementById("accountsContainer");
-    accountsContainer.innerHTML = ""; // Clear previous results
+    accountsContainer.innerHTML = "";
 
     const currentUserEmail = firebase.auth().currentUser.email;
 
@@ -574,8 +574,13 @@ function fetchUsersAndDisplay() {
 
         // Step 2: Get users from the "users" collection who match those emails
         usersRef.get().then((querySnapshot) => {
-            const filteredUsers = querySnapshot.docs.filter((doc) => matchedEmails.has(doc.data().email));
-            displayUsersFromSnapshot(filteredUsers);
+            const uniqueUsers = querySnapshot.docs.filter((doc) => matchedEmails.has(doc.data().email));
+            
+            if (uniqueUsers.length === 0) {
+                accountsContainer.innerHTML = `<p style="color: white;">No matching users found</p>`;
+            } else {
+                displayUsersFromSnapshot(uniqueUsers);
+            }
         });
     });
 }
@@ -584,6 +589,7 @@ function fetchUsersAndDisplay() {
 function displayUsersFromSnapshot(querySnapshot) {
     const accountsContainer = document.getElementById("accountsContainer");
     const currentUserEmail = firebase.auth().currentUser.email;
+
     let displayedUsers = new Set(); // Track displayed users to prevent duplicates
 
     querySnapshot.forEach((doc) => {
@@ -737,6 +743,7 @@ function displayUsersFromSnapshot(querySnapshot) {
     `;
     document.head.appendChild(style);
 }
+
 
 function closeAd() {
     const ad = document.getElementById("adContainer");
