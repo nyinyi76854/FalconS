@@ -634,15 +634,7 @@ function fetchUsersAndDisplay() {
                 }
             });
         });
-
-        // If no users match the search query, display a message
-        const userItems = accountsContainer.querySelectorAll('.user-item');
-        const visibleUsers = Array.from(userItems).filter(item => item.style.display !== 'none');
-        if (visibleUsers.length === 0) {
-            accountsContainer.innerHTML = "<p style='color: white;'>No matching users found</p>";
-        }
-    });
-     const style = document.createElement("style");
+  const style = document.createElement("style");
     style.textContent = 
         .user-item {
             display: flex;
@@ -707,6 +699,14 @@ function fetchUsersAndDisplay() {
         }
     ;
     document.head.appendChild(style);
+        // If no users match the search query, display a message
+        const userItems = accountsContainer.querySelectorAll('.user-item');
+        const visibleUsers = Array.from(userItems).filter(item => item.style.display !== 'none');
+        if (visibleUsers.length === 0) {
+            accountsContainer.innerHTML = "<p style='color: white;'>No matching users found</p>";
+        }
+    });
+   
 }
 
 function filterUsersBySearchQuery(searchQuery) {
