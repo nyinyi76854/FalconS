@@ -574,7 +574,14 @@ function fetchUsersAndDisplay() {
 
         // Step 2: Get users from the "users" collection who match those emails
         usersRef.get().then((querySnapshot) => {
-            const uniqueUsers = querySnapshot.docs.filter((doc) => matchedEmails.has(doc.data().email));
+            const uniqueUsers = [];
+            querySnapshot.docs.forEach((doc) => {
+                const userEmail = doc.data().email;
+                // Add user to uniqueUsers if the email is in the matchedEmails set
+                if (matchedEmails.has(userEmail) && !uniqueUsers.some(user => user.data().email === userEmail)) {
+                    uniqueUsers.push(doc);
+                }
+            });
 
             if (uniqueUsers.length === 0) {
                 accountsContainer.innerHTML = "<p style='color: white;'>No matching users found</p>";
@@ -584,6 +591,7 @@ function fetchUsersAndDisplay() {
         });
     });
 }
+
 
 // Function to display users from a snapshot (filtered list)
 function displayUsersFromSnapshot(usersArray) {
