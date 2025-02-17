@@ -590,7 +590,7 @@ function displayUsersFromSnapshot(usersArray) {
     const accountsContainer = document.getElementById("accountsContainer");
     const currentUserEmail = firebase.auth().currentUser.email;
 
-    let displayedUsers = new Set(); // To track already displayed users
+    let displayedUsers = new Set(); // To track already displayed users (by email)
 
     usersArray.forEach((doc) => {
         const userEmail = doc.data().email;
