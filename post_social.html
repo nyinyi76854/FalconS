@@ -522,7 +522,7 @@ video::-webkit-media-controls {
             searchInput.focus();
         } else {
             searchInput.value = ""; // Clear search when closed
-            fetchUsersAndDisplay(); // Reset list
+            
         }
     });
 
@@ -624,6 +624,9 @@ function fetchUsersAndDisplay() {
             // Fetch and display name
             fetchAndDisplayName(userEmail, (userName) => {
                 nameSpan.textContent = userName;
+
+                // Now filter based on search query (if there's one)
+                filterUsersBySearchQuery(searchQuery);
             });
 
             // Check verification status
@@ -634,30 +637,15 @@ function fetchUsersAndDisplay() {
             });
         });
 
-        // Now filter based on search query (if there's one)
-        const userItems = accountsContainer.querySelectorAll('.user-item');
-        userItems.forEach((userItem) => {
-            const nameSpan = userItem.querySelector('.user-name');
-            const userName = nameSpan ? nameSpan.textContent.toLowerCase() : "";
-
-            if (!searchQuery || userName.includes(searchQuery)) {
-                userItem.style.display = 'flex'; // Show user
-            } else {
-                userItem.style.display = 'none'; // Hide user
-            }
-        });
-
         // If no users match the search query, display a message
+        const userItems = accountsContainer.querySelectorAll('.user-item');
         const visibleUsers = Array.from(userItems).filter(item => item.style.display !== 'none');
         if (visibleUsers.length === 0) {
             accountsContainer.innerHTML = "<p style='color: white;'>No matching users found</p>";
         }
     });
-
-
-
     const style = document.createElement("style");
-    style.textContent = `
+    style.textContent = 
         .user-item {
             display: flex;
             align-items: center;
@@ -719,8 +707,24 @@ function fetchUsersAndDisplay() {
             font-weight: bold;
             margin-right: 6px;
         }
-    `;
+    ;
     document.head.appendChild(style);
+}
+
+function filterUsersBySearchQuery(searchQuery) {
+    const accountsContainer = document.getElementById("accountsContainer");
+    const userItems = accountsContainer.querySelectorAll('.user-item');
+    
+    userItems.forEach((userItem) => {
+        const nameSpan = userItem.querySelector('.user-name');
+        const userName = nameSpan ? nameSpan.textContent.toLowerCase() : "";
+
+        if (!searchQuery || userName.includes(searchQuery)) {
+            userItem.style.display = 'flex'; // Show user
+        } else {
+            userItem.style.display = 'none'; // Hide user
+        }
+    });
 }
 
 
