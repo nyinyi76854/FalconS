@@ -642,8 +642,10 @@ function fetchUsersAndDisplay() {
             accountsContainer.innerHTML = "<p style='color: white;'>No matching users found</p>";
         }
     });
+
+    // Inject CSS for styling
     const style = document.createElement("style");
-    style.textContent = 
+    style.textContent = `
         .user-item {
             display: flex;
             align-items: center;
@@ -705,7 +707,7 @@ function fetchUsersAndDisplay() {
             font-weight: bold;
             margin-right: 6px;
         }
-    ;
+    `;
     document.head.appendChild(style);
 }
 
