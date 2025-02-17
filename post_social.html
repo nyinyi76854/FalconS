@@ -545,7 +545,6 @@ function fetchUsersAndDisplay() {
     accountsContainer.innerHTML = ""; // Clear the accounts container
 
     const currentUserEmail = firebase.auth().currentUser.email;
-    const displayedEmails = new Set(); // Track displayed users' emails
 
     // If search is empty, display all users
     if (!searchQuery) {
@@ -575,13 +574,15 @@ function fetchUsersAndDisplay() {
         // Step 2: Get users from the "users" collection who match those emails
         usersRef.get().then((querySnapshot) => {
             const uniqueUsers = [];
+            const displayedEmails = new Set(); // To track already displayed emails
+
             querySnapshot.docs.forEach((doc) => {
                 const userEmail = doc.data().email;
 
-                // Add user to uniqueUsers if the email is in the matchedEmails set
-                if (matchedEmails.has(userEmail) && !displayedEmails.has(userEmail)) {
+                // Add user to uniqueUsers if the email is in the matchedEmails set and not displayed yet
+                if (matchedEmails.has(userEmail) && !displayedEmails.has(userEmail) && userEmail !== currentUserEmail) {
                     uniqueUsers.push(doc);
-                    displayedEmails.add(userEmail); // Mark this email as displayed
+                    displayedEmails.add(userEmail); // Mark email as displayed
                 }
             });
 
@@ -593,8 +594,6 @@ function fetchUsersAndDisplay() {
         });
     });
 }
-
-
 
 // Function to display users from a snapshot (filtered list)
 function displayUsersFromSnapshot(usersArray) {
