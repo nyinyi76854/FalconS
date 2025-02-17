@@ -553,15 +553,15 @@ function fetchUsersAndDisplay() {
         return;
     }
 
+    let matchedEmails = new Set(); // Use a Set to store unique emails
+
     // Step 1: Get all emails associated with the searched name
     namesRef.get().then((querySnapshot) => {
-        let matchedEmails = new Set(); // Use a Set to avoid duplicate emails
-
         querySnapshot.forEach((doc) => {
             const name = doc.data().name || "Unknown User";
             const email = doc.data().email;
 
-            // If name matches search, add the corresponding email
+            // If name matches search, add the corresponding email (avoid duplicates)
             if (name.toLowerCase().includes(searchQuery)) {
                 matchedEmails.add(email);
             }
@@ -574,26 +574,31 @@ function fetchUsersAndDisplay() {
 
         // Step 2: Get users from the "users" collection who match those emails
         usersRef.get().then((querySnapshot) => {
-            const filteredUsers = querySnapshot.docs.filter((doc) => matchedEmails.has(doc.data().email));
-            
-            if (filteredUsers.length === 0) {
+            let uniqueUsers = querySnapshot.docs.filter((doc) => matchedEmails.has(doc.data().email));
+
+            if (uniqueUsers.length === 0) {
                 accountsContainer.innerHTML = `<p style="color: white;">No matching users found</p>`;
             } else {
-                displayUsersFromSnapshot(filteredUsers);
+                displayUsersFromSnapshot(uniqueUsers);
             }
         });
     });
 }
 
+
 // Function to display users
 function displayUsersFromSnapshot(querySnapshot) {
     const accountsContainer = document.getElementById("accountsContainer");
     const currentUserEmail = firebase.auth().currentUser.email;
+let displayedUsers = new Set(); // Track displayed users to prevent duplicates
 
     querySnapshot.forEach((doc) => {
         const userEmail = doc.data().email;
 
-        if (!userEmail || userEmail === currentUserEmail) return; // Skip if it's the current user
+        // Skip if user is already displayed or is the current user
+        if (!userEmail || userEmail === currentUserEmail || displayedUsers.has(userEmail)) return;
+
+        displayedUsers.add(userEmail); // Add user to the displayed set
 
         const userDiv = document.createElement("div");
         userDiv.classList.add("user-item");
