@@ -510,7 +510,7 @@ video::-webkit-media-controls {
             callback("Unknown User");
         });
     }
-   document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", () => {
     const searchContainer = document.querySelector(".search-container");
     const searchInput = document.getElementById("searchInput");
     const searchIcon = document.querySelector(".search-icon");
@@ -522,7 +522,6 @@ video::-webkit-media-controls {
             searchInput.focus();
         } else {
             searchInput.value = ""; // Clear search when closed
-            
         }
     });
 
@@ -542,8 +541,7 @@ function fetchUsersAndDisplay() {
     const searchQuery = document.getElementById("searchInput").value.toLowerCase();
     const usersRef = firestore.collection("users");
     const accountsContainer = document.getElementById("accountsContainer");
-    accountsContainer.innerHTML = "";
-
+    accountsContainer.innerHTML = ""; // Clear existing users
     const currentUserEmail = firebase.auth().currentUser.email;
 
     // Fetch users from the "users" collection
@@ -625,7 +623,7 @@ function fetchUsersAndDisplay() {
             fetchAndDisplayName(userEmail, (userName) => {
                 nameSpan.textContent = userName;
 
-                // Now filter based on search query (if there's one)
+                // Filter users based on the search query
                 filterUsersBySearchQuery(searchQuery);
             });
 
@@ -644,71 +642,6 @@ function fetchUsersAndDisplay() {
             accountsContainer.innerHTML = "<p style='color: white;'>No matching users found</p>";
         }
     });
-    const style = document.createElement("style");
-    style.textContent = 
-        .user-item {
-            display: flex;
-            align-items: center;
-            padding: 15px;
-            border-bottom: 1px solid #ddd;
-        }
-        .profile-photo {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-right: 12px;
-        }
-        .name-container {
-            display: flex;
-            align-items: center;
-            margin-bottom: 5px;
-        }
-        .user-name {
-            font-size: 16px;
-            font-weight: bold;
-            color: white; /* Changed from #333 to white */
-            margin-right: 6px;
-        }
-        .verification-icon {
-            width: 18px;
-            height: 18px;
-        }
-        .user-info-container {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 5px;
-            width: 150px; /* Consistent width */
-        }
-        .follow-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(45deg, #007bff, #00c6ff);
-            color: white;
-            border: none;
-            padding: 6px 14px;
-            font-size: 14px;
-            font-weight: bold;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.3s ease-in-out;
-            box-shadow: 0px 4px 6px rgba(0, 123, 255, 0.3);
-            outline: none;
-            width: 100px; /* Fixed width */
-        }
-        .follow-btn:hover {
-            background: linear-gradient(45deg, #0056b3, #0086ff);
-            transform: scale(1.05);
-        }
-        .plus-icon {
-            font-size: 18px;
-            font-weight: bold;
-            margin-right: 6px;
-        }
-    ;
-    document.head.appendChild(style);
 }
 
 function filterUsersBySearchQuery(searchQuery) {
