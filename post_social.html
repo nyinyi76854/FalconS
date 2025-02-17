@@ -546,16 +546,11 @@ function fetchUsersAndDisplay() {
 
     const currentUserEmail = firebase.auth().currentUser.email;
 
-    // If search is empty, display all users
-    if (!searchQuery) {
-        usersRef.get().then(displayUsersFromSnapshot);
-        return;
-    }
-
     // Step 1: Get users from the "users" collection
     usersRef.get().then((querySnapshot) => {
+        const allUsers = [];
         const displayedUsers = [];
-        
+
         querySnapshot.forEach((doc) => {
             const userEmail = doc.data().email;
 
@@ -617,8 +612,8 @@ function fetchUsersAndDisplay() {
             userDiv.appendChild(profileImg);
             userDiv.appendChild(userInfoContainer);
 
-            // Append userDiv to accountsContainer
-            accountsContainer.appendChild(userDiv);
+            // Append userDiv to allUsers array (for later filtering)
+            allUsers.push({ userDiv, userEmail, nameSpan });
 
             // Fetch profile photo
             fetchProfilePhotoForAccount(userEmail, (photoUrl) => {
@@ -630,7 +625,7 @@ function fetchUsersAndDisplay() {
                 nameSpan.textContent = userName;
 
                 // Match the user name with the search query
-                if (userName.toLowerCase().includes(searchQuery)) {
+                if (!searchQuery || userName.toLowerCase().includes(searchQuery)) {
                     displayedUsers.push(userDiv);
                 }
             });
@@ -643,15 +638,25 @@ function fetchUsersAndDisplay() {
             });
         });
 
-        // Filter the displayed users based on search
-        if (displayedUsers.length === 0) {
-            accountsContainer.innerHTML = "<p style='color: white;'>No matching users found</p>";
-        } else {
-            // Clear the container and append filtered users
+        // If no search query, show all users
+        if (!searchQuery) {
             accountsContainer.innerHTML = "";
-            displayedUsers.forEach(userDiv => accountsContainer.appendChild(userDiv));
+            allUsers.forEach(({ userDiv }) => {
+                accountsContainer.appendChild(userDiv);
+            });
+        } else {
+            // Filter the displayed users based on search
+            if (displayedUsers.length === 0) {
+                accountsContainer.innerHTML = "<p style='color: white;'>No matching users found</p>";
+            } else {
+                // Clear the container and append filtered users
+                accountsContainer.innerHTML = "";
+                displayedUsers.forEach(userDiv => accountsContainer.appendChild(userDiv));
+            }
         }
     });
+
+
     const style = document.createElement("style");
     style.textContent = `
         .user-item {
