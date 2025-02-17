@@ -253,46 +253,6 @@ body.fade-out {
 }
 
 
-/* Chat item container */
-.chat-item {
-    display: flex;
-    align-items: flex-start;
-    padding: 10px;
-    margin-bottom: 10px;
-    background: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    cursor: pointer;
-    width: 100%; /* Ensure full width */
-    box-sizing: border-box; /* Prevent content from overflowing */
-}
-
-/* Profile photo */
-.profile-photo {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-right: 15px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-/* Chat item content */
-.chat-item-content {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1; /* Allow the content to grow and take available space */
-    min-width: 0; /* Prevent content from overflowing */
-}
-
-/* Name row styling */
-.chat-item-content .name {
-    font-size: 16px;
-    font-weight: bold;
-    color: #333;
-    margin-right: 10px;
-}
 .add-members-dialog {
     position: fixed;
     top: 0;
@@ -333,23 +293,74 @@ button:hover {
 button:disabled {
     background-color: #ccc;
 }
+/* Chat item container */
+.chat-item {
+    display: flex;
+    align-items: center;
+    padding: 6px 12px; /* Reduced padding for compactness */
+    margin-bottom: 6px; /* Reduced margin between items */
+    background: #fff;
+    border-radius: 6px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    font-size: 14px; /* Slightly smaller font for a more compact feel */
+}
+
+/* Hover effect */
+.chat-item:hover {
+    background-color: #f0f8ff; /* Lighter hover background */
+    transform: translateY(-2px); /* Subtle lift effect */
+}
+
+/* Selected state */
+.chat-item.selected {
+    background-color: #d1ecf1;
+    border-color: #17a2b8;
+}
+
+/* Profile photo */
+.profile-photo {
+    width: 32px; /* Reduced size */
+    height: 32px; /* Reduced size */
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 10px; /* Reduced margin */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Chat item content */
+.chat-item-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+}
+
+/* Name row styling */
+.chat-item-content .name {
+    font-size: 14px; /* Slightly smaller font size */
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 3px; /* Reduced margin for compactness */
+}
 
 /* Last message */
 .chat-item-content .lastMessage {
-    white-space: nowrap; /* Prevents text from wrapping to the next line */
-    overflow: hidden; /* Hides overflowed text */
-    text-overflow: ellipsis; /* Adds '...' when the text overflows */
-    font-size: 13px; /* Slightly smaller font size */
+    font-size: 12px; /* Smaller font size for last message */
     color: #555;
-    flex-grow: 1; /* Make the last message take up available space */
-    display: block; /* Ensures it behaves as a block-level element */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    flex-grow: 1;
 }
 
 /* Timestamp */
 .chat-item-content .timestamp {
-    font-size: 11px; /* Smaller timestamp font */
+    font-size: 10px; /* Smaller timestamp font */
     color: #888;
-    margin-top: 3px; /* Reduced margin */
+    margin-top: 2px; /* Reduced margin */
 }
 
 /* Timestamp container to prevent overflow */
@@ -359,51 +370,15 @@ button:disabled {
     width: 100%;
 }
 
+/* Chat container for overall list */
 .chat-items-container {
-    max-height: 250px; /* Reduce height to make chat more compact */
+    max-height: 220px; /* More compact height */
     overflow-y: auto;
-    margin: 10px 0; /* Reduced margin for compactness */
+    margin: 8px 0; /* Reduced margin */
     background: #f9f9f9;
     border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 8px; /* Slightly less padding */
-}
-
-.chat-item {
-    display: flex;
-    align-items: center; /* Ensure elements align vertically */
-    padding: 8px; /* Reduced padding for compactness */
-    margin-bottom: 8px; /* Reduced margin between items */
-    background: #fff;
-    border: 1px solid #ccc;
     border-radius: 6px;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    font-size: 13px; /* Slightly smaller font for the chat items */
-}
-
-.chat-item:hover {
-    background-color: #f0f8ff;
-    transform: scale(1.02);
-}
-
-.chat-item.selected {
-    background-color: #d1ecf1;
-    border-color: #17a2b8;
-}
-
-.profile-photo {
-    width: 35px; /* Reduced photo size */
-    height: 35px; /* Reduced photo size */
-    border-radius: 50%;
-    margin-right: 8px; /* Reduced margin between photo and text */
-}
-
-.name {
-    font-weight: bold;
-    color: #333;
-    font-size: 14px; /* Slightly smaller font size for the name */
-    margin-top: 1px; /* Further reduced margin */
+    padding: 6px; /* Slightly less padding */
 }
 
 
