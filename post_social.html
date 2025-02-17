@@ -510,7 +510,7 @@ video::-webkit-media-controls {
             callback("Unknown User");
         });
     }
-      document.addEventListener("DOMContentLoaded", () => {
+   document.addEventListener("DOMContentLoaded", () => {
     const searchContainer = document.querySelector(".search-container");
     const searchInput = document.getElementById("searchInput");
     const searchIcon = document.querySelector(".search-icon");
@@ -543,7 +543,7 @@ function fetchUsersAndDisplay() {
     const namesRef = firestore.collection("names");
     const usersRef = firestore.collection("users");
     const accountsContainer = document.getElementById("accountsContainer");
-    accountsContainer.innerHTML = "";
+    accountsContainer.innerHTML = ""; // Clear previous results
 
     const currentUserEmail = firebase.auth().currentUser.email;
 
@@ -574,23 +574,17 @@ function fetchUsersAndDisplay() {
 
         // Step 2: Get users from the "users" collection who match those emails
         usersRef.get().then((querySnapshot) => {
-            let uniqueUsers = querySnapshot.docs.filter((doc) => matchedEmails.has(doc.data().email));
-
-            if (uniqueUsers.length === 0) {
-                accountsContainer.innerHTML = `<p style="color: white;">No matching users found</p>`;
-            } else {
-                displayUsersFromSnapshot(uniqueUsers);
-            }
+            const filteredUsers = querySnapshot.docs.filter((doc) => matchedEmails.has(doc.data().email));
+            displayUsersFromSnapshot(filteredUsers);
         });
     });
 }
-
 
 // Function to display users
 function displayUsersFromSnapshot(querySnapshot) {
     const accountsContainer = document.getElementById("accountsContainer");
     const currentUserEmail = firebase.auth().currentUser.email;
-let displayedUsers = new Set(); // Track displayed users to prevent duplicates
+    let displayedUsers = new Set(); // Track displayed users to prevent duplicates
 
     querySnapshot.forEach((doc) => {
         const userEmail = doc.data().email;
