@@ -561,9 +561,9 @@ function fetchUsersAndDisplay() {
             const name = doc.data().name || "Unknown User";
             const email = doc.data().email;
 
-            // If name matches search, add the corresponding email
+            // If name matches search, add the corresponding email (if it's not already added)
             if (name.toLowerCase().includes(searchQuery)) {
-                matchedEmails.add(email);
+                matchedEmails.add(email); // The Set ensures emails are unique
             }
         });
 
