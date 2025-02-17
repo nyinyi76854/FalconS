@@ -315,19 +315,7 @@ h1 {
     margin-top: 10px;
 }
 
-.accounts-container {
-    width: 24%; /* Adjust the width as needed */
-    background: black; /* Changed from white to black */
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    margin-top: 20px;
-    position: absolute;
-    top: 20px;
-    right: 10px;
-    z-index: 999;
-    overflow: hidden;
-}
+
 
 
 
@@ -357,32 +345,37 @@ h1 {
 video::-webkit-media-controls {
     display: none !important;
 }
+/* Make search button appear in the top-right */
 .search-container {
+    position: absolute;
+    top: 15px;
+    right: 15px;
     display: flex;
     align-items: center;
-    justify-content: flex-start;
-    margin-bottom: 10px;
-    position: relative;
-    width: 40px; /* Initially small */
+    justify-content: flex-end;
+    background: black;
+    padding: 5px 10px;
+    border-radius: 25px;
+    width: 40px;
+    overflow: hidden;
     transition: width 0.4s ease-in-out;
+    cursor: pointer;
 }
 
 .search-container.expanded {
-    width: 200px; /* Expand width on click */
+    width: 220px;
 }
 
 .search-icon {
     font-size: 18px;
     color: white;
     cursor: pointer;
-    position: absolute;
-    left: 10px;
-    transition: transform 0.3s;
+    transition: transform 0.3s ease;
 }
 
 .search-box {
     width: 100%;
-    padding: 8px 10px 8px 35px;
+    padding: 5px 10px;
     border: none;
     border-radius: 20px;
     outline: none;
@@ -395,6 +388,20 @@ video::-webkit-media-controls {
 
 .search-container.expanded .search-box {
     opacity: 1;
+}
+
+.accounts-container {
+    width: 24%;
+    background: black;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+    position: absolute;
+    top: 20px;
+    right: 10px;
+    z-index: 999;
+    overflow: hidden;
 }
 
 
@@ -413,13 +420,14 @@ video::-webkit-media-controls {
     <p class="ad-text">Ad</p>
 </div>
  <div class="accounts-container">
-     <div class="search-container">
+    <div class="search-container">
     <i class="fas fa-search search-icon"></i>
     <input type="text" id="searchInput" class="search-box" placeholder="Search users..." oninput="fetchUsersAndDisplay()">
 </div>
 
-   <h3>Accounts To Explore</h3>
-     <div id="accountsContainer"></div>
+<h3>Accounts To Explore</h3>
+<div id="accountsContainer"></div>
+
  </div>
      <div class="container">
         <h3>Posts</h3>
@@ -502,7 +510,7 @@ video::-webkit-media-controls {
             callback("Unknown User");
         });
     }
-        document.addEventListener("DOMContentLoaded", () => {
+      document.addEventListener("DOMContentLoaded", () => {
     const searchContainer = document.querySelector(".search-container");
     const searchInput = document.getElementById("searchInput");
     const searchIcon = document.querySelector(".search-icon");
@@ -518,7 +526,7 @@ video::-webkit-media-controls {
         }
     });
 
-    // Close search box when clicking outside
+    // Close search when clicking outside
     document.addEventListener("click", (event) => {
         if (!searchContainer.contains(event.target)) {
             searchContainer.classList.remove("expanded");
@@ -539,38 +547,44 @@ function fetchUsersAndDisplay() {
 
     const currentUserEmail = firebase.auth().currentUser.email;
 
-    // If searchQuery is empty, display all users
+    // If search is empty, display all users
     if (!searchQuery) {
         usersRef.get().then(displayUsersFromSnapshot);
         return;
     }
 
-    // Step 1: Search in "names" collection
+    // Step 1: Get all emails associated with the searched name
     namesRef.get().then((querySnapshot) => {
-        let matchedEmails = [];
+        let matchedEmails = new Set(); // Use a Set to avoid duplicate emails
 
         querySnapshot.forEach((doc) => {
             const name = doc.data().name || "Unknown User";
             const email = doc.data().email;
 
-            // Check if name matches the search query
+            // If name matches search, add the corresponding email
             if (name.toLowerCase().includes(searchQuery)) {
-                matchedEmails.push(email);
+                matchedEmails.add(email);
             }
         });
 
-        if (matchedEmails.length === 0) {
+        if (matchedEmails.size === 0) {
             accountsContainer.innerHTML = `<p style="color: white;">No matching users found</p>`;
             return;
         }
 
-        // Step 2: Search in "users" collection using matched emails
+        // Step 2: Get users from the "users" collection who match those emails
         usersRef.get().then((querySnapshot) => {
-            const filteredUsers = querySnapshot.docs.filter((doc) => matchedEmails.includes(doc.data().email));
-            displayUsersFromSnapshot(filteredUsers);
+            const filteredUsers = querySnapshot.docs.filter((doc) => matchedEmails.has(doc.data().email));
+            
+            if (filteredUsers.length === 0) {
+                accountsContainer.innerHTML = `<p style="color: white;">No matching users found</p>`;
+            } else {
+                displayUsersFromSnapshot(filteredUsers);
+            }
         });
     });
 }
+
 // Function to display users
 function displayUsersFromSnapshot(querySnapshot) {
     const accountsContainer = document.getElementById("accountsContainer");
