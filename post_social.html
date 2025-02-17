@@ -522,6 +522,7 @@ document.addEventListener("DOMContentLoaded", () => {
             searchInput.focus();
         } else {
             searchInput.value = ""; // Clear search when closed
+            fetchUsersAndDisplay(); // Reset list when closed
         }
     });
 
@@ -541,7 +542,8 @@ function fetchUsersAndDisplay() {
     const searchQuery = document.getElementById("searchInput").value.toLowerCase();
     const usersRef = firestore.collection("users");
     const accountsContainer = document.getElementById("accountsContainer");
-    accountsContainer.innerHTML = ""; // Clear existing users
+    accountsContainer.innerHTML = "";
+
     const currentUserEmail = firebase.auth().currentUser.email;
 
     // Fetch users from the "users" collection
@@ -623,7 +625,7 @@ function fetchUsersAndDisplay() {
             fetchAndDisplayName(userEmail, (userName) => {
                 nameSpan.textContent = userName;
 
-                // Filter users based on the search query
+                // Now filter based on search query (if there's one)
                 filterUsersBySearchQuery(searchQuery);
             });
 
@@ -634,8 +636,18 @@ function fetchUsersAndDisplay() {
                 }
             });
         });
-  const style = document.createElement("style");
-    style.textContent = 
+
+        // If no users match the search query, display a message
+        const userItems = accountsContainer.querySelectorAll('.user-item');
+        const visibleUsers = Array.from(userItems).filter(item => item.style.display !== 'none');
+        if (visibleUsers.length === 0) {
+            accountsContainer.innerHTML = "<p style='color: white;'>No matching users found</p>";
+        }
+    });
+
+    // Add custom styles
+    const style = document.createElement("style");
+    style.textContent = `
         .user-item {
             display: flex;
             align-items: center;
@@ -697,16 +709,8 @@ function fetchUsersAndDisplay() {
             font-weight: bold;
             margin-right: 6px;
         }
-    ;
+    `;
     document.head.appendChild(style);
-        // If no users match the search query, display a message
-        const userItems = accountsContainer.querySelectorAll('.user-item');
-        const visibleUsers = Array.from(userItems).filter(item => item.style.display !== 'none');
-        if (visibleUsers.length === 0) {
-            accountsContainer.innerHTML = "<p style='color: white;'>No matching users found</p>";
-        }
-    });
-   
 }
 
 function filterUsersBySearchQuery(searchQuery) {
@@ -724,7 +728,6 @@ function filterUsersBySearchQuery(searchQuery) {
         }
     });
 }
-
 
 function closeAd() {
     const ad = document.getElementById("adContainer");
