@@ -531,12 +531,13 @@ video::-webkit-media-controls {
         if (!searchContainer.contains(event.target)) {
             searchContainer.classList.remove("expanded");
             searchInput.value = "";
-            fetchUsersAndDisplay();
+            fetchUsersAndDisplay(); // Reset list
         }
     });
-fetchUsersAndDisplay();
-    
+
+    fetchUsersAndDisplay(); // Load all users initially
 });
+
 function fetchUsersAndDisplay() {
     const searchQuery = document.getElementById("searchInput").value.toLowerCase();
     const usersRef = firestore.collection("users");
@@ -564,7 +565,7 @@ function fetchUsersAndDisplay() {
             const profileImg = document.createElement("img");
             profileImg.classList.add("profile-photo");
             profileImg.addEventListener("click", () => {
-                window.location.href = `profile_of_user.html?userEmail=${encodeURIComponent(userEmail)}`;
+                window.location.href = profile_of_user.html?userEmail=${encodeURIComponent(userEmail)};
             });
 
             // Create name container
@@ -653,6 +654,8 @@ function fetchUsersAndDisplay() {
         }
     });
 
+
+
     const style = document.createElement("style");
     style.textContent = 
         .user-item {
@@ -719,7 +722,6 @@ function fetchUsersAndDisplay() {
     ;
     document.head.appendChild(style);
 } 
-
 function closeAd() {
     const ad = document.getElementById("adContainer");
     ad.style.display = "none";
