@@ -537,7 +537,6 @@ video::-webkit-media-controls {
 
     fetchUsersAndDisplay(); // Load all users initially
 });
-
 function fetchUsersAndDisplay() {
     const searchQuery = document.getElementById("searchInput").value.toLowerCase();
     const namesRef = firestore.collection("names");
@@ -578,8 +577,11 @@ function fetchUsersAndDisplay() {
             querySnapshot.docs.forEach((doc) => {
                 const userEmail = doc.data().email;
                 // Add user to uniqueUsers if the email is in the matchedEmails set
-                if (matchedEmails.has(userEmail) && !uniqueUsers.some(user => user.data().email === userEmail)) {
-                    uniqueUsers.push(doc);
+                if (matchedEmails.has(userEmail)) {
+                    // Check if the email is already displayed
+                    if (!uniqueUsers.some(user => user.data().email === userEmail)) {
+                        uniqueUsers.push(doc); // Add only if it's not already in the list
+                    }
                 }
             });
 
