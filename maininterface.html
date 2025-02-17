@@ -422,63 +422,54 @@ button:disabled {
 /* Chat type selection container */
 .chat-type-selection {
     display: flex;
-    justify-content: space-between;
-    gap: 15px; /* Increase gap for a spacious layout */
-    padding: 15px; /* Add more padding for emphasis */
-    background: linear-gradient(145deg, #e3f2fd, #bbdefb); /* Light gradient for container */
-    border-radius: 15px; /* Rounded for modern style */
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* Slight elevation */
-    border: 1px solid rgba(0, 0, 0, 0.1); /* Subtle border */
+    gap: 12px;
+    padding: 12px;
+    background: #f8f9fa; /* Subtle background */
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Soft shadow */
 }
 
 /* Chat type button */
 .chat-type-btn {
     flex: 1;
-    padding: 15px; /* Larger padding for better usability */
-    background: linear-gradient(145deg, #e1f5fe, #81d4fa); /* Soft gradient */
+    padding: 12px;
+    background: #e3e7ed; /* Light modern background */
     border: none;
-    border-radius: 12px;
-    font-size: 16px;
-    color: #1565c0; /* Stronger contrast for text */
-    font-weight: bold;
-    cursor: pointer;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #333;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px; /* Space between icon and text */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 3D button effect */
-    transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
-/* Active chat type button */
-.chat-type-btn.active {
-    background: linear-gradient(145deg, #42a5f5, #1e88e5); /* Bold gradient for active state */
-    color: white; /* High contrast text */
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3); /* Elevated effect */
-    transform: scale(1.1); /* Slight enlargement for emphasis */
-    border: 2px solid #0d47a1; /* Accent border */
-}
-
-/* Hover effect for chat type buttons */
+/* Hover effect */
 .chat-type-btn:hover {
-    background: linear-gradient(145deg, #b3e5fc, #4fc3f7); /* Brightened hover gradient */
-    color: #0d47a1; /* Vibrant hover text */
-    transform: scale(1.05); /* Slight hover scaling */
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25); /* Stronger hover shadow */
+    background: #d6dae2; /* Subtle hover change */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
-/* Active hover state */
+/* Active button */
+.chat-type-btn.active {
+    background: #007bff; /* Premium blue */
+    color: #fff;
+    box-shadow: 0 6px 12px rgba(0, 123, 255, 0.3);
+}
+
+/* Active hover effect */
 .chat-type-btn.active:hover {
-    background: linear-gradient(145deg, #1e88e5, #1565c0); /* Subtle darker gradient */
-    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.4); /* Deep shadow */
-    transform: scale(1.12); /* Highlighted hover scaling */
+    background: #0069d9;
 }
 
-/* Add icon styles */
+/* Icon styles */
 .chat-type-btn i {
-    font-size: 18px; /* Slightly larger icons */
-    color: inherit; /* Match text color */
+    font-size: 16px;
 }
+
 
 /* Background overlay for the dialog */
 .create-group-dialog {
