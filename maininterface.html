@@ -91,15 +91,15 @@ body.fade-out {
     overflow: hidden;
 }
 
-/* Sidebar Toggle Button */
+/* Sidebar Toggle Button (Black Icon) */
 .sidebar-toggle {
     position: absolute;
     top: 15px;
-    right: 15px;
+    left: 15px; /* Align to the left */
     background: none;
     border: none;
     font-size: 24px;
-    color: white;
+    color: black; /* Set icon color to black */
     cursor: pointer;
     z-index: 10;
     transition: transform 0.3s ease;
@@ -107,17 +107,18 @@ body.fade-out {
 
 /* Left Section (Compact & Fixed Height) */
 .left-section {
-    width: 45%; /* Slightly smaller width for a compact look */
-    max-width: 500px; /* Adjust max width for better responsiveness */
-    height: 80vh; /* Fixed height (80% of viewport height) */
-    padding: 15px; /* Reduced padding for compactness */
-    background-color: #fff;
+    width: 50%;
+    max-width: 500px; /* Slightly smaller for a compact look */
+    height: 70vh; /* Fixed height, not full screen but not half */
+    padding: 15px;
+    background-color: #ccc; /* Gray background */
     box-sizing: border-box;
     overflow-y: auto;
-    border-radius: 10px; /* Smooth rounded edges */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Subtle shadow for a clean design */
+    border-radius: 10px; /* Rounded corners for a sleek look */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Soft shadow */
     transition: transform 0.3s ease;
 }
+
 
 /* Right Section (Hidden Initially) */
 .right-section {
@@ -1299,9 +1300,10 @@ document.getElementById("sidebarToggle").addEventListener("click", function () {
 
     // Change icon between sidebar and back
     this.innerHTML = mainContainer.classList.contains("sidebar-open")
-        ? '<i class="fas fa-arrow-left"></i>' // Back icon
-        : '<i class="fas fa-bars"></i>'; // Sidebar icon
+        ? '<i class="fas fa-arrow-left" style="color: black;"></i>' // Back icon
+        : '<i class="fas fa-bars" style="color: black;"></i>'; // Sidebar icon
 });
+
 
 function showContextMenu(event, userEmail, receiverEmail, chatItem) {
     // Prevent default context menu
