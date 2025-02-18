@@ -197,11 +197,19 @@ function loadMembers(groupId) {
                 let latestPhotoUrl = "user_1077114.png"; // Default profile picture
                 let latestPhotoTimestamp = 0;
 
-              const nameSnapshot = await firestore.collection("names").where("email", "==", memberEmail).get();
-                if (!nameSnapshot.empty) {
-                    memberName = nameSnapshot.docs[0].get("name");
-                } 
+                // **Fetch latest name based on timestamp**
+                await firestore.collection("names").where("email", "==", memberEmail).get().then((nameSnapshot) => {
+                    let lastTimestamp = 0;
+                    nameSnapshot.forEach((doc) => {
+                        const timestamp = doc.get("timestamp") || 0;
+                        const name = doc.get("name");
 
+                        if (timestamp > lastTimestamp && name) {
+                            lastTimestamp = timestamp;
+                            memberName = name;
+                        }
+                    });
+                });
 
                 // Check verification
                 const verificationSnapshot = await firestore.collection("verificationbridge").where("email", "==", memberEmail).get();
@@ -333,6 +341,7 @@ function loadMembers(groupId) {
         console.error("Error fetching group:", error);
     });
 }
+
 
 // Function to format timestamps
 function getRelativeTime(timestamp) {
