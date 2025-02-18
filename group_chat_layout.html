@@ -14,34 +14,19 @@ html, body {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #f0f4f8; /* Light background color */
+    background: #f0f4f8;
 }
 
 body {
-    width: 100vw; /* Full screen width */
-    height: 100vh; /* Full screen height */
-    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    width: 50vw; /* Reduced width */
+    height: 90vh;
     padding: 20px;
     background-color: #ffffff;
     border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     overflow: hidden;
-    display: flex;
-    justify-content: center; /* Center everything horizontally */
-    align-items: center; /* Center everything vertically */
-}
-
-.chat-container {
-    display: flex;
-    flex-direction: column;
-    background: #f9f9f9;
-    border-radius: 8px;
-    width: 50vw; /* Half-screen width */
-    max-width: 800px; /* Optional max-width for larger screens */
-    height: 70vh; /* Reduced height of chat container */
-    overflow-y: auto;
-    padding: 10px;
-    gap: 10px;
 }
 
 .header {
@@ -49,38 +34,30 @@ body {
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    margin-bottom: 10px; /* Reduced margin to bring items closer */
+    margin-bottom: 15px;
 }
 
-/* Header section */
 .header .left-section {
     display: flex;
     align-items: center;
-    gap: 5px; /* Reduced gap for closer alignment */
+    gap: 5px; /* Reduced gap */
 }
 
 .header img {
-    width: 30px; /* Reduced profile image size */
-    height: 30px; /* Reduced profile image size */
+    width: 30px; /* Slightly smaller profile image */
+    height: 30px;
     border-radius: 50%;
 }
 
 .header .group-name {
-    font-size: 16px; /* Reduced font size */
+    font-size: 18px;
     color: #333;
     font-weight: bold;
     margin: 0;
 }
 
-.header i {
-    color: #333;
-    font-size: 20px;
-    cursor: pointer;
-}
-
-/* View Members button */
 .header .view-members {
-    background-color: #4caf50; /* Green button */
+    background-color: #4caf50;
     color: white;
     border: none;
     padding: 8px 12px;
@@ -91,6 +68,18 @@ body {
 
 .header .view-members:hover {
     background-color: #45a049;
+}
+
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    background: #f9f9f9;
+    border-radius: 8px;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    padding: 10px;
+    gap: 10px;
 }
 
 .input-container {
@@ -130,11 +119,11 @@ body {
 }
 
 #folderButton {
-    background-color: #ff6f61; /* Folder button with a soft red */
+    background-color: #ff6f61;
 }
 
 #sendButton {
-    background-color: #4caf50; /* Send button with a green color */
+    background-color: #4caf50;
     display: none;
 }
 
@@ -162,7 +151,6 @@ body {
     word-wrap: break-word;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     margin-top: 10px;
-    transition: all 0.3s ease;
 }
 
 .sent {
@@ -185,8 +173,8 @@ body {
 
 @media (max-width: 768px) {
     body {
-        width: 90vw;
-        height: 95vh;
+        width: 80vw;
+        height: 90vh;
     }
 
     .message {
