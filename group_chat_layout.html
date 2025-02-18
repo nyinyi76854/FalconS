@@ -21,6 +21,7 @@ body {
     align-items: center;
     min-height: 100vh;
     padding: 10px;
+    flex-direction: column; /* Center everything vertically */
 }
 
 /* Header */
@@ -31,9 +32,9 @@ body {
     padding: 15px;
     background-color: #007bff;
     color: white;
-    position: relative;
     width: 100%;
     max-width: 500px; /* Limit max width for header */
+    margin-bottom: 10px; /* Add space below header */
 }
 
 .header i {
@@ -57,9 +58,7 @@ body {
 }
 
 #viewMembersButton {
-    position: absolute;
-    right: 15px;
-    top: 15px;
+    position: static;
     font-size: 24px;
 }
 
@@ -74,6 +73,7 @@ body {
     border-top: 1px solid #ddd;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 10px; /* Add space below chat container */
 }
 
 /* Message bubbles */
@@ -83,7 +83,6 @@ body {
     border-radius: 20px;
     max-width: 70%;
     word-wrap: break-word;
-    background-color: #f0f0f0;
     display: inline-block;
     position: relative;
 }
@@ -91,7 +90,7 @@ body {
 .message.sent {
     background-color: #007bff;
     color: white;
-    margin-left: auto;
+    margin-left: auto; /* Align to the right */
     border-top-left-radius: 20px;
     border-top-right-radius: 0;
     border-bottom-left-radius: 0;
@@ -101,7 +100,7 @@ body {
 .message.received {
     background-color: #f0f0f0;
     color: #333;
-    margin-right: auto;
+    margin-right: auto; /* Align to the left */
     border-top-left-radius: 0;
     border-top-right-radius: 20px;
     border-bottom-left-radius: 20px;
@@ -115,10 +114,8 @@ body {
     padding: 15px;
     background-color: #ffffff;
     border-top: 1px solid #ddd;
-    position: sticky;
-    bottom: 0;
     width: 100%;
-    background-color: #fff;
+    max-width: 500px; /* Limit max width for input container */
 }
 
 #messageInput {
@@ -151,9 +148,8 @@ body {
         font-size: 16px;
         margin-left: 0;
     }
-    
+
     #viewMembersButton {
-        position: static;
         margin-top: 10px;
     }
 
@@ -162,6 +158,7 @@ body {
         max-width: 100%;
     }
 }
+
 </style>
 
 <!-- Add Font Awesome for icons -->
