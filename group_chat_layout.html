@@ -62,7 +62,6 @@ body {
     font-size: 24px;
 }
 
-/* Chat container */
 .chat-container {
     width: 100%;
     max-width: 500px; /* Limit max width for chat container */
@@ -74,7 +73,11 @@ body {
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     margin-bottom: 10px; /* Add space below chat container */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Align messages from left by default */
 }
+
 /* Message bubbles */
 .message {
     margin-bottom: 15px;
@@ -84,6 +87,7 @@ body {
     word-wrap: break-word;
     display: inline-block;
     position: relative;
+    clear: both; /* Ensure clear for both left and right messages */
 }
 
 /* Sent messages */
@@ -96,6 +100,7 @@ body {
     border-top-right-radius: 0;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 20px;
+    text-align: right; /* Ensure text inside bubble aligns to the right */
 }
 
 /* Received messages */
@@ -108,9 +113,8 @@ body {
     border-top-right-radius: 20px;
     border-bottom-left-radius: 20px;
     border-bottom-right-radius: 0;
+    text-align: left; /* Ensure text inside bubble aligns to the left */
 }
-
-
 /* Input container */
 .input-container {
     display: flex;
