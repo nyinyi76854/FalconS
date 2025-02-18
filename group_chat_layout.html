@@ -7,181 +7,182 @@
     <link rel="icon" type="image/x-icon" href="FalconS.ico">
 
 <style>
-html, body {
-    height: 100%;
+/* General Reset */
+* {
     margin: 0;
-    font-family: 'Arial', sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #f0f4f8; /* Light background color */
+    padding: 0;
+    box-sizing: border-box;
 }
 
+/* Body */
 body {
-    width: 50vw; /* Reduced width */
-    height: 90vh;
-    padding: 20px;
-    background-color: #fff;
-    border-radius: 12px;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
 }
 
+/* Header */
 .header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 15px;
-}
-
-.header .left-section {
-    display: flex;
-    align-items: center;
-    gap: 8px; /* Reduced gap for a tighter look */
-}
-
-.header img {
-    width: 30px; /* Profile image */
-    height: 30px;
-    border-radius: 50%;
-}
-
-.header .group-name {
-    font-size: 18px;
-    color: #333;
-    font-weight: 600;
-    margin: 0;
-}
-
-.header .view-members {
-    background-color: #4caf50;
+    background-color: #4CAF50;
+    padding: 10px;
     color: white;
-    border: none;
-    padding: 8px 14px;
-    border-radius: 20px;
+    position: relative;
+}
+
+/* Group Profile Photo */
+#groupProfilePhoto {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
     cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s ease;
 }
 
-.header .view-members:hover {
-    background-color: #45a049;
+/* Group Name */
+#groupName {
+    flex-grow: 1;
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
 }
 
+/* Back Button */
+#backButton {
+    font-size: 24px;
+    cursor: pointer;
+}
+
+/* View Members Button */
+#viewMembersButton {
+    font-size: 20px;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+}
+
+/* Chat Container */
 .chat-container {
-    display: flex;
-    flex-direction: column;
-    background: #f9f9f9;
-    border-radius: 10px;
-    padding: 12px;
-    gap: 15px;
+    height: 500px;
     overflow-y: auto;
-    height: 100%;
+    padding: 15px;
+    background-color: #fff;
+    margin: 10px 0;
+    border-radius: 8px;
 }
 
+/* Message Styling */
+.message {
+    padding: 8px;
+    margin: 5px 0;
+    border-radius: 10px;
+    max-width: 80%;
+    clear: both;
+}
+
+/* Sent Message Bubble */
+.message.sent {
+    background-color: #e1f7d5;
+    align-self: flex-end;
+    max-width: 70%;
+    padding: 10px;
+    border-radius: 15px;
+    position: relative;
+    margin: 5px 0;
+}
+
+.message.sent::after {
+    content: "";
+    position: absolute;
+    bottom: -10px;
+    right: 0;
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 10px solid #e1f7d5;
+}
+
+/* Received Message Bubble */
+.message.received {
+    background-color: #f1f1f1;
+    align-self: flex-start;
+    max-width: 70%;
+    padding: 10px;
+    border-radius: 15px;
+    position: relative;
+    margin: 5px 0;
+}
+
+.message.received::after {
+    content: "";
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 10px solid #f1f1f1;
+}
+
+
+/* Image/Video Message */
+.message img, .message video {
+    max-width: 100%;
+    max-height: 200px;
+    display: block;
+    margin-top: 5px;
+}
+
+/* Input Container */
 .input-container {
     display: flex;
     align-items: center;
-    padding: 12px;
-    background-color: #e9eff1;
-    border-radius: 30px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-}
-
-#messageInput {
-    flex-grow: 1;
-    padding: 12px 18px;
-    font-size: 14px;
-    border: 1px solid #ddd;
-    border-radius: 25px;
+    justify-content: space-between;
     background-color: #fff;
-    transition: border-color 0.3s;
+    padding: 10px;
+    border-top: 1px solid #ccc;
 }
 
-#messageInput:focus {
-    border-color: #4caf50;
-    outline: none;
+/* Message Input */
+#messageInput {
+    width: 85%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
 }
 
+/* Buttons */
 #folderButton, #sendButton {
-    padding: 12px;
+    font-size: 20px;
+    padding: 10px;
     border: none;
-    border-radius: 50%;
-    color: white;
-    font-size: 18px;
+    background-color: transparent;
     cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-#folderButton {
-    background-color: #ff6f61; /* Folder button */
+    color: #4CAF50;
 }
 
 #sendButton {
-    background-color: #4caf50; /* Send button */
     display: none;
 }
 
-#folderButton:hover, #sendButton:hover {
-    background-color: #45a049;
-    transform: scale(1.05);
+#folderButton {
+    display: block;
 }
 
-#messageInput:not(:empty) + #folderButton {
-    display: none;
-}
-
-#messageInput:not(:empty) + #folderButton + #sendButton {
-    display: inline-block;
-}
-
-.message {
-    max-width: 75%;
-    padding: 12px;
-    border-radius: 20px;
-    font-size: 14px;
-    background-color: #e2e2e2;
-    margin-top: 10px;
-    transition: all 0.3s ease;
-}
-
-.sent {
-    align-self: flex-end;
-    background-color: #d1ffd6;
-    color: #333;
-}
-
-.received {
-    align-self: flex-start;
-    background-color: #f1f1f1;
-    color: #333;
-}
-
-.message img, .message video {
-    width: 100%;
-    border-radius: 8px;
-    margin-top: 8px;
-}
-
-@media (max-width: 768px) {
-    body {
-        width: 90vw;
-        height: 95vh;
+/* Responsiveness */
+@media screen and (max-width: 600px) {
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
     }
 
-    .header .group-name {
-        font-size: 16px;
-    }
-
-    #messageInput {
-        font-size: 13px;
-    }
-
-    #sendButton, #folderButton {
-        font-size: 16px;
-        padding: 10px;
+    #groupName {
+        text-align: left;
     }
 }
 
