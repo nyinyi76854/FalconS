@@ -5,8 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Group Chat</title>
     <link rel="icon" type="image/x-icon" href="FalconS.ico">
-
-<style>
+    <style>
 /* General reset */
 * {
     margin: 0;
@@ -17,6 +16,11 @@
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f6f9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 10px;
 }
 
 /* Header */
@@ -28,6 +32,8 @@ body {
     background-color: #007bff;
     color: white;
     position: relative;
+    width: 100%;
+    max-width: 500px; /* Limit max width for header */
 }
 
 .header i {
@@ -59,30 +65,47 @@ body {
 
 /* Chat container */
 .chat-container {
+    width: 100%;
+    max-width: 500px; /* Limit max width for chat container */
     height: 400px;
     padding: 20px;
     overflow-y: scroll;
     background-color: #ffffff;
     border-top: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
+/* Message bubbles */
 .message {
     margin-bottom: 15px;
-    padding: 10px;
-    border-radius: 8px;
-    background-color: #f0f0f0;
+    padding: 10px 15px;
+    border-radius: 20px;
     max-width: 70%;
+    word-wrap: break-word;
+    background-color: #f0f0f0;
+    display: inline-block;
+    position: relative;
 }
 
 .message.sent {
     background-color: #007bff;
     color: white;
     margin-left: auto;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 0;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 20px;
 }
 
 .message.received {
     background-color: #f0f0f0;
     color: #333;
+    margin-right: auto;
+    border-top-left-radius: 0;
+    border-top-right-radius: 20px;
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 0;
 }
 
 /* Input container */
@@ -92,6 +115,10 @@ body {
     padding: 15px;
     background-color: #ffffff;
     border-top: 1px solid #ddd;
+    position: sticky;
+    bottom: 0;
+    width: 100%;
+    background-color: #fff;
 }
 
 #messageInput {
@@ -129,9 +156,12 @@ body {
         position: static;
         margin-top: 10px;
     }
+
+    .chat-container {
+        width: 100%;
+        max-width: 100%;
+    }
 }
-
-
 </style>
 
 <!-- Add Font Awesome for icons -->
