@@ -197,11 +197,24 @@ function loadMembers(groupId) {
                 let latestPhotoUrl = "user_1077114.png"; // Default profile picture
                 let latestPhotoTimestamp = 0;
 
-                // Fetch name
-                const nameSnapshot = await firestore.collection("names").where("email", "==", memberEmail).get();
-                if (!nameSnapshot.empty) {
-                    memberName = nameSnapshot.docs[0].get("name");
-                }
+               const nameSnapshot = await firestore.collection("names")
+    .where("email", "==", memberEmail)
+    .get();
+
+let latestName = "Unknown"; // Default name
+let latestTimestamp = 0; // Track latest timestamp
+
+if (!nameSnapshot.empty) {
+    nameSnapshot.forEach(doc => {
+        const timestamp = doc.get("timestamp") || 0;
+        const name = doc.get("name");
+
+        if (timestamp > latestTimestamp) {
+            latestTimestamp = timestamp;
+            latestName = name;
+        }
+    });
+}
 
                 // Check verification
                 const verificationSnapshot = await firestore.collection("verificationbridge").where("email", "==", memberEmail).get();
@@ -261,12 +274,12 @@ function loadMembers(groupId) {
 
                 if (member.isVerified) {
                     const echoText = document.createElement("span");
-                    echoText.textContent = "Echo";
+                    echoText.textContent = "Falcon S";
                     echoText.classList.add("echo-text");
                     nameContainer.appendChild(echoText);
 
                     const verificationImage = document.createElement("img");
-                    verificationImage.src = "verification.jpg";
+                    verificationImage.src = "verification.png";
                     verificationImage.alt = "Verification";
                     verificationImage.classList.add("verification-image");
                     nameContainer.appendChild(verificationImage);
