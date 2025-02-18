@@ -362,7 +362,7 @@ document.getElementById("groupProfilePhoto").addEventListener("click", () => {
     }
 
     function isImageUrl(text) {
-        return text.startsWith("https://firebasestorage.googleapis.com") && (text.includes("/groupsentphotos%2F") || text.includes("/groupsentvideos%2F"));
+        return text.startsWith("https://firebasestorage.googleapis.com") && text.includes("/groupsentphotos%2F");
     }
 
     function loadMessages() {
