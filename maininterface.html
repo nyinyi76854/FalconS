@@ -120,12 +120,11 @@ body.fade-out {
 }
 
 
-/* Right Section (Hidden Initially) */
 .right-section {
     width: 50%;
     max-width: 400px;
     padding: 20px;
-    background: linear-gradient(135deg, #1e3c72, #2a5298); /* New Gradient */
+    background: linear-gradient(135deg, #6e7c7c, #a1a8a8); /* Gray Gradient */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -135,9 +134,9 @@ body.fade-out {
     top: 0;
     right: -50%; /* Initially Hidden */
     height: 100%;
-    border: 2px solid #0ff;
+    border: 2px solid #ccc; /* Gray border */
     border-radius: 15px 0 0 15px;
-    box-shadow: 0 10px 20px rgba(0, 255, 255, 0.5);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
     transition: right 0.3s ease;
 }
 
@@ -215,22 +214,20 @@ body.fade-out {
     flex-direction: column;
     align-items: center;
     width: 100%;
-    background: linear-gradient(135deg, #1a1a1a, #3e3e3e);
+    background: linear-gradient(135deg, #6a5d4d, #7f8c8d); /* Warm brown gradient */
     padding: 30px;
     border-radius: 15px;
     text-align: center;
-    border: 1px solid #555;
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5);
+    border: 1px solid #444;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
     color: #fff;
 }
 
-
-
 /* User Information */
 .account-info h3 {
-    font-size: 26px;
+    font-size: 28px;
     font-weight: bold;
-    color: #0ff;
+    color: #e74c3c; /* Vibrant red */
     letter-spacing: 1px;
     margin: 10px 0;
 }
@@ -241,36 +238,38 @@ body.fade-out {
     margin: 5px 0;
     transition: color 0.3s, transform 0.3s;
 }
+
 .account-info p:hover {
-    color: #0ff;
+    color: #e74c3c; /* Change to red on hover */
     transform: scale(1.05);
 }
 
+/* Logout Button */
 #logoutButton {
-    width: 150px; /* Compact width */
-    height: 45px; /* Fixed height for a sleek design */
-    background: linear-gradient(135deg, #00f260, #0575e6); /* Futuristic gradient */
+    width: 160px;
+    height: 50px;
+    background: linear-gradient(135deg, #f39c12, #f1c40f); /* Golden gradient */
     color: white;
     border: none;
-    border-radius: 25px; /* Smooth rounded edges */
+    border-radius: 30px;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: bold;
     margin-top: 20px;
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 8px; /* Space between icon and text */
+    gap: 8px;
     text-transform: uppercase;
-    box-shadow: 0 4px 10px rgba(0, 255, 150, 0.5); /* Neon glow */
+    box-shadow: 0 4px 10px rgba(243, 156, 18, 0.6); /* Soft golden glow */
     transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
 }
 
 /* Hover effect */
 #logoutButton:hover {
-    background: linear-gradient(135deg, #0575e6, #00f260); /* Reverse gradient */
-    transform: scale(1.1); /* Slight hover zoom */
-    box-shadow: 0 6px 12px rgba(0, 255, 150, 0.7); /* Brighter neon effect */
+    background: linear-gradient(135deg, #f1c40f, #f39c12); /* Reverse gradient */
+    transform: scale(1.05); /* Slight hover zoom */
+    box-shadow: 0 6px 15px rgba(243, 156, 18, 0.8); /* Brighter golden glow */
 }
 
 /* Active/Pressed state */
@@ -281,9 +280,10 @@ body.fade-out {
 
 /* Icon inside the logout button */
 #logoutButton i {
-    font-size: 18px; /* Icon size for balance */
+    font-size: 20px;
     color: #fff; /* Keep the icon white */
 }
+
 /* Scrollable chat items container */
 #chatItemsContainer {
     flex-grow: 1;
