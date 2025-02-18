@@ -197,26 +197,10 @@ function loadMembers(groupId) {
                 let latestPhotoUrl = "user_1077114.png"; // Default profile picture
                 let latestPhotoTimestamp = 0;
 
-               firestore.collection("names").where("email", "==", memberEmail).get()
-    .then(nameSnapshot => {
-        let latestTimestamp = 0;
-        let latestName = "Unknown"; // Default name if no entry found
-
-        nameSnapshot.forEach(nameDoc => {
-            const timestamp = nameDoc.get("timestamp");
-            const name = nameDoc.get("name");
-
-            if (timestamp && timestamp > latestTimestamp) {
-                latestTimestamp = timestamp;
-                latestName = name;
-            }
-        });
-
-        memberName = latestName; // Assign the latest name after iteration
-    })
-    .catch(error => {
-        console.error("Error fetching member name:", error);
-    });
+              const nameSnapshot = await firestore.collection("names").where("email", "==", memberEmail).get();
+                if (!nameSnapshot.empty) {
+                    memberName = nameSnapshot.docs[0].get("name");
+                } 
 
 
                 // Check verification
