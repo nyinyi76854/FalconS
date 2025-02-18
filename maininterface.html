@@ -83,37 +83,71 @@ body.fade-out {
 .main-container {
     display: flex;
     width: 100%;
-    height: 100%;
+    height: 100vh;
     max-width: 100vw;
-    max-height: 100vh;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
+    position: relative;
     overflow: hidden;
 }
 
-/* Left section */
+/* Sidebar Toggle Button */
+.sidebar-toggle {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: white;
+    cursor: pointer;
+    z-index: 10;
+    transition: transform 0.3s ease;
+}
+
+/* Left Section */
 .left-section {
-    width: 50%;
+    width: 100%;
     padding: 20px;
     background-color: #fff;
     box-sizing: border-box;
     overflow-y: auto;
+    transition: transform 0.3s ease;
 }
 
+/* Right Section (Hidden Initially) */
 .right-section {
     width: 50%;
+    max-width: 400px;
     padding: 20px;
-    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); /* Dark futuristic gradient */
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
     display: flex;
     flex-direction: column;
     align-items: center;
     box-sizing: border-box;
     overflow-y: auto;
-    position: relative;
-    border: 2px solid #0ff; /* Neon border effect */
-    border-radius: 15px;
+    position: absolute;
+    top: 0;
+    right: -50%; /* Initially Hidden */
+    height: 100%;
+    border: 2px solid #0ff;
+    border-radius: 15px 0 0 15px;
     box-shadow: 0 10px 20px rgba(0, 255, 255, 0.5);
+    transition: right 0.3s ease;
 }
+
+/* When sidebar is open */
+.main-container.sidebar-open .right-section {
+    right: 0;
+}
+
+.main-container.sidebar-open .left-section {
+    transform: translateX(-25%); /* Moves Left Section to the center */
+}
+
+/* Change Sidebar Button Icon */
+.main-container.sidebar-open .sidebar-toggle i {
+    content: "\f104"; /* Change to 'back' icon */
+}
+
 
 /* Profile Photo */
 .profile-photo {
@@ -784,6 +818,9 @@ savebutton:focus, cancelbutton:focus {
 </head>
 <body>
    <div class="main-container">
+       <button id="sidebarToggle" class="sidebar-toggle">
+        <i class="fas fa-bars"></i> <!-- Sidebar icon -->
+    </button>
 <!-- Dialog for Creating Group -->
 <div id="createGroupDialog" class="create-group-dialog" style="display: none;">
     <div class="create-group-content">
@@ -1259,6 +1296,15 @@ function copyChat(userEmail, receiverEmail) {
             console.error("Error fetching messages for copy:", error);
         });
 }
+document.getElementById("sidebarToggle").addEventListener("click", function () {
+    const mainContainer = document.querySelector(".main-container");
+    mainContainer.classList.toggle("sidebar-open");
+
+    // Change icon between sidebar and back
+    this.innerHTML = mainContainer.classList.contains("sidebar-open")
+        ? '<i class="fas fa-arrow-left"></i>' // Back icon
+        : '<i class="fas fa-bars"></i>'; // Sidebar icon
+});
 
 function showContextMenu(event, userEmail, receiverEmail, chatItem) {
     // Prevent default context menu
