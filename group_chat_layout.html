@@ -75,7 +75,6 @@ body {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     margin-bottom: 10px; /* Add space below chat container */
 }
-
 /* Message bubbles */
 .message {
     margin-bottom: 15px;
@@ -87,25 +86,30 @@ body {
     position: relative;
 }
 
+/* Sent messages */
 .message.sent {
     background-color: #007bff;
     color: white;
     margin-left: auto; /* Align to the right */
+    margin-right: 0; /* Make sure there is no margin on the right */
     border-top-left-radius: 20px;
     border-top-right-radius: 0;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 20px;
 }
 
+/* Received messages */
 .message.received {
     background-color: #f0f0f0;
     color: #333;
     margin-right: auto; /* Align to the left */
+    margin-left: 0; /* Make sure there is no margin on the left */
     border-top-left-radius: 0;
     border-top-right-radius: 20px;
     border-bottom-left-radius: 20px;
     border-bottom-right-radius: 0;
 }
+
 
 /* Input container */
 .input-container {
