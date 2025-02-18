@@ -365,44 +365,51 @@ document.getElementById("groupProfilePhoto").addEventListener("click", () => {
         return text.startsWith("https://firebasestorage.googleapis.com") && text.includes("/groupsentphotos%2F");
     }
 
-    function loadMessages() {
-        const chatContainer = document.getElementById("chatContainer");
-        firestore.collection("groupchat").doc(groupId)
-            .collection("groupmessages").orderBy("sentTime")
-            .onSnapshot(querySnapshot => {
-                chatContainer.innerHTML = ""; // Clear current messages
+  function loadMessages() {
+    const chatContainer = document.getElementById("chatContainer");
 
-                querySnapshot.forEach(doc => {
-                    const data = doc.data();
-                    const messageDiv = document.createElement("div");
-                    const currentUser = firebase.auth().currentUser;
+    firestore.collection("groupchat").doc(groupId)
+        .collection("groupmessages").orderBy("sentTime")
+        .onSnapshot(querySnapshot => {
+            chatContainer.innerHTML = ""; // Clear current messages
 
-                    messageDiv.classList.add("message");
-                    if (data.senderEmail === currentUser.email) {
-                        messageDiv.classList.add("sent");
-                    } else {
-                        messageDiv.classList.add("received");
-                    }
+            querySnapshot.forEach(doc => {
+                const data = doc.data();
+                const messageDiv = document.createElement("div");
+                const currentUser = firebase.auth().currentUser;
 
-                    if (isImageUrl(data.text)) {
-                        const img = document.createElement("img");
-                        img.src = data.text;
-                        messageDiv.appendChild(img);
-                    } else if (isVideoUrl(data.text)) {
-                        const video = document.createElement("video");
-                        video.src = data.text;
-                        video.controls = true;
-                        video.style.maxHeight = "200px";
-                        messageDiv.appendChild(video);
-                    } else {
-                        messageDiv.textContent = data.text;
-                    }
-                    chatContainer.appendChild(messageDiv);
-                });
+                messageDiv.classList.add("message");
+                if (data.senderEmail === currentUser.email) {
+                    messageDiv.classList.add("sent");
+                } else {
+                    messageDiv.classList.add("received");
+                }
 
-                chatContainer.scrollTop = chatContainer.scrollHeight; // Scroll to latest message
+                // Check for image or video URLs
+                if (isImageUrl(data.text)) {
+                    const img = document.createElement("img");
+                    img.src = data.text;
+                    img.style.maxWidth = "100%"; // Ensure image fits within the container
+                    img.style.maxHeight = "200px"; // Set a max height for the image
+                    messageDiv.appendChild(img);
+                } else if (isVideoUrl(data.text)) {
+                    const video = document.createElement("video");
+                    video.src = data.text;
+                    video.controls = true;
+                    video.style.maxWidth = "100%"; // Ensure video fits within the container
+                    video.style.maxHeight = "200px"; // Set a max height for the video
+                    messageDiv.appendChild(video);
+                } else {
+                    messageDiv.textContent = data.text; // For regular text messages
+                }
+
+                chatContainer.appendChild(messageDiv);
             });
-    }
+
+            chatContainer.scrollTop = chatContainer.scrollHeight; // Scroll to latest message
+        });
+}
+
     loadMessages();
 
     document.getElementById('viewMembersButton').addEventListener('click', () => {
