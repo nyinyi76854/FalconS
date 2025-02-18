@@ -357,15 +357,18 @@ document.getElementById("groupProfilePhoto").addEventListener("click", () => {
         }
     });
 
-    function isVideoUrl(text) {
-        return text.startsWith("https://firebasestorage.googleapis.com") && text.includes("/groupsentvideos%2F");
-    }
+   function isImageUrl(text) {
+    // Check if URL is an image stored in Firebase Storage
+    return text.startsWith("https://firebasestorage.googleapis.com") && text.includes("/groupsentphotos/");
+}
 
-    function isImageUrl(text) {
-        return text.startsWith("https://firebasestorage.googleapis.com") && text.includes("/groupsentphotos%2F");
-    }
+function isVideoUrl(text) {
+    // Check if URL is a video stored in Firebase Storage
+    return text.startsWith("https://firebasestorage.googleapis.com") && text.includes("/groupsentvideos/");
+}
 
-  function loadMessages() {
+ // Load group messages
+function loadMessages() {
     const chatContainer = document.getElementById("chatContainer");
 
     firestore.collection("groupchat").doc(groupId)
@@ -389,8 +392,12 @@ document.getElementById("groupProfilePhoto").addEventListener("click", () => {
                 if (isImageUrl(data.text)) {
                     const img = document.createElement("img");
                     img.src = data.text;
+                    img.alt = "Image message";
                     img.style.maxWidth = "100%"; // Ensure image fits within the container
                     img.style.maxHeight = "200px"; // Set a max height for the image
+                    img.onerror = () => {
+                        img.src = "default-image.png"; // Fallback image if load fails
+                    };
                     messageDiv.appendChild(img);
                 } else if (isVideoUrl(data.text)) {
                     const video = document.createElement("video");
@@ -398,6 +405,9 @@ document.getElementById("groupProfilePhoto").addEventListener("click", () => {
                     video.controls = true;
                     video.style.maxWidth = "100%"; // Ensure video fits within the container
                     video.style.maxHeight = "200px"; // Set a max height for the video
+                    video.onerror = () => {
+                        console.error("Error loading video:", data.text);
+                    };
                     messageDiv.appendChild(video);
                 } else {
                     messageDiv.textContent = data.text; // For regular text messages
@@ -409,7 +419,6 @@ document.getElementById("groupProfilePhoto").addEventListener("click", () => {
             chatContainer.scrollTop = chatContainer.scrollHeight; // Scroll to latest message
         });
 }
-
     loadMessages();
 
     document.getElementById('viewMembersButton').addEventListener('click', () => {
