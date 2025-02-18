@@ -197,24 +197,30 @@ function loadMembers(groupId) {
                 let latestPhotoUrl = "user_1077114.png"; // Default profile picture
                 let latestPhotoTimestamp = 0;
 
-               const nameSnapshot = await firestore.collection("names")
-    .where("email", "==", memberEmail)
-    .get();
+               firestore.collection("names").where("email", "==", memberEmail).get()
+    .then(nameSnapshot => {
+        let latestName = "Unknown"; // Default name
+        let latestTimestamp = 0;
 
-let latestName = "Unknown"; // Default name
-let latestTimestamp = 0; // Track latest timestamp
+        nameSnapshot.forEach(document => {
+            const timestamp = document.get("timestamp") || 0;
+            const name = document.get("name");
 
-if (!nameSnapshot.empty) {
-    nameSnapshot.forEach(doc => {
-        const timestamp = doc.get("timestamp") || 0;
-        const name = doc.get("name");
+            if (timestamp > latestTimestamp) {
+                latestTimestamp = timestamp;
+                latestName = name;
+            }
+        });
 
-        if (timestamp > latestTimestamp) {
-            latestTimestamp = timestamp;
-            latestName = name;
-        }
+        
+
+        // You can use latestName in the UI
+        memberNameElement.textContent = latestName;
+    })
+    .catch(error => {
+        console.error("Error fetching member name:", error);
     });
-}
+
 
                 // Check verification
                 const verificationSnapshot = await firestore.collection("verificationbridge").where("email", "==", memberEmail).get();
