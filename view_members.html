@@ -197,7 +197,7 @@ function loadMembers(groupId) {
                 let latestPhotoUrl = "user_1077114.png"; // Default profile picture
                 let latestPhotoTimestamp = 0;
 
-                // **Fetch latest name based on timestamp**
+                // Fetch the latest name based on timestamp
                 await firestore.collection("names").where("email", "==", memberEmail).get().then((nameSnapshot) => {
                     let lastTimestamp = 0;
                     nameSnapshot.forEach((doc) => {
@@ -209,6 +209,15 @@ function loadMembers(groupId) {
                             memberName = name;
                         }
                     });
+
+                    // Log the names and timestamps for debugging
+                    console.log(`Fetched names for ${memberEmail}:`);
+                    nameSnapshot.forEach((doc) => {
+                        const name = doc.get("name");
+                        const timestamp = doc.get("timestamp");
+                        console.log(`Name: ${name}, Timestamp: ${timestamp}`);
+                    });
+
                 });
 
                 // Check verification
