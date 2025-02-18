@@ -12,39 +12,38 @@ html, body {
     margin: 0;
     font-family: 'Arial', sans-serif;
     display: flex;
-    align-items: center;
     justify-content: center;
-    background: #f0f4f8;
+    align-items: center;
+    background-color: #f0f4f8; /* Light background color */
 }
 
 body {
-    display: flex;
-    flex-direction: column;
-    width: 40vw; /* Reduced width */
+    width: 50vw; /* Reduced width */
     height: 90vh;
     padding: 20px;
-    background-color: #ffffff;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
 }
 
 .header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    width: 100%;
     margin-bottom: 15px;
 }
 
 .header .left-section {
     display: flex;
     align-items: center;
-    gap: 1px; /* Reduced gap */
+    gap: 8px; /* Reduced gap for a tighter look */
 }
 
 .header img {
-    width: 30px; /* Slightly smaller profile image */
+    width: 30px; /* Profile image */
     height: 30px;
     border-radius: 50%;
 }
@@ -52,7 +51,7 @@ body {
 .header .group-name {
     font-size: 18px;
     color: #333;
-    font-weight: bold;
+    font-weight: 600;
     margin: 0;
 }
 
@@ -60,10 +59,11 @@ body {
     background-color: #4caf50;
     color: white;
     border: none;
-    padding: 8px 12px;
+    padding: 8px 14px;
     border-radius: 20px;
     cursor: pointer;
-    transition: background 0.3s ease;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
 }
 
 .header .view-members:hover {
@@ -74,65 +74,59 @@ body {
     display: flex;
     flex-direction: column;
     background: #f9f9f9;
-    border-radius: 8px;
-    width: 80%;
-    height: 80%;
+    border-radius: 10px;
+    padding: 12px;
+    gap: 15px;
     overflow-y: auto;
-    padding: 10px;
-    gap: 1px;
+    height: 100%;
 }
 
 .input-container {
     display: flex;
     align-items: center;
-    width: 100%;
     padding: 12px;
-    background-color: #f1f1f1;
+    background-color: #e9eff1;
     border-radius: 30px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 #messageInput {
     flex-grow: 1;
     padding: 12px 18px;
-    border: 1px solid #ccc;
-    border-radius: 25px;
     font-size: 14px;
-    outline: none;
+    border: 1px solid #ddd;
+    border-radius: 25px;
     background-color: #fff;
-    transition: border 0.3s ease;
+    transition: border-color 0.3s;
 }
 
 #messageInput:focus {
-    border-color: #5a5a5a;
+    border-color: #4caf50;
+    outline: none;
 }
 
 #folderButton, #sendButton {
+    padding: 12px;
     border: none;
     border-radius: 50%;
-    padding: 12px;
-    font-size: 18px;
     color: white;
+    font-size: 18px;
     cursor: pointer;
-    margin-left: 10px;
-    transition: background 0.3s ease;
+    transition: background-color 0.3s ease;
 }
 
 #folderButton {
-    background-color: #ff6f61;
+    background-color: #ff6f61; /* Folder button */
 }
 
 #sendButton {
-    background-color: #4caf50;
+    background-color: #4caf50; /* Send button */
     display: none;
 }
 
 #folderButton:hover, #sendButton:hover {
-    transform: scale(1.1);
-}
-
-#folderButton:active, #sendButton:active {
-    transform: scale(1);
+    background-color: #45a049;
+    transform: scale(1.05);
 }
 
 #messageInput:not(:empty) + #folderButton {
@@ -148,9 +142,9 @@ body {
     padding: 12px;
     border-radius: 20px;
     font-size: 14px;
-    word-wrap: break-word;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    background-color: #e2e2e2;
     margin-top: 10px;
+    transition: all 0.3s ease;
 }
 
 .sent {
@@ -161,25 +155,24 @@ body {
 
 .received {
     align-self: flex-start;
-    background-color: #e2e2e2;
+    background-color: #f1f1f1;
     color: #333;
 }
 
 .message img, .message video {
-    max-width: 100%;
+    width: 100%;
     border-radius: 8px;
     margin-top: 8px;
 }
 
 @media (max-width: 768px) {
     body {
-        width: 80vw;
-        height: 90vh;
+        width: 90vw;
+        height: 95vh;
     }
 
-    .message {
-        max-width: 80%;
-        padding: 10px;
+    .header .group-name {
+        font-size: 16px;
     }
 
     #messageInput {
@@ -190,11 +183,8 @@ body {
         font-size: 16px;
         padding: 10px;
     }
-
-    .header .group-name {
-        font-size: 16px;
-    }
 }
+
 
 </style>
 
