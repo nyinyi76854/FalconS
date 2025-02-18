@@ -8,206 +8,205 @@
 
 <style>
     html, body {
-        height: 100%;
-        margin: 0;
-        font-family: 'Arial', sans-serif;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: #f0f4f8; /* Light background color */
-    }
+    height: 100%;
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f0f4f8; /* Light background color */
+}
 
-    body {
-        display: flex;
-        flex-direction: column;
-        width: 60vw; /* Further reduced width */
-        height: 90vh;
-        box-sizing: border-box;
-        padding: 20px;
-        background-color: #ffffff;
-        border-radius: 10px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        overflow: hidden;
-    }
+body {
+    display: flex;
+    flex-direction: column;
+    width: 55vw; /* Reduced width of the body */
+    height: 90vh;
+    box-sizing: border-box;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
 
-    .header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        width: 100%;
-        margin-bottom: 15px;
-    }
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 10px; /* Reduced margin to bring items closer */
+}
 
-    /* Header section */
-    .header .left-section {
-        display: flex;
-        align-items: center;
-        gap: 1px;
-    }
+/* Header section */
+.header .left-section {
+    display: flex;
+    align-items: center;
+    gap: 5px; /* Reduced gap for closer alignment */
+}
 
-    .header img {
-        width: 35px;
-        height: 35px;
-        border-radius: 50%;
-    }
+.header img {
+    width: 30px; /* Reduced profile image size */
+    height: 30px; /* Reduced profile image size */
+    border-radius: 50%;
+}
 
-    .header .group-name {
-        font-size: 18px;
-        color: #333;
-        font-weight: bold;
-        margin: 0;
-    }
+.header .group-name {
+    font-size: 16px; /* Reduced font size */
+    color: #333;
+    font-weight: bold;
+    margin: 0;
+}
 
-    /* Back button and view members button */
-    .header i {
-        color: #333;
-        font-size: 20px;
-        cursor: pointer;
-    }
+.header i {
+    color: #333;
+    font-size: 20px;
+    cursor: pointer;
+}
 
-    /* View Members button */
-    .header .view-members {
-        background-color: #4caf50; /* Green button for View Members */
-        color: white;
-        border: none;
-        padding: 8px 12px;
-        border-radius: 20px;
-        cursor: pointer;
-        transition: background 0.3s ease;
-    }
+/* View Members button */
+.header .view-members {
+    background-color: #4caf50; /* Green button */
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
 
-    .header .view-members:hover {
-        background-color: #45a049;
-    }
+.header .view-members:hover {
+    background-color: #45a049;
+}
 
-   .chat-container {
+.chat-container {
     display: flex;
     flex-direction: column;
     background: #f9f9f9;
     border-radius: 8px;
-    width: 80%; /* Reduced width */
-    height: 100%;
+    width: 100%;
+    height: 70vh; /* Reduced height of chat container */
     overflow-y: auto;
     padding: 10px;
     gap: 10px;
 }
 
+/* Input container */
+.input-container {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 12px;
+    background-color: #f1f1f1;
+    border-radius: 30px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
 
-    /* Input container */
-    .input-container {
-        display: flex;
-        align-items: center;
-        width: 70%;
-        padding: 12px;
-        background-color: #f1f1f1;
-        border-radius: 30px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
+#messageInput {
+    flex-grow: 1;
+    padding: 12px 18px;
+    border: 1px solid #ccc;
+    border-radius: 25px;
+    font-size: 14px;
+    outline: none;
+    background-color: #fff;
+    transition: border 0.3s ease;
+}
 
-    #messageInput {
-        flex-grow: 1;
-        padding: 12px 18px;
-        border: 1px solid #ccc;
-        border-radius: 25px;
-        font-size: 14px;
-        outline: none;
-        background-color: #fff;
-        transition: border 0.3s ease;
-    }
+#messageInput:focus {
+    border-color: #5a5a5a;
+}
 
-    #messageInput:focus {
-        border-color: #5a5a5a;
-    }
+#folderButton, #sendButton {
+    border: none;
+    border-radius: 50%;
+    padding: 12px;
+    font-size: 18px;
+    color: white;
+    cursor: pointer;
+    margin-left: 10px;
+    transition: background 0.3s ease;
+}
 
-    #folderButton, #sendButton {
-        border: none;
-        border-radius: 50%;
-        padding: 12px;
-        font-size: 18px;
-        color: white;
-        cursor: pointer;
-        margin-left: 10px;
-        transition: background 0.3s ease;
-    }
+#folderButton {
+    background-color: #ff6f61; /* Folder button with a soft red */
+}
 
-    #folderButton {
-        background-color: #ff6f61; /* Folder button with a soft red */
-    }
+#sendButton {
+    background-color: #4caf50; /* Send button with a green color */
+    display: none;
+}
 
-    #sendButton {
-        background-color: #4caf50; /* Send button with a green color */
-        display: none;
-    }
+#folderButton:hover, #sendButton:hover {
+    transform: scale(1.1);
+}
 
-    #folderButton:hover, #sendButton:hover {
-        transform: scale(1.1);
-    }
+#folderButton:active, #sendButton:active {
+    transform: scale(1);
+}
 
-    #folderButton:active, #sendButton:active {
-        transform: scale(1);
-    }
+#messageInput:not(:empty) + #folderButton {
+    display: none;
+}
 
-    #messageInput:not(:empty) + #folderButton {
-        display: none;
-    }
+#messageInput:not(:empty) + #folderButton + #sendButton {
+    display: inline-block;
+}
 
-    #messageInput:not(:empty) + #folderButton + #sendButton {
-        display: inline-block;
+.message {
+    max-width: 75%;
+    padding: 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    word-wrap: break-word;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    margin-top: 10px;
+    transition: all 0.3s ease;
+}
+
+.sent {
+    align-self: flex-end;
+    background-color: #d1ffd6;
+    color: #333;
+}
+
+.received {
+    align-self: flex-start;
+    background-color: #e2e2e2;
+    color: #333;
+}
+
+.message img, .message video {
+    max-width: 100%;
+    border-radius: 8px;
+    margin-top: 8px;
+}
+
+@media (max-width: 768px) {
+    body {
+        width: 90vw;
+        height: 95vh;
     }
 
     .message {
-        max-width: 75%;
-        padding: 12px;
-        border-radius: 20px;
-        font-size: 14px;
-        word-wrap: break-word;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-        margin-top: 10px;
-        transition: all 0.3s ease;
+        max-width: 80%;
+        padding: 10px;
     }
 
-    .sent {
-        align-self: flex-end;
-        background-color: #d1ffd6;
-        color: #333;
+    #messageInput {
+        font-size: 13px;
     }
 
-    .received {
-        align-self: flex-start;
-        background-color: #e2e2e2;
-        color: #333;
+    #sendButton, #folderButton {
+        font-size: 16px;
+        padding: 10px;
     }
 
-    .message img, .message video {
-        max-width: 100%;
-        border-radius: 8px;
-        margin-top: 8px;
+    .header .group-name {
+        font-size: 16px;
     }
+}
 
-    @media (max-width: 768px) {
-        body {
-            width: 90vw;
-            height: 95vh;
-        }
-
-        .message {
-            max-width: 80%;
-            padding: 10px;
-        }
-
-        #messageInput {
-            font-size: 13px;
-        }
-
-        #sendButton, #folderButton {
-            font-size: 16px;
-            padding: 10px;
-        }
-
-        .header .group-name {
-            font-size: 16px;
-        }
-    }
 </style>
 
 <!-- Add Font Awesome for icons -->
