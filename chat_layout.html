@@ -381,31 +381,30 @@ body {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 50%; /* Half screen width */
-    max-width: 800px; /* Maximum width */
-    height: 70%; /* Not full height */
-    background: rgba(0, 0, 0, 0.8); /* Semi-transparent background */
+    width: 50%;
+    max-width: 800px;
+    height: 70%;
+    background: rgba(0, 0, 0, 0.8);
     border-radius: 10px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    z-index: 9999; /* Ensure it's on top of other elements */
+    z-index: 9999;
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
 }
 
-/* Modal background (for dismissing) */
+/* Modal background */
 .modal-background {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5); /* Semi-transparent dark background */
-    cursor: pointer;
+    background: rgba(0, 0, 0, 0.5);
 }
 
-/* Modal content (where image is displayed) */
+/* Modal content */
 .modal-content {
     position: relative;
     width: 100%;
@@ -416,23 +415,23 @@ body {
     overflow: hidden;
 }
 
-/* Close button in the top-right corner */
-.close-btn {
+/* Close button */
+.close-button {
     position: absolute;
     top: 10px;
     right: 10px;
     background: none;
     border: none;
+    font-size: 20px;
     color: white;
-    font-size: 24px;
     cursor: pointer;
+    z-index: 10000;
 }
 
-/* Font Awesome close icon */
-.close-btn i {
-    font-size: 30px;
+/* Close button hover effect */
+.close-button:hover {
+    color: red;
 }
-
 
     </style>
 </head>
@@ -770,22 +769,16 @@ function openImageModal(src) {
     // Create modal container
     const modal = document.createElement('div');
     modal.classList.add('image-modal');
-    
-    // Modal background (click to dismiss)
+
+    // Modal background
     const modalBackground = document.createElement('div');
     modalBackground.classList.add('modal-background');
-    // Add event listener to dismiss the modal when clicking on the background
-    modalBackground.addEventListener('click', (event) => {
-        // Check if the click was on the background and not inside the modal content
-        if (event.target === modalBackground) {
-            closeModal(modal);
-        }
-    });
 
-    // Create modal content (image in this case)
+    // Create modal content (image)
     const modalContent = document.createElement('div');
     modalContent.classList.add('modal-content');
-    
+
+    // Image element
     const img = document.createElement('img');
     img.src = src;
     img.alt = "Full Size Image";
@@ -793,16 +786,17 @@ function openImageModal(src) {
     img.style.height = "auto";
     img.style.borderRadius = "10px";
 
-    // Close button (Font Awesome)
+    // Close button
     const closeButton = document.createElement('button');
-    closeButton.classList.add('close-btn');
     closeButton.innerHTML = '<i class="fas fa-times"></i>'; // Font Awesome close icon
+    closeButton.classList.add('close-button');
     closeButton.addEventListener('click', () => closeModal(modal));
 
-    modalContent.appendChild(closeButton);
+    // Append elements
     modalContent.appendChild(img);
     modal.appendChild(modalBackground);
     modal.appendChild(modalContent);
+    modal.appendChild(closeButton); // Append close button
 
     document.body.appendChild(modal);
 }
@@ -811,6 +805,7 @@ function openImageModal(src) {
 function closeModal(modal) {
     document.body.removeChild(modal);
 }
+
 
 
 function selectMessage(messageId, messageDiv) {
