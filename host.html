@@ -82,7 +82,13 @@
     font-size: 14px;
     color: gray;
     margin-top: 5px;
+    white-space: nowrap; /* Prevents the text from wrapping onto a new line */
+    overflow: hidden; /* Hides the text that overflows */
+    text-overflow: ellipsis; /* Adds "..." when the text overflows */
+    display: block; /* Makes sure the element takes up the full width */
+    max-width: calc(100% - 70px); /* Adjusts for space taken by the profile image */
 }
+
 
     .timestamp {
     font-size: 10px;
