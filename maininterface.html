@@ -816,6 +816,33 @@ savebutton:focus, cancelbutton:focus {
         transform: translateY(0);
     }
 }
+.explore-host-btn {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    background: linear-gradient(45deg, #ff6b6b, #ffa502, #fffa65, #1e90ff, #6a89cc);
+    background-size: 200% 200%;
+    animation: gradientBG 3s ease infinite;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.explore-host-btn:hover {
+    transform: scale(1.05);
+    opacity: 0.9;
+}
+
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
 
 
     </style>
@@ -837,6 +864,8 @@ savebutton:focus, cancelbutton:focus {
         </div>
     </div>
 </div>
+<!-- Start Exploring Host Button -->
+<button id="exploreHostBtn" class="explore-host-btn">Start Exploring Host</button>
 
         <!-- Left section with profile and chat items -->
         <div class="left-section">
