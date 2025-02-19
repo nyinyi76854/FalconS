@@ -82,6 +82,10 @@
         font-size: 14px;
         color: gray;
         margin-top: 5px;
+         white-space: nowrap; /* Prevents the text from wrapping to the next line */
+    overflow: hidden; /* Hides any text that overflows */
+    text-overflow: ellipsis; /* Adds "..." at the end if the text overflows */
+    max-width: 100%;
     }
     .timestamp {
     font-size: 10px;
