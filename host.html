@@ -82,12 +82,12 @@
     font-size: 14px;
     color: gray;
     margin-top: 5px;
-    white-space: nowrap; /* Prevents the text from wrapping onto a new line */
-    overflow: hidden; /* Hides the text that overflows */
-    text-overflow: ellipsis; /* Adds "..." when the text overflows */
-    display: block; /* Makes sure the element takes up the full width */
-    max-width: calc(100% - 70px); /* Adjusts for space taken by the profile image */
+    overflow: hidden; /* Hides the overflowed text */
+    text-overflow: ellipsis; /* Adds "..." at the end when the text overflows */
+    width: calc(100% - 70px); /* Ensures the message takes full width minus the profile picture size */
+    display: inline-block; /* Treats the element like an inline block for better layout control */
 }
+
 
 
     .timestamp {
