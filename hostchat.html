@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Host Chat</title>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <i class="fas fa-arrow-left back-btn"></i>
+            <img id="hostProfile" class="profile-circle" src="default.png" alt="Host Profile">
+            <span id="hostName">Loading...</span>
+        </div>
+        <ul id="chatMessages" class="messages"></ul>
+        <div id="messageInputLayout" class="chat-input hidden">
+            <input type="file" id="mediaInput" class="hidden" accept="image/*,video/*">
+            <i id="folderIcon" class="fas fa-folder folder-btn hidden"></i>
+            <input type="text" id="messageInput" placeholder="Type a message...">
+            <button id="sendButton" class="hidden">Send</button>
+        </div>
+    </div>
+
+    <div id="mediaDialog" class="dialog hidden">
+        <div class="dialog-content">
+            <img id="previewImage" class="hidden">
+            <video id="previewVideo" class="hidden" controls></video>
+            <textarea id="descriptionInput" placeholder="Add a description (optional)"></textarea>
+            <button id="uploadButton">Upload</button>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBLsBTQ1neD4-pZybjhMaMMr4X1Y7f9stc",
+            authDomain: "cloudy-c02ac.firebaseapp.com",
+            projectId: "cloudy-c02ac",
+            storageBucket: "cloudy-c02ac.appspot.com",
+            messagingSenderId: "729506856215",
+            appId: "1:729506856215:web:06d56b828da9c6a72ccb52",
+            measurementId: "G-1MQMPGL2TB"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+        const currentUserEmail = "user@example.com"; // Replace with actual user email
+
+        const params = new URLSearchParams(window.location.search);
+        const hostId = params.get("hostId");
+        const hostNameElement = document.getElementById("hostName");
+        const profileImage = document.getElementById("hostProfile");
+        const chatMessages = document.getElementById("chatMessages");
+        const messageInputLayout = document.getElementById("messageInputLayout");
+        const folderIcon = document.getElementById("folderIcon");
+        const mediaInput = document.getElementById("mediaInput");
+        const sendButton = document.getElementById("sendButton");
+        const messageInput = document.getElementById("messageInput");
+
+        function loadProfileImage(hostId) {
+            db.collection("host").doc(hostId).collection("hostprofile")
+                .get().then(snapshot => {
+                    const profileUrl = snapshot.docs[0]?.data().profileUrl;
+                    profileImage.src = profileUrl || "default.png";
+                });
+        }
+
+        function fetchMessages() {
+            db.collection("host").doc(hostId).collection("hostchat")
+                .onSnapshot(snapshot => {
+                    chatMessages.innerHTML = "";
+                    snapshot.forEach(doc => {
+                        const { message, sender, timestamp, description } = doc.data();
+                        db.collection("names").where("email", "==", sender).get()
+                            .then(task => {
+                                const senderName = task.docs
+                                    .reduce((max, doc) => doc.data().timestamp > max ? doc.data().name : max, "");
+                                displayMessage(senderName, message, timestamp, description);
+                            });
+                    });
+                });
+        }
+
+        function displayMessage(senderName, message, timestamp, description) {
+            const li = document.createElement("li");
+            li.classList.add("message-item");
+
+            const nameSpan = document.createElement("span");
+            nameSpan.classList.add("sender-name");
+            nameSpan.textContent = senderName;
+
+            const messageContent = document.createElement("p");
+            messageContent.classList.add("message-text");
+
+            if (isImageUrl(message)) {
+                const img = document.createElement("img");
+                img.src = message;
+                img.classList.add("chat-media");
+                messageContent.appendChild(img);
+            } else if (isVideoUrl(message)) {
+                const video = document.createElement("video");
+                video.src = message;
+                video.classList.add("chat-media");
+                video.controls = true;
+                messageContent.appendChild(video);
+            } else {
+                messageContent.textContent = message;
+            }
+
+            const timeSpan = document.createElement("span");
+            timeSpan.classList.add("timestamp");
+            timeSpan.textContent = new Date(timestamp).toLocaleString();
+
+            li.appendChild(nameSpan);
+            li.appendChild(messageContent);
+            if (description) {
+                const desc = document.createElement("p");
+                desc.classList.add("description");
+                desc.textContent = description;
+                li.appendChild(desc);
+            }
+            li.appendChild(timeSpan);
+            chatMessages.appendChild(li);
+        }
+
+        function isImageUrl(text) {
+            return text.startsWith("https://firebasestorage.googleapis.com") && text.includes("/hostchatimage%2F");
+        }
+
+        function isVideoUrl(text) {
+            return text.startsWith("https://firebasestorage.googleapis.com") && text.includes("/hostchatvideo%2F");
+        }
+
+        function checkIfCreator() {
+            db.collection("host").doc(hostId).get()
+                .then(doc => {
+                    if (doc.data().creator === currentUserEmail) {
+                        messageInputLayout.classList.remove("hidden");
+                        folderIcon.classList.remove("hidden");
+                    }
+                });
+        }
+
+        folderIcon.addEventListener("click", () => mediaInput.click());
+
+        mediaInput.addEventListener("change", event => {
+            const file = event.target.files[0];
+            if (!file) return;
+            document.getElementById("mediaDialog").classList.remove("hidden");
+            if (file.type.startsWith("image")) {
+                document.getElementById("previewImage").src = URL.createObjectURL(file);
+                document.getElementById("previewImage").classList.remove("hidden");
+                document.getElementById("previewVideo").classList.add("hidden");
+            } else {
+                document.getElementById("previewVideo").src = URL.createObjectURL(file);
+                document.getElementById("previewVideo").classList.remove("hidden");
+                document.getElementById("previewImage").classList.add("hidden");
+            }
+        });
+
+        document.getElementById("uploadButton").addEventListener("click", () => {
+            const file = mediaInput.files[0];
+            if (!file) return;
+            const folder = file.type.startsWith("video") ? "hostchatvideo" : "hostchatimage";
+            const ref = storage.ref().child(`${folder}/${Date.now()}`);
+            ref.put(file).then(() => ref.getDownloadURL()).then(url => {
+                const chatMessage = {
+                    message: url,
+                    sender: currentUserEmail,
+                    timestamp: Date.now(),
+                    description: document.getElementById("descriptionInput").value || null
+                };
+                db.collection("host").doc(hostId).collection("hostchat").add(chatMessage);
+            });
+        });
+
+        loadProfileImage(hostId);
+        fetchMessages();
+        checkIfCreator();
+    </script>
+</body>
+</html>
