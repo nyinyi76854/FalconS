@@ -156,13 +156,22 @@
 #dialog-cancel:hover {
     background-color: #d32f2f;
 }
-
+.search-button {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 24px;
+    cursor: pointer;
+}
 </style>
 </head>
 <body>
     <div class="back-button">
         <i class="fas fa-arrow-left"></i>
     </div>
+    <div class="search-button">
+    <i class="fas fa-search"></i>
+</div>
 <div class="container">
     <div class="tab-section">
         <div id="myHostsTab" class="tab">My Hosts</div>
@@ -224,6 +233,11 @@
 document.querySelector(".back-button").addEventListener("click", function() {
         window.location.href = "maininterface.html";
     });
+        // Redirect to hostsearch.html when search icon is clicked
+document.querySelector('.search-button').addEventListener('click', () => {
+    window.location.href = 'hostsearch.html';
+});
+
         function getLatestMessage(hostId, createdTimestamp, callback) {
             firestore.collection("host").doc(hostId).collection("hostchat").get()
                 .then(messagesSnapshot => {
