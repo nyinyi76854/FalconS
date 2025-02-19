@@ -82,9 +82,11 @@
     font-size: 14px;
     color: gray;
     margin-top: 5px;
-    white-space: nowrap;          /* Prevents the text from wrapping */
-    overflow: hidden;             /* Hides the overflowing text */
-    text-overflow: ellipsis;      /* Adds the "..." when the text overflows */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    flex-grow: 1;
 }
 
     .timestamp {
