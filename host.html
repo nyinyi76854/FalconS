@@ -200,6 +200,9 @@
             li.appendChild(img);
             li.appendChild(details);
             listElement.appendChild(li);
+            li.addEventListener("click", () => {
+        window.location.href = `hostchat.html?hostId=${encodeURIComponent(hostId)}&hostname=${encodeURIComponent(hostname)}`;
+    });
         }
 function formatTimestamp(timestamp) {
     if (!timestamp) return "Fetching...";
