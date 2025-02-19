@@ -205,10 +205,15 @@ input[type="text"] {
 <body>
     <div class="chat-container">
         <div class="chat-header">
-            <i class="fas fa-arrow-left back-btn"></i>
-            <img id="hostProfile" class="profile-circle" src="user_1077114.png" alt="Host Profile">
-            <span id="hostName">Loading...</span>
-        </div>
+    <i class="fas fa-arrow-left back-btn"></i>
+    <img id="hostProfile" class="profile-circle" src="user_1077114.png" alt="Host Profile">
+    <div>
+        <span id="hostName">Loading...</span>
+        <br>
+        <span id="participantCount" style="font-size: 14px; color: white;">Loading participants...</span>
+    </div>
+</div>
+
         <ul id="chatMessages" class="messages"></ul>
         <div id="messageInputLayout" class="chat-input hidden">
             <input type="file" id="mediaInput" class="hidden" accept="image/*,video/*">
@@ -266,7 +271,20 @@ document.querySelector(".back-btn").addEventListener("click", () => {
 document.querySelector(".cancel-btn").addEventListener("click", () => {
     document.getElementById("mediaDialog").classList.add("hidden"); // Hide the media dialog
 });
-
+function loadParticipantCount(hostId) {
+    db.collection("host")
+        .doc(hostId)
+        .collection("subscribers")
+        .get()
+        .then(querySnapshot => {
+            const participantCount = querySnapshot.size;
+            document.getElementById("participantCount").innerText = `${participantCount} participants`;
+        })
+        .catch(error => {
+            document.getElementById("participantCount").innerText = "Failed to load participants";
+            console.error("Error loading participant count:", error);
+        });
+}
         function loadProfileImage(hostId) {
             db.collection("host").doc(hostId).collection("hostprofile")
                 .get().then(snapshot => {
@@ -413,6 +431,7 @@ function checkIfCreator() {
         });
 
         loadProfileImage(hostId);
+        loadParticipantCount(hostId);
         fetchMessages();
         checkIfCreator();
     </script>
