@@ -78,13 +78,18 @@
         font-weight: bold;
         color: #333;
     }
-    .last-message {
+    
+
+
+.last-message {
     font-size: 14px;
     color: gray;
     margin-top: 5px;
+    white-space: nowrap;           /* Prevent text from wrapping */
+    overflow: hidden;             /* Hide any overflow text */
+    text-overflow: ellipsis;      /* Add ellipsis (...) when text overflows */
+    max-width: calc(100% - 70px); /* Adjust to fit within available space (subtract space for profile image and padding) */
 }
-
-
 
     .timestamp {
     font-size: 10px;
@@ -220,7 +225,6 @@ document.querySelector(".back-button").addEventListener("click", function() {
     } else {
         lastMessage.textContent = latestMessage; // Display text message normally
     }
-truncateText(lastMessage);
 
     const timestamp = document.createElement("p");
     timestamp.classList.add("timestamp");
@@ -237,12 +241,7 @@ truncateText(lastMessage);
         window.location.href = `hostchat.html?hostId=${encodeURIComponent(hostId)}&hostname=${encodeURIComponent(hostname)}`;
     });
 }
-        function truncateText(element) {
-    element.style.whiteSpace = "nowrap"; // Prevent wrapping to multiple lines
-    element.style.overflow = "hidden"; // Hide overflowing content
-    element.style.textOverflow = "ellipsis"; // Apply ellipsis when content overflows
-            element.style.maxWidth = "calc(100% - 5px)";
-}
+        
 function isImageUrl(text) {
             return text.startsWith("https://firebasestorage.googleapis.com") && text.includes("/hostchatimage%2F");
         }
