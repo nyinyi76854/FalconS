@@ -8,6 +8,8 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyBcTEVvxXmv5N8dJav4xNDRy5hXZRjVeM4",
@@ -97,13 +99,30 @@
             color: #6b6bff;
             font-family: 'Courier New', monospace;
         }
+        .back-btn {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+}
+
     </style>
 </head>
 <body>
     <input type="text" id="searchInput" placeholder="Search hosts...">
     <div id="results"></div>
+<button id="backButton" class="back-btn">
+    <i class="fas fa-arrow-left"></i>
+</button>
 
     <script>
+        document.getElementById("backButton").addEventListener("click", function() {
+    window.location.href = "host.html";
+});
+
         document.getElementById("searchInput").addEventListener("input", function () {
             const query = this.value.trim();
             const resultsDiv = document.getElementById("results");
