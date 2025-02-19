@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Host List</title>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            width: 90%;
+            max-width: 600px;
+            margin: auto;
+        }
+        .tab-buttons {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 10px;
+        }
+        .tab-buttons button {
+            padding: 10px;
+            cursor: pointer;
+        }
+        .active {
+            background-color: #007bff;
+            color: white;
+        }
+        .host-list {
+            list-style: none;
+            padding: 0;
+        }
+        .host-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+        }
+        .profile-pic {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .host-details {
+            flex-grow: 1;
+        }
+        .last-message {
+            font-size: 12px;
+            color: gray;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="tab-buttons">
+            <button id="myHostsTab">My Hosts</button>
+            <button id="joinedHostsTab" class="active">Hosts I Joined</button>
+        </div>
+
+        <ul id="myHostsList" class="host-list" style="display: none;"></ul>
+        <ul id="joinedHostsList" class="host-list"></ul>
+    </div>
+
+    <script>
+        // Firebase config (Replace with your own)
+        const firebaseConfig = {
+            apiKey: "AIzaSyBLsBTQ1neD4-pZybjhMaMMr4X1Y7f9stc",
+            authDomain: "cloudy-c02ac.firebaseapp.com",
+            projectId: "cloudy-c02ac",
+            storageBucket: "cloudy-c02ac.appspot.com",
+            messagingSenderId: "729506856215",
+            appId: "1:729506856215:web:06d56b828da9c6a72ccb52"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const firestore = firebase.firestore();
+        const auth = firebase.auth();
+
+        const myHostsList = document.getElementById("myHostsList");
+        const joinedHostsList = document.getElementById("joinedHostsList");
+        const myHostsTab = document.getElementById("myHostsTab");
+        const joinedHostsTab = document.getElementById("joinedHostsTab");
+
+        // Switch tabs
+        myHostsTab.addEventListener("click", () => {
+            myHostsTab.classList.add("active");
+            joinedHostsTab.classList.remove("active");
+            myHostsList.style.display = "block";
+            joinedHostsList.style.display = "none";
+            fetchMyHosts();
+        });
+
+        joinedHostsTab.addEventListener("click", () => {
+            joinedHostsTab.classList.add("active");
+            myHostsTab.classList.remove("active");
+            joinedHostsList.style.display = "block";
+            myHostsList.style.display = "none";
+            fetchJoinedHosts();
+        });
+
+        function getLatestMessage(hostId, createdTimestamp, callback) {
+            firestore.collection("host").doc(hostId).collection("hostchat").get()
+                .then(messagesSnapshot => {
+                    let latestMessage = "Host was created!";
+                    let latestTimestamp = createdTimestamp;
+
+                    messagesSnapshot.forEach(doc => {
+                        const data = doc.data();
+                        if (data.timestamp > latestTimestamp) {
+                            latestTimestamp = data.timestamp;
+                            latestMessage = data.message || latestMessage;
+                        }
+                    });
+
+                    callback(latestMessage, latestTimestamp);
+                })
+                .catch(() => callback("Host was created!", createdTimestamp));
+        }
+
+        function loadProfileImage(hostId, imgElement) {
+            firestore.collection("host").doc(hostId).collection("hostprofile").get()
+                .then(snapshot => {
+                    if (!snapshot.empty) {
+                        const profileUrl = snapshot.docs[0].data().profileUrl;
+                        imgElement.src = profileUrl || "user_1077114.png";
+                    } else {
+                        imgElement.src = "user_1077114.png";
+                    }
+                })
+                .catch(() => {
+                    imgElement.src = "user_1077114.png";
+                });
+        }
+
+        function displayHost(listElement, hostId, hostname, latestMessage, latestTimestamp) {
+            const li = document.createElement("li");
+            li.classList.add("host-item");
+
+            const img = document.createElement("img");
+            img.classList.add("profile-pic");
+            loadProfileImage(hostId, img);
+
+            const details = document.createElement("div");
+            details.classList.add("host-details");
+
+            const name = document.createElement("strong");
+            name.textContent = hostname;
+
+            const lastMessage = document.createElement("p");
+            lastMessage.classList.add("last-message");
+            lastMessage.textContent = latestMessage;
+
+            details.appendChild(name);
+            details.appendChild(lastMessage);
+            li.appendChild(img);
+            li.appendChild(details);
+            listElement.appendChild(li);
+        }
+
+        function fetchMyHosts() {
+            const userEmail = auth.currentUser.email;
+            myHostsList.innerHTML = "<p>Loading...</p>";
+
+            firestore.collection("host")
+                .where("creator", "==", userEmail)
+                .get()
+                .then(snapshot => {
+                    myHostsList.innerHTML = "";
+                    if (snapshot.empty) {
+                        myHostsList.innerHTML = "<p>No host found</p>";
+                    } else {
+                        let hosts = [];
+                        snapshot.forEach(doc => {
+                            const host = doc.data();
+                            const hostId = doc.id;
+                            getLatestMessage(hostId, host.timestamp, (latestMessage, latestTimestamp) => {
+                                hosts.push({ hostId, hostname: host.hostname, latestMessage, latestTimestamp });
+                                hosts.sort((a, b) => b.latestTimestamp - a.latestTimestamp);
+                                myHostsList.innerHTML = "";
+                                hosts.forEach(h => displayHost(myHostsList, h.hostId, h.hostname, h.latestMessage, h.latestTimestamp));
+                            });
+                        });
+                    }
+                })
+                .catch(error => console.error("Error fetching hosts:", error));
+        }
+
+        function fetchJoinedHosts() {
+            const userEmail = auth.currentUser.email;
+            joinedHostsList.innerHTML = "<p>Loading...</p>";
+
+            firestore.collection("host").get()
+                .then(snapshot => {
+                    let joinedHosts = [];
+                    snapshot.forEach(doc => {
+                        const hostId = doc.id;
+                        firestore.collection("host").doc(hostId).collection("subscribers")
+                            .where("email", "==", userEmail)
+                            .get()
+                            .then(subscribersSnapshot => {
+                                if (!subscribersSnapshot.empty) {
+                                    const host = doc.data();
+                                    getLatestMessage(hostId, host.timestamp, (latestMessage, latestTimestamp) => {
+                                        joinedHosts.push({ hostId, hostname: host.hostname, latestMessage, latestTimestamp });
+                                        joinedHosts.sort((a, b) => b.latestTimestamp - a.latestTimestamp);
+                                        joinedHostsList.innerHTML = "";
+                                        joinedHosts.forEach(h => displayHost(joinedHostsList, h.hostId, h.hostname, h.latestMessage, h.latestTimestamp));
+                                    });
+                                }
+                            });
+                    });
+                })
+                .catch(error => console.error("Error fetching joined hosts:", error));
+        }
+
+        auth.onAuthStateChanged(user => {
+            if (user) fetchJoinedHosts();
+        });
+    </script>
+</body>
+</html>
