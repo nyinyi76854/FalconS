@@ -8,56 +8,79 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script> 
     <style>
-     body {
-            font-family: Arial, sans-serif;
-        }
-        .container {
-            width: 90%;
-            max-width: 600px;
-            margin: auto;
-        }
-        .tab-buttons {
-            display: flex;
-            justify-content: space-around;
-            margin-bottom: 10px;
-        }
-        .tab-buttons button {
-            padding: 10px;
-            cursor: pointer;
-        }
-        .active {
-            background-color: #007bff;
-            color: white;
-        }
-        .host-list {
-            list-style: none;
-            padding: 0;
-        }
-        .host-item {
-            display: flex;
-            align-items: center;
-            padding: 10px;
-            border-bottom: 1px solid #ccc;
-        }
-        .profile-pic {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            margin-right: 10px;
-        }
-        .host-details {
-            flex-grow: 1;
-        }
-        .last-message {
-            font-size: 12px;
-            color: gray;
-        }
-    .timestamp {
-    font-size: 10px;
-    color: #888;
-    margin-top: 2px;
-}
-
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f5f5f5;
+        margin: 0;
+        padding: 0;
+    }
+    .container {
+        width: 90%;
+        max-width: 600px;
+        margin: auto;
+        padding: 20px;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    .tab-section {
+        display: flex;
+        border-bottom: 2px solid #ddd;
+        margin-bottom: 15px;
+    }
+    .tab {
+        flex: 1;
+        text-align: center;
+        padding: 15px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        border-radius: 10px 10px 0 0;
+        background: #f0f0f0;
+        transition: background 0.3s ease;
+    }
+    .tab.active {
+        background: #007bff;
+        color: white;
+    }
+    .host-list {
+        list-style: none;
+        padding: 0;
+    }
+    .host-item {
+        display: flex;
+        align-items: center;
+        padding: 15px;
+        border-bottom: 1px solid #eee;
+        background: white;
+        transition: background 0.2s;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    .host-item:hover {
+        background: #f9f9f9;
+    }
+    .profile-pic {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        margin-right: 15px;
+        border: 2px solid #007bff;
+    }
+    .host-details {
+        flex-grow: 1;
+    }
+    .host-name {
+        font-size: 16px;
+        font-weight: bold;
+        color: #333;
+    }
+    .last-message {
+        font-size: 14px;
+        color: gray;
+        margin-top: 5px;
+    }
 </style>
 </head>
 <body>
@@ -160,13 +183,9 @@
             const lastMessage = document.createElement("p");
             lastMessage.classList.add("last-message");
             lastMessage.textContent = latestMessage;
-const timestamp = document.createElement("p");
-    timestamp.classList.add("timestamp");
-    timestamp.textContent = formatTimestamp(latestTimestamp); // Convert timestamp to readable format
 
             details.appendChild(name);
             details.appendChild(lastMessage);
-            details.appendChild(timestamp);
             li.appendChild(img);
             li.appendChild(details);
             listElement.appendChild(li);
