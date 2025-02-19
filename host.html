@@ -109,6 +109,54 @@
     .back-button:hover {
         color: #0056b3;
     }
+        /* Dialog Styling */
+.dialog {
+    display: none; /* Hidden by default */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 250px;
+    padding: 20px;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    text-align: center;
+}
+
+.dialog-content {
+    font-family: Arial, sans-serif;
+}
+
+.dialog-actions {
+    margin-top: 15px;
+}
+
+.dialog-actions button {
+    padding: 5px 15px;
+    margin: 5px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.dialog-actions button:hover {
+    background-color: #0056b3;
+}
+
+#dialog-cancel {
+    background-color: #f44336;
+}
+
+#dialog-cancel:hover {
+    background-color: #d32f2f;
+}
+
 </style>
 </head>
 <body>
@@ -125,6 +173,17 @@
     <ul id="joinedHostsList" class="host-list"></ul>
 </div>
 
+<!-- Compact Dialog (hidden by default) -->
+<div id="dialog" class="dialog">
+    <div class="dialog-content">
+        <h4 id="dialog-title">Delete Host</h4>
+        <p id="dialog-message">Do you wish to delete your host right away?</p>
+        <div class="dialog-actions">
+            <button id="dialog-confirm">Yes</button>
+            <button id="dialog-cancel">No</button>
+        </div>
+    </div>
+</div>
 
     <script>
         const firebaseConfig = {
@@ -237,12 +296,91 @@ document.querySelector(".back-button").addEventListener("click", function() {
     li.appendChild(img);
     li.appendChild(details);
     listElement.appendChild(li);
-
+// Right-click event for showing dialog
+    li.addEventListener("contextmenu", (event) => {
+        event.preventDefault(); // Prevent the default right-click menu
+        
+        // Show the custom dialog
+        showDialog(hostId);
+    });
     li.addEventListener("click", () => {
         window.location.href = `hostchat.html?hostId=${encodeURIComponent(hostId)}&hostname=${encodeURIComponent(hostname)}`;
     });
 }
-        
+function showDialog(hostId) {
+    const dialog = document.getElementById('dialog');
+    const dialogTitle = document.getElementById('dialog-title');
+    const dialogMessage = document.getElementById('dialog-message');
+    
+    // Check if the host is created by the current user
+    const currentUserEmail = firebase.auth().currentUser?.email;
+
+    const firestore = firebase.firestore();
+    firestore.collection("host").doc(hostId).get()
+        .then((doc) => {
+            if (doc.exists) {
+                const creator = doc.get("creator");
+                if (creator === currentUserEmail) {
+                    // Show delete dialog
+                    dialogTitle.textContent = "Delete Host";
+                    dialogMessage.textContent = "Do you wish to delete your host right away?";
+                    document.getElementById('dialog-confirm').onclick = function() {
+                        deleteHost(hostId);
+                    };
+                } else {
+                    // Show leave dialog
+                    dialogTitle.textContent = "Leave Host";
+                    dialogMessage.textContent = "Are you sure that you wish to leave this host?";
+                    document.getElementById('dialog-confirm').onclick = function() {
+                        leaveHost(hostId);
+                    };
+                }
+
+                // Show the dialog
+                dialog.style.display = 'block';
+            }
+        });
+}
+
+// Function to delete host
+function deleteHost(hostId) {
+    const firestore = firebase.firestore();
+    firestore.collection("host").doc(hostId).delete()
+        .then(() => {
+            alert("Host deleted successfully.");
+            // Handle UI update here
+        })
+        .catch((error) => {
+            console.error("Error deleting host:", error);
+        });
+}
+
+// Function to leave host
+function leaveHost(hostId) {
+    const currentUserEmail = firebase.auth().currentUser?.email;
+    const firestore = firebase.firestore();
+    const subscribersRef = firestore.collection("host").doc(hostId).collection("subscribers");
+
+    subscribersRef.where("email", "==", currentUserEmail).get()
+        .then((snapshot) => {
+            const doc = snapshot.docs[0];
+            if (doc) {
+                doc.ref.delete()
+                    .then(() => {
+                        alert("You have left the host.");
+                        // Handle UI update here
+                    });
+            }
+        })
+        .catch((error) => {
+            console.error("Error leaving host:", error);
+        });
+}
+
+// Close the dialog when "No" button is clicked
+document.getElementById('dialog-cancel').addEventListener("click", () => {
+    document.getElementById('dialog').style.display = 'none';
+});
 function isImageUrl(text) {
             return text.startsWith("https://firebasestorage.googleapis.com") && text.includes("/hostchatimage%2F");
         }
