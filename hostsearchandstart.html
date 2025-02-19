@@ -108,6 +108,42 @@
     font-size: 24px;
     cursor: pointer;
 }
+.dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+
+.dialog-box {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.dialog-box button {
+    margin: 10px;
+    padding: 10px 15px;
+    border: none;
+    cursor: pointer;
+}
+
+#confirmJoinBtn {
+    background-color: green;
+    color: white;
+}
+
+#cancelJoinBtn {
+    background-color: red;
+    color: white;
+}
 
     </style>
 </head>
@@ -117,6 +153,13 @@
 <button id="backButton" class="back-btn">
     <i class="fas fa-arrow-left"></i>
 </button>
+<div id="joinDialog" class="dialog-overlay">
+    <div class="dialog-box">
+        <p id="dialogMessage"></p>
+        <button id="confirmJoinBtn">Join</button>
+        <button id="cancelJoinBtn">Cancel</button>
+    </div>
+</div>
 
     <script>
         document.getElementById("backButton").addEventListener("click", function() {
@@ -180,18 +223,31 @@
         }
 
         function showJoinDialog(hostId, hostname, userEmail) {
-            const confirmJoin = confirm("You have not joined this host. Do you wish to participate in this host?");
-            if (confirmJoin) {
-                db.collection("host").doc(hostId).collection("subscribers").add({
-                    email: userEmail,
-                    timestamp: Date.now()
-                }).then(() => {
-                    window.location.href = `hostchat.html?hostId=${encodeURIComponent(hostId)}&hostname=${encodeURIComponent(hostname)}`;
-                }).catch(() => {
-                    alert("Failed to join host. Please try again.");
-                });
-            }
-        }
+    const dialog = document.getElementById("joinDialog");
+    const dialogMessage = document.getElementById("dialogMessage");
+    const confirmBtn = document.getElementById("confirmJoinBtn");
+    const cancelBtn = document.getElementById("cancelJoinBtn");
+
+    dialogMessage.innerText = "You have not joined this host. Do you wish to participate in this host?";
+    dialog.style.display = "flex";
+
+    confirmBtn.onclick = function () {
+        db.collection("host").doc(hostId).collection("subscribers").add({
+            email: userEmail,
+            timestamp: Date.now()
+        }).then(() => {
+            window.location.href = `hostchat.html?hostId=${encodeURIComponent(hostId)}&hostname=${encodeURIComponent(hostname)}`;
+        }).catch(() => {
+            alert("Failed to join host. Please try again.");
+        });
+        dialog.style.display = "none";
+    };
+
+    cancelBtn.onclick = function () {
+        dialog.style.display = "none";
+    };
+}
+
     </script>
 </body>
 </html>
