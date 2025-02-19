@@ -113,7 +113,7 @@ input[type="text"] {
     <div class="chat-container">
         <div class="chat-header">
             <i class="fas fa-arrow-left back-btn"></i>
-            <img id="hostProfile" class="profile-circle" src="default.png" alt="Host Profile">
+            <img id="hostProfile" class="profile-circle" src="user_1077114.png" alt="Host Profile">
             <span id="hostName">Loading...</span>
         </div>
         <ul id="chatMessages" class="messages"></ul>
@@ -152,6 +152,7 @@ input[type="text"] {
 
         const params = new URLSearchParams(window.location.search);
         const hostId = params.get("hostId");
+        const hostname = params.get("hostname");
         const hostNameElement = document.getElementById("hostName");
         const profileImage = document.getElementById("hostProfile");
         const chatMessages = document.getElementById("chatMessages");
@@ -160,6 +161,9 @@ input[type="text"] {
         const mediaInput = document.getElementById("mediaInput");
         const sendButton = document.getElementById("sendButton");
         const messageInput = document.getElementById("messageInput");
+if (hostname) {
+    hostNameElement.textContent = hostname;
+}
 
         function loadProfileImage(hostId) {
             db.collection("host").doc(hostId).collection("hostprofile")
@@ -234,16 +238,22 @@ input[type="text"] {
         function isVideoUrl(text) {
             return text.startsWith("https://firebasestorage.googleapis.com") && text.includes("/hostchatvideo%2F");
         }
-
-        function checkIfCreator() {
+function checkIfCreator() {
+    firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+            const currentUserEmail = user.email;
             db.collection("host").doc(hostId).get()
                 .then(doc => {
-                    if (doc.data().creator === currentUserEmail) {
+                    if (doc.exists && doc.data().creator === currentUserEmail) {
                         messageInputLayout.classList.remove("hidden");
                         folderIcon.classList.remove("hidden");
+                        sendButton.classList.remove("hidden");
                     }
                 });
         }
+    });
+}
+
 
         folderIcon.addEventListener("click", () => mediaInput.click());
 
