@@ -341,14 +341,16 @@ function showDialog(hostId) {
             }
         });
 }
-
 // Function to delete host
-function deleteHost(hostId) {
+function deleteHost(hostId, position) {
     const firestore = firebase.firestore();
     firestore.collection("host").doc(hostId).delete()
         .then(() => {
-            alert("Host deleted successfully.");
-            // Handle UI update here
+            // Remove the item from the list
+            document.getElementById(`host-item-${hostId}`).remove(); // Assuming each host item has an ID like "host-item-{hostId}"
+            
+            // Dismiss the dialog
+            document.getElementById('dialog').style.display = 'none';
         })
         .catch((error) => {
             console.error("Error deleting host:", error);
@@ -356,7 +358,7 @@ function deleteHost(hostId) {
 }
 
 // Function to leave host
-function leaveHost(hostId) {
+function leaveHost(hostId, position) {
     const currentUserEmail = firebase.auth().currentUser?.email;
     const firestore = firebase.firestore();
     const subscribersRef = firestore.collection("host").doc(hostId).collection("subscribers");
@@ -367,8 +369,11 @@ function leaveHost(hostId) {
             if (doc) {
                 doc.ref.delete()
                     .then(() => {
-                        alert("You have left the host.");
-                        // Handle UI update here
+                        // Remove the item from the list
+                        document.getElementById(`host-item-${hostId}`).remove(); // Assuming each host item has an ID like "host-item-{hostId}"
+                        
+                        // Dismiss the dialog
+                        document.getElementById('dialog').style.display = 'none';
                     });
             }
         })
@@ -381,6 +386,7 @@ function leaveHost(hostId) {
 document.getElementById('dialog-cancel').addEventListener("click", () => {
     document.getElementById('dialog').style.display = 'none';
 });
+
 function isImageUrl(text) {
             return text.startsWith("https://firebasestorage.googleapis.com") && text.includes("/hostchatimage%2F");
         }
