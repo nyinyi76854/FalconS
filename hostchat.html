@@ -82,6 +82,7 @@
     margin-top: 5px;
 }
 
+/* Message Input Area */
 .chat-input {
     display: flex;
     align-items: center;
@@ -95,13 +96,105 @@ input[type="text"] {
     padding: 8px;
     border: 1px solid #ccc;
     border-radius: 5px;
+    outline: none;
 }
 
 .folder-btn {
-    margin-right: 10px;
     font-size: 20px;
     cursor: pointer;
+    color: #007bff;
+    margin-right: 10px;
 }
+
+.folder-btn:hover {
+    color: #0056b3;
+}
+
+#sendButton {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+#sendButton.hidden {
+    display: none;
+}
+
+#sendButton:hover {
+    background: #0056b3;
+}
+
+/* Media Dialog */
+.dialog {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.dialog-content {
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    width: 300px;
+    position: relative;
+}
+
+.dialog-content img,
+.dialog-content video {
+    max-width: 100%;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+#descriptionInput {
+    width: 100%;
+    height: 50px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 5px;
+    resize: none;
+    margin-bottom: 10px;
+}
+
+#uploadButton {
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#uploadButton:hover {
+    background: #218838;
+}
+
+/* Cancel Button */
+.cancel-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 18px;
+    color: #ff0000;
+    cursor: pointer;
+}
+
+.cancel-btn:hover {
+    color: #cc0000;
+}
+
 
 .hidden {
     display: none;
@@ -126,13 +219,15 @@ input[type="text"] {
     </div>
 
     <div id="mediaDialog" class="dialog hidden">
-        <div class="dialog-content">
-            <img id="previewImage" class="hidden">
-            <video id="previewVideo" class="hidden" controls></video>
-            <textarea id="descriptionInput" placeholder="Add a description (optional)"></textarea>
-            <button id="uploadButton">Upload</button>
-        </div>
+    <div class="dialog-content">
+        <i class="fas fa-times cancel-btn"></i>
+        <img id="previewImage" class="hidden">
+        <video id="previewVideo" class="hidden" controls></video>
+        <textarea id="descriptionInput" placeholder="Add a description (optional)"></textarea>
+        <button id="uploadButton">Upload</button>
     </div>
+</div>
+
 
     <script>
         const firebaseConfig = {
@@ -164,6 +259,13 @@ input[type="text"] {
 if (hostname) {
     hostNameElement.textContent = hostname;
 }
+document.querySelector(".back-btn").addEventListener("click", () => {
+    window.location.href = "host.html"; // Navigate back to host.html
+});
+
+document.querySelector(".cancel-btn").addEventListener("click", () => {
+    document.getElementById("mediaDialog").classList.add("hidden"); // Hide the media dialog
+});
 
         function loadProfileImage(hostId) {
             db.collection("host").doc(hostId).collection("hostprofile")
