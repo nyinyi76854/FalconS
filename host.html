@@ -81,6 +81,12 @@
         color: gray;
         margin-top: 5px;
     }
+    .timestamp {
+    font-size: 10px;
+    color: #888;
+    margin-top: 2px;
+    }
+
 </style>
 </head>
 <body>
@@ -183,14 +189,22 @@
             const lastMessage = document.createElement("p");
             lastMessage.classList.add("last-message");
             lastMessage.textContent = latestMessage;
+            const timestamp = document.createElement("p");
+            timestamp.classList.add("timestamp");
+            timestamp.textContent = formatTimestamp(latestTimestamp); // Convert timestamp to readable format
 
             details.appendChild(name);
             details.appendChild(lastMessage);
+            details.appendChild(timestamp);
             li.appendChild(img);
             li.appendChild(details);
             listElement.appendChild(li);
         }
-
+function formatTimestamp(timestamp) {
+    if (!timestamp) return "Fetching...";
+    const date = new Date(timestamp);
+    return date.toLocaleString(); // Adjust format as needed
+}
         function fetchMyHosts() {
             const userEmail = auth.currentUser.email;
             myHostsList.innerHTML = "<p>Loading...</p>";
