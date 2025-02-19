@@ -54,8 +54,8 @@
     flex-direction: column;
     align-items: center;
     overflow-y: auto;
+    max-height: 300px; /* Set a max height */
 }
-
 .message-item {
     background: #e0e0e0;
     padding: 10px;
@@ -349,12 +349,34 @@ function checkIfCreator() {
                     if (doc.exists && doc.data().creator === currentUserEmail) {
                         messageInputLayout.classList.remove("hidden");
                         folderIcon.classList.remove("hidden");
-                        sendButton.classList.remove("hidden");
+
+                        // Show send button only when there's input
+                        messageInput.addEventListener("input", () => {
+                            sendButton.style.display = messageInput.value.trim() ? "block" : "none";
+                        });
+
+                        // Send message when button is clicked
+                        sendButton.addEventListener("click", () => {
+                            if (!messageInput.value.trim()) return; // Prevent empty messages
+
+                            const chatMessage = {
+                                message: messageInput.value.trim(),
+                                sender: currentUserEmail,
+                                timestamp: Date.now()
+                            };
+
+                            db.collection("host").doc(hostId).collection("hostchat").add(chatMessage)
+                                .then(() => {
+                                    messageInput.value = ""; // Clear input field
+                                    sendButton.style.display = "none"; // Hide send button again
+                                });
+                        });
                     }
                 });
         }
     });
 }
+
 
 
         folderIcon.addEventListener("click", () => mediaInput.click());
