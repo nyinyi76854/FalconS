@@ -8,6 +8,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
     body {
         font-family: Arial, sans-serif;
@@ -87,10 +88,24 @@
     color: #888;
     margin-top: 2px;
     }
+.back-button {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        font-size: 24px;
+        cursor: pointer;
+        color: #007bff;
+    }
 
+    .back-button:hover {
+        color: #0056b3;
+    }
 </style>
 </head>
 <body>
+    <div class="back-button">
+        <i class="fas fa-arrow-left"></i>
+    </div>
 <div class="container">
     <div class="tab-section">
         <div id="myHostsTab" class="tab">My Hosts</div>
@@ -138,7 +153,9 @@
             myHostsList.style.display = "none";
             fetchJoinedHosts();
         });
-
+document.querySelector(".back-button").addEventListener("click", function() {
+        window.location.href = "maininterface.html";
+    });
         function getLatestMessage(hostId, createdTimestamp, callback) {
             firestore.collection("host").doc(hostId).collection("hostchat").get()
                 .then(messagesSnapshot => {
