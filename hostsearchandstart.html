@@ -96,7 +96,7 @@
             db.collection("host").doc(hostId).collection("subscribers").where("email", "==", userEmail).get()
                 .then(snapshot => {
                     if (!snapshot.empty) {
-                        window.location.href = `hostchat.html?hostId=${hostId}&hostname=${hostname}`;
+                        window.location.href = `hostchat.html?hostId=${encodeURIComponent(hostId)}&hostname=${encodeURIComponent(hostname)}`;
                     } else {
                         showJoinDialog(hostId, hostname, userEmail);
                     }
@@ -110,7 +110,7 @@
                     email: userEmail,
                     timestamp: Date.now()
                 }).then(() => {
-                    window.location.href = `hostchat.html?hostId=${hostId}&hostname=${hostname}`;
+                    window.location.href = `hostchat.html?hostId=${encodeURIComponent(hostId)}&hostname=${encodeURIComponent(hostname)}`;
                 }).catch(() => {
                     alert("Failed to join host. Please try again.");
                 });
