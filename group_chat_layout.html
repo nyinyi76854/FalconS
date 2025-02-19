@@ -354,8 +354,7 @@ function isVideoUrl(text) {
     return text.startsWith("https://firebasestorage.googleapis.com") && text.includes("/groupsentvideos%2F");
 }
 
- // Load group messages
-function loadMessages() {
+ function loadMessages() {
     const chatContainer = document.getElementById("chatContainer");
 
     firestore.collection("groupchat").doc(groupId)
@@ -367,12 +366,57 @@ function loadMessages() {
                 const data = doc.data();
                 const messageDiv = document.createElement("div");
                 const currentUser = firebase.auth().currentUser;
+                const isSentByCurrentUser = data.senderEmail === currentUser.email;
 
                 messageDiv.classList.add("message");
-                if (data.senderEmail === currentUser.email) {
-                    messageDiv.classList.add("sent");
+                messageDiv.classList.add(isSentByCurrentUser ? "sent" : "received");
+
+                if (!isSentByCurrentUser) {
+                    // Create a wrapper for profile and message
+                    const messageWrapper = document.createElement("div");
+                    messageWrapper.classList.add("message-wrapper");
+                    messageWrapper.style.display = "flex";
+                    messageWrapper.style.alignItems = "center";
+
+                    // Create profile image element
+                    const receiverProfileImg = document.createElement("img");
+                    receiverProfileImg.src = "user_1077114.png"; // Default image
+                    receiverProfileImg.alt = "Profile Photo";
+                    
+                    const receiverProfileImgCss = {
+                        width: "40px",
+                        height: "40px",
+                        borderRadius: "50%",
+                        marginRight: "10px"
+                    };
+
+                    Object.assign(receiverProfileImg.style, receiverProfileImgCss);
+
+                    // Fetch profile photo from Firestore
+                    firestore.collection("profilesphoto")
+                        .where("uploaderEmail", "==", data.senderEmail)
+                        .get()
+                        .then((querySnapshot) => {
+                            let latestPhotoUrl = "user_1077114.png"; // Default profile pic
+                            let latestTimestamp = 0;
+
+                            querySnapshot.forEach((doc) => {
+                                const timestamp = doc.data().timestamp || 0;
+                                const photoUrl = doc.data().downloadUrl;
+
+                                if (timestamp > latestTimestamp) {
+                                    latestTimestamp = timestamp;
+                                    latestPhotoUrl = photoUrl;
+                                }
+                            });
+                            receiverProfileImg.src = latestPhotoUrl; // Update to latest photo
+                        });
+
+                    messageWrapper.appendChild(receiverProfileImg);
+                    messageWrapper.appendChild(messageDiv);
+                    chatContainer.appendChild(messageWrapper);
                 } else {
-                    messageDiv.classList.add("received");
+                    chatContainer.appendChild(messageDiv);
                 }
 
                 // Check for image or video URLs
@@ -380,32 +424,31 @@ function loadMessages() {
                     const img = document.createElement("img");
                     img.src = data.text;
                     img.alt = "Image message";
-                    img.style.maxWidth = "100%"; // Ensure image fits within the container
-                    img.style.maxHeight = "200px"; // Set a max height for the image
+                    img.style.maxWidth = "100%";
+                    img.style.maxHeight = "200px";
                     img.onerror = () => {
-                        img.src = "default-image.png"; // Fallback image if load fails
+                        img.src = "default-image.png";
                     };
                     messageDiv.appendChild(img);
                 } else if (isVideoUrl(data.text)) {
                     const video = document.createElement("video");
                     video.src = data.text;
                     video.controls = true;
-                    video.style.maxWidth = "100%"; // Ensure video fits within the container
-                    video.style.maxHeight = "200px"; // Set a max height for the video
+                    video.style.maxWidth = "100%";
+                    video.style.maxHeight = "200px";
                     video.onerror = () => {
                         console.error("Error loading video:", data.text);
                     };
                     messageDiv.appendChild(video);
                 } else {
-                    messageDiv.textContent = data.text; // For regular text messages
+                    messageDiv.textContent = data.text;
                 }
-
-                chatContainer.appendChild(messageDiv);
             });
 
             chatContainer.scrollTop = chatContainer.scrollHeight; // Scroll to latest message
         });
 }
+
     loadMessages();
 
     document.getElementById('viewMembersButton').addEventListener('click', () => {
