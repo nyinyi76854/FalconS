@@ -342,14 +342,11 @@ function showDialog(hostId) {
         });
 }
 // Function to delete host
-function deleteHost(hostId, position) {
+function deleteHost(hostId) {
     const firestore = firebase.firestore();
     firestore.collection("host").doc(hostId).delete()
         .then(() => {
-            // Remove the item from the list
-            document.getElementById(`host-item-${hostId}`).remove(); // Assuming each host item has an ID like "host-item-{hostId}"
-            
-            // Dismiss the dialog
+            // Dismiss the dialog immediately
             document.getElementById('dialog').style.display = 'none';
         })
         .catch((error) => {
@@ -358,7 +355,7 @@ function deleteHost(hostId, position) {
 }
 
 // Function to leave host
-function leaveHost(hostId, position) {
+function leaveHost(hostId) {
     const currentUserEmail = firebase.auth().currentUser?.email;
     const firestore = firebase.firestore();
     const subscribersRef = firestore.collection("host").doc(hostId).collection("subscribers");
@@ -369,10 +366,7 @@ function leaveHost(hostId, position) {
             if (doc) {
                 doc.ref.delete()
                     .then(() => {
-                        // Remove the item from the list
-                        document.getElementById(`host-item-${hostId}`).remove(); // Assuming each host item has an ID like "host-item-{hostId}"
-                        
-                        // Dismiss the dialog
+                        // Dismiss the dialog immediately
                         document.getElementById('dialog').style.display = 'none';
                     });
             }
@@ -381,6 +375,14 @@ function leaveHost(hostId, position) {
             console.error("Error leaving host:", error);
         });
 }
+
+// Close the dialog if the user clicks anywhere outside it
+document.addEventListener("click", (event) => {
+    const dialog = document.getElementById('dialog');
+    if (!dialog.contains(event.target) && event.target !== dialog) {
+        dialog.style.display = 'none';
+    }
+});
 
 // Close the dialog when "No" button is clicked
 document.getElementById('dialog-cancel').addEventListener("click", () => {
@@ -427,33 +429,33 @@ function formatTimestamp(timestamp) {
                 .catch(error => console.error("Error fetching hosts:", error));
         }
 
-        function fetchJoinedHosts() {
-            const userEmail = auth.currentUser.email;
-            joinedHostsList.innerHTML = "<p>Loading...</p>";
+      function fetchJoinedHosts() {
+    const userEmail = auth.currentUser.email;
+    joinedHostsList.innerHTML = "<p>Loading...</p>";
 
-            firestore.collection("host").get()
-                .then(snapshot => {
-                    let joinedHosts = [];
-                    snapshot.forEach(doc => {
-                        const hostId = doc.id;
-                        firestore.collection("host").doc(hostId).collection("subscribers")
-                            .where("email", "==", userEmail)
-                            .get()
-                            .then(subscribersSnapshot => {
-                                if (!subscribersSnapshot.empty) {
-                                    const host = doc.data();
-                                    getLatestMessage(hostId, host.timestamp, (latestMessage, latestTimestamp) => {
-                                        joinedHosts.push({ hostId, hostname: host.hostname, latestMessage, latestTimestamp });
-                                        joinedHosts.sort((a, b) => b.latestTimestamp - a.latestTimestamp);
-                                        joinedHostsList.innerHTML = "";
-                                        joinedHosts.forEach(h => displayHost(joinedHostsList, h.hostId, h.hostname, h.latestMessage, h.latestTimestamp));
-                                    });
-                                }
-                            });
-                    });
-                })
-                .catch(error => console.error("Error fetching joined hosts:", error));
-        }
+    firestore.collection("host").onSnapshot(snapshot => {  // Using onSnapshot for real-time updates
+        let joinedHosts = [];
+        snapshot.forEach(doc => {
+            const hostId = doc.id;
+            firestore.collection("host").doc(hostId).collection("subscribers")
+                .where("email", "==", userEmail)
+                .onSnapshot(subscribersSnapshot => {  // Real-time update for subscribers collection
+                    if (!subscribersSnapshot.empty) {
+                        const host = doc.data();
+                        getLatestMessage(hostId, host.timestamp, (latestMessage, latestTimestamp) => {
+                            joinedHosts.push({ hostId, hostname: host.hostname, latestMessage, latestTimestamp });
+                            joinedHosts.sort((a, b) => b.latestTimestamp - a.latestTimestamp);
+                            joinedHostsList.innerHTML = "";
+                            joinedHosts.forEach(h => displayHost(joinedHostsList, h.hostId, h.hostname, h.latestMessage, h.latestTimestamp));
+                        });
+                    }
+                });
+        });
+    }, error => {
+        console.error("Error fetching joined hosts:", error);
+    });
+}
+
 
         auth.onAuthStateChanged(user => {
             if (user) fetchJoinedHosts();
