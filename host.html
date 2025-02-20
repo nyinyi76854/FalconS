@@ -301,7 +301,7 @@
             myHostsList.style.display = "none";
             fetchJoinedHosts();
         });
-        document.getElementById("createHostButton").addEventListener("click", function () {
+   document.getElementById("createHostButton").addEventListener("click", function () {
     document.getElementById("createHostDialog").style.display = "flex";
 });
 
@@ -323,7 +323,7 @@ document.getElementById("confirmCreateButton").addEventListener("click", functio
 });
 
 function saveHostToFirestore(hostName) {
-    const currentUserEmail = firebase.auth().currentUser?.email; 
+    const currentUserEmail = firebase.auth().currentUser?.email; // Default email if user is not logged in
 
     const hostData = {
         hostname: hostName,
@@ -331,20 +331,22 @@ function saveHostToFirestore(hostName) {
         timestamp: Date.now()
     };
 
-    db.collection("host").add(hostData)
+    firestore.collection("host").add(hostData)
         .then(docRef => {
+            console.log("Host created successfully with ID:", docRef.id);
             const hostId = docRef.id;
             const subscriberData = {
                 email: currentUserEmail,
                 timestamp: Date.now()
             };
 
-            db.collection("host").doc(hostId).collection("subscribers").add(subscriberData)
-                .then(() => console.log("Host and subscriber added successfully!"))
+            firestore.collection("host").doc(hostId).collection("subscribers").add(subscriberData)
+                .then(() => console.log("Subscriber added successfully!"))
                 .catch(error => console.error("Failed to add subscriber:", error));
         })
         .catch(error => console.error("Failed to create host:", error));
 }
+
 
 document.querySelector(".back-button").addEventListener("click", function() {
         window.location.href = "maininterface.html";
