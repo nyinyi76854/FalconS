@@ -473,16 +473,16 @@ document.getElementById("confirmCreateButton").addEventListener("click", functio
     const hostName = document.getElementById("inputHostName").value.trim();
     if (!hostName) return;
 
-    const user = firebase.auth().currentUser;
-    if (!user) {
+    const CurrentuserEmailForHostCreation = firebase.auth().currentUser;
+    if (!CurrentuserEmailForHostCreation) {
         showMessage("You need to log in to create a host.", "error");
         return;
     }
 
-    const userEmail = user.email;
+    const userEmailForHost = CurrentuserEmailForHostCreation.email;
     const hostData = {
         hostname: hostName,
-        creator: userEmail,
+        creator: userEmailForHost,
         timestamp: Date.now()
     };
 
@@ -493,7 +493,7 @@ document.getElementById("confirmCreateButton").addEventListener("click", functio
             console.log("Host Created:", hostId); // Debugging
 
             const subscriberData = {
-                email: userEmail,
+                email: userEmailForHost,
                 timestamp: Date.now()
             };
 
