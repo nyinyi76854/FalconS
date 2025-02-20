@@ -281,7 +281,7 @@
     <div class="dialog-box">
         <h4>Create Host</h4>
         <input type="text" id="inputHostName" placeholder="Enter Host Name">
-        <button id="confirmCreateButton" disabled>
+        <button id="confirmCreateButton" style="display: none;">
             <i class="fas fa-check"></i> Create
         </button>
         <button id="cancelCreateButton">
@@ -289,6 +289,7 @@
         </button>
     </div>
 </div>
+
 <div id="messageBox" class="message-box" style="display: none;"></div>
 
 <!-- Compact Dialog (hidden by default) -->
@@ -430,7 +431,7 @@ document.querySelector('.search-button').addEventListener('click', () => {
         window.location.href = `hostchat.html?hostId=${encodeURIComponent(hostId)}&hostname=${encodeURIComponent(hostname)}`;
     });
 }
-        document.getElementById("createHostButton").addEventListener("click", function () {
+document.getElementById("createHostButton").addEventListener("click", function () {
     document.getElementById("createHostDialog").style.display = "flex";
 });
 
@@ -438,15 +439,15 @@ document.getElementById("cancelCreateButton").addEventListener("click", function
     document.getElementById("createHostDialog").style.display = "none";
 });
 
+// Show/hide the confirm button based on input length
 document.getElementById("inputHostName").addEventListener("input", function () {
     const confirmButton = document.getElementById("confirmCreateButton");
     const hostName = this.value.trim();
+    
     if (hostName.length >= 4 && hostName.length <= 25) {
-        confirmButton.disabled = false;
-        confirmButton.classList.add("enabled");
+        confirmButton.style.display = "flex";  // Show the button
     } else {
-        confirmButton.disabled = true;
-        confirmButton.classList.remove("enabled");
+        confirmButton.style.display = "none";  // Hide the button
     }
 });
 
@@ -456,36 +457,42 @@ document.getElementById("confirmCreateButton").addEventListener("click", functio
 
     const user = firebase.auth().currentUser;
     if (!user) {
-        console.log("User not logged in.");
+        showMessage("You need to log in to create a host.", "error");
         return;
     }
 
-    console.log("User logged in:", user.email);
-    
+    const userEmail = user.email;
     const hostData = {
         hostname: hostName,
-        creator: user.email,
+        creator: userEmail,
         timestamp: Date.now()
     };
 
+    // Save to Firestore
     db.collection("host").add(hostData)
         .then(documentReference => {
-            console.log("Host created with ID:", documentReference.id);
-            return db.collection("host").doc(documentReference.id).collection("subscribers").add({
-                email: user.email,
+            const hostId = documentReference.id;
+            console.log("Host Created:", hostId); // Debugging
+
+            const subscriberData = {
+                email: userEmail,
                 timestamp: Date.now()
-            });
+            };
+
+            // Add the creator as a subscriber
+            return db.collection("host").doc(hostId).collection("subscribers").add(subscriberData);
         })
         .then(() => {
-            console.log("Subscriber added.");
+            showMessage("Host created successfully!", "success");
             document.getElementById("createHostDialog").style.display = "none";
             document.getElementById("inputHostName").value = "";
+            document.getElementById("confirmCreateButton").style.display = "none"; // Hide button again
         })
         .catch(error => {
-            console.error("Error creating host:", error);
+            console.error("Error creating host:", error); // Debugging
+            showMessage("Failed to create host. Please try again.", "error");
         });
 });
-
 
 function showMessage(message, type) {
     const messageBox = document.getElementById("messageBox");
@@ -497,6 +504,7 @@ function showMessage(message, type) {
         messageBox.style.display = "none";
     }, 3000);
 }
+
 
 function showDialog(hostId) {
     const dialog = document.getElementById('dialog');
