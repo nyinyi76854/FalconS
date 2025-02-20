@@ -456,39 +456,36 @@ document.getElementById("confirmCreateButton").addEventListener("click", functio
 
     const user = firebase.auth().currentUser;
     if (!user) {
-        showMessage("You need to log in to create a host.", "error");
+        console.log("User not logged in.");
         return;
     }
 
-    const userEmail = user.email;
+    console.log("User logged in:", user.email);
+    
     const hostData = {
         hostname: hostName,
-        creator: userEmail,
+        creator: user.email,
         timestamp: Date.now()
     };
 
-    // Save to Firestore
     db.collection("host").add(hostData)
         .then(documentReference => {
-            const hostId = documentReference.id;
-
-            const subscriberData = {
-                email: userEmail,
+            console.log("Host created with ID:", documentReference.id);
+            return db.collection("host").doc(documentReference.id).collection("subscribers").add({
+                email: user.email,
                 timestamp: Date.now()
-            };
-
-            // Add the creator as a subscriber
-            return db.collection("host").doc(hostId).collection("subscribers").add(subscriberData);
+            });
         })
         .then(() => {
-            showMessage("Host created successfully!", "success");
+            console.log("Subscriber added.");
             document.getElementById("createHostDialog").style.display = "none";
             document.getElementById("inputHostName").value = "";
         })
-        .catch(() => {
-            showMessage("Failed to create host. Please try again.", "error");
+        .catch(error => {
+            console.error("Error creating host:", error);
         });
 });
+
 
 function showMessage(message, type) {
     const messageBox = document.getElementById("messageBox");
