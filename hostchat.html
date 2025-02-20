@@ -289,7 +289,7 @@ function loadParticipantCount(hostId) {
             db.collection("host").doc(hostId).collection("hostprofile")
                 .get().then(snapshot => {
                     const profileUrl = snapshot.docs[0]?.data().profileUrl;
-                    profileImage.src = profileUrl || "default.png";
+                    profileImage.src = profileUrl || "user_1077114.png";
                 });
         }
 
