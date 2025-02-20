@@ -182,97 +182,6 @@
     background: #0056b3;
 }
 
-.dialog-overlay {
-    display: none;  /* Hidden by default */
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
-    justify-content: center;
-    align-items: center;
-    z-index: 1000; /* Ensure it appears above everything */
-}
-
-/* Dialog box styling */
-.dialog-box {
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    width: 320px;
-    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-/* Input field styling */
-#inputHostName {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 16px;
-}
-
-/* Buttons styling */
-button {
-    padding: 10px;
-    font-size: 16px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    transition: 0.3s;
-}
-
-/* Confirm Create Button */
-#confirmCreateButton {
-    background-color: #4CAF50;
-    color: white;
-    display: none; /* Hidden initially */
-}
-
-#confirmCreateButton:hover {
-    background-color: #45a049;
-}
-
-/* Cancel Button */
-#cancelCreateButton {
-    background-color: #f44336;
-    color: white;
-}
-
-#cancelCreateButton:hover {
-    background-color: #d32f2f;
-}
-.message-box {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #333;
-    color: white;
-    padding: 10px 20px;
-    border-radius: 5px;
-    font-size: 14px;
-    display: none;
-    z-index: 1000;
-}
-
-.message.success {
-    background: #4CAF50;
-}
-
-.message.error {
-    background: #F44336;
-}
-
 </style>
 </head>
 <body>
@@ -295,18 +204,7 @@ button {
     <ul id="myHostsList" class="host-list" style="display: none;"></ul>
     <ul id="joinedHostsList" class="host-list"></ul>
 </div>
-<div id="createHostDialog" class="dialog-overlay">
-    <div class="dialog-box">
-        <h4>Create Host</h4>
-        <input type="text" id="inputHostName" placeholder="Enter Host Name">
-        <button id="confirmCreateButton" style="display: none;">
-            <i class="fas fa-check"></i> Create
-        </button>
-        <button id="cancelCreateButton">
-            <i class="fas fa-times"></i> Cancel
-        </button>
-    </div>
-</div>
+
 
 <div id="messageBox" class="message-box" style="display: none;"></div>
 
@@ -448,79 +346,6 @@ document.querySelector('.search-button').addEventListener('click', () => {
     li.addEventListener("click", () => {
         window.location.href = `hostchat.html?hostId=${encodeURIComponent(hostId)}&hostname=${encodeURIComponent(hostname)}`;
     });
-}
-document.getElementById("createHostButton").addEventListener("click", function () {
-    document.getElementById("createHostDialog").style.display = "flex";
-});
-
-document.getElementById("cancelCreateButton").addEventListener("click", function () {
-    document.getElementById("createHostDialog").style.display = "none";
-});
-
-// Show/hide the confirm button based on input length
-document.getElementById("inputHostName").addEventListener("input", function () {
-    const confirmButton = document.getElementById("confirmCreateButton");
-    const hostName = this.value.trim();
-    
-    if (hostName.length >= 4 && hostName.length <= 25) {
-        confirmButton.style.display = "flex";  // Show the button
-    } else {
-        confirmButton.style.display = "none";  // Hide the button
-    }
-});
-
-document.getElementById("confirmCreateButton").addEventListener("click", function () {
-    const hostName = document.getElementById("inputHostName").value.trim();
-    if (!hostName) return;
-
-    const CurrentuserEmailForHostCreation = firebase.auth().currentUser;
-    if (!CurrentuserEmailForHostCreation) {
-        showMessage("You need to log in to create a host.", "error");
-        return;
-    }
-
-    const userEmailForHost = CurrentuserEmailForHostCreation.email;
-    const hostData = {
-        hostname: hostName,
-        creator: userEmailForHost,
-        timestamp: Date.now()
-    };
-
-    // Save to Firestore
-    db.collection("host").add(hostData)
-        .then(documentReference => {
-            const hostId = documentReference.id;
-            console.log("Host Created:", hostId); // Debugging
-
-            const subscriberData = {
-                email: userEmailForHost,
-                timestamp: Date.now()
-            };
-
-            // Add the creator as a subscriber
-            return db.collection("host").doc(hostId).collection("subscribers").add(subscriberData);
-        })
-        .then(() => {
-            showMessage("Host created successfully!", "success");
-            document.getElementById("createHostDialog").style.display = "none";
-            document.getElementById("inputHostName").value = "";
-            document.getElementById("confirmCreateButton").style.display = "none"; // Hide button again
-        })
-        .catch(error => {
-            console.error("Error creating host:", error); // Debugging
-            showMessage("Failed to create host. Please try again.", "error");
-        });
-});
-
-function showMessage(message, type) {
-    const messageBox = document.getElementById("messageBox");
-    messageBox.textContent = message;
-    messageBox.className = `message ${type}`;
-    messageBox.style.display = "block";
-
-    setTimeout(() => {
-        messageBox.style.display = "none";
-    }, 3000);
 }
 
 
