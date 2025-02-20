@@ -181,6 +181,44 @@
 .floating-create-button:hover {
     background: #0056b3;
 }
+.dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+
+.dialog-box {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    width: 300px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.dialog-box input {
+    width: 90%;
+    padding: 8px;
+    margin: 10px 0;
+}
+
+.dialog-box button {
+    margin: 10px;
+    padding: 8px 12px;
+    border: none;
+    cursor: pointer;
+}
+
+#confirmCreateButton:disabled {
+    background-color: grey;
+    cursor: not-allowed;
+}
 
 </style>
 </head>
@@ -204,9 +242,16 @@
     <ul id="myHostsList" class="host-list" style="display: none;"></ul>
     <ul id="joinedHostsList" class="host-list"></ul>
 </div>
+<div id="createHostDialog" class="dialog-overlay">
+    <div class="dialog-box">
+        <h4>Create Host</h4>
+        <input type="text" id="inputHostName" placeholder="Enter host name (4-25 characters)">
+        <button id="confirmCreateButton" disabled>Create</button>
+        <button id="cancelCreateButton">Cancel</button>
+    </div>
+</div>
 
 
-<div id="messageBox" class="message-box" style="display: none;"></div>
 
 <!-- Compact Dialog (hidden by default) -->
 <div id="dialog" class="dialog">
@@ -256,6 +301,51 @@
             myHostsList.style.display = "none";
             fetchJoinedHosts();
         });
+        document.getElementById("createHostButton").addEventListener("click", function () {
+    document.getElementById("createHostDialog").style.display = "flex";
+});
+
+document.getElementById("cancelCreateButton").addEventListener("click", function () {
+    document.getElementById("createHostDialog").style.display = "none";
+});
+
+document.getElementById("inputHostName").addEventListener("input", function () {
+    const confirmButton = document.getElementById("confirmCreateButton");
+    confirmButton.disabled = !(this.value.length >= 4 && this.value.length <= 25);
+});
+
+document.getElementById("confirmCreateButton").addEventListener("click", function () {
+    const hostName = document.getElementById("inputHostName").value.trim();
+    if (hostName) {
+        saveHostToFirestore(hostName);
+        document.getElementById("createHostDialog").style.display = "none";
+    }
+});
+
+function saveHostToFirestore(hostName) {
+    const currentUserEmail = firebase.auth().currentUser?.email; 
+
+    const hostData = {
+        hostname: hostName,
+        creator: currentUserEmail,
+        timestamp: Date.now()
+    };
+
+    db.collection("host").add(hostData)
+        .then(docRef => {
+            const hostId = docRef.id;
+            const subscriberData = {
+                email: currentUserEmail,
+                timestamp: Date.now()
+            };
+
+            db.collection("host").doc(hostId).collection("subscribers").add(subscriberData)
+                .then(() => console.log("Host and subscriber added successfully!"))
+                .catch(error => console.error("Failed to add subscriber:", error));
+        })
+        .catch(error => console.error("Failed to create host:", error));
+}
+
 document.querySelector(".back-button").addEventListener("click", function() {
         window.location.href = "maininterface.html";
     });
