@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Participants</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/10.12.2/firebase-app.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/10.12.2/firebase-firestore.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .header {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background-color: #f5f5f5;
+        }
+        .back-button {
+            font-size: 24px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .hostname {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .loading {
+            margin-top: 20px;
+            font-size: 18px;
+            color: gray;
+        }
+        .participants-list {
+            width: 90%;
+            margin-top: 20px;
+            list-style: none;
+            padding: 0;
+      }
+        .participant {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.profile-pic {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 10px;
+}
+
+.participant-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.name {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.timestamp {
+    font-size: 12px;
+    color: gray;
+}
+
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <i class="fas fa-arrow-left back-button" onclick="goBack()"></i>
+        <span class="hostname" id="hostname">Loading...</span>
+    </div>
+    <p class="loading" id="loadingText">Loading participants...</p>
+    <ul class="participants-list" id="participantsList"></ul>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBLsBTQ1neD4-pZybjhMaMMr4X1Y7f9stc",
+            authDomain: "cloudy-c02ac.firebaseapp.com",
+            projectId: "cloudy-c02ac",
+            storageBucket: "cloudy-c02ac.appspot.com",
+            messagingSenderId: "729506856215",
+            appId: "1:729506856215:web:06d56b828da9c6a72ccb52",
+            measurementId: "G-1MQMPGL2TB"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Get hostname and hostId from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const hostname = urlParams.get('hostname');
+        const hostId = urlParams.get('hostId');
+
+        if (hostname) {
+            document.getElementById("hostname").textContent = hostname;
+        }
+
+        function goBack() {
+            window.history.back();
+        }
+
+        function loadParticipants() {
+    if (!hostId) {
+        document.getElementById("loadingText").textContent = "Invalid Host ID";
+        return;
+    }
+
+    const participantsList = document.getElementById("participantsList");
+    db.collection("host").doc(hostId).collection("subscribers")
+        .get()
+        .then(querySnapshot => {
+            if (querySnapshot.empty) {
+                document.getElementById("loadingText").textContent = "No participants found.";
+            } else {
+                document.getElementById("loadingText").style.display = "none";
+            }
+
+            querySnapshot.forEach(doc => {
+                const email = doc.data().email;
+                const timestamp = doc.data().timestamp || 0; // Get timestamp from subscribers
+
+                fetchNameByEmail(email).then(name => {
+                    fetchProfilePhotoByEmail(email).then(photoUrl => {
+                        const listItem = document.createElement("li");
+                        listItem.classList.add("participant");
+
+                        const img = document.createElement("img");
+                        img.classList.add("profile-pic");
+                        img.src = photoUrl || "user_1077114.png"; 
+
+                        const infoDiv = document.createElement("div");
+                        infoDiv.classList.add("participant-info");
+
+                        const nameSpan = document.createElement("span");
+                        nameSpan.classList.add("name");
+                        nameSpan.textContent = name || "Unknown";
+
+                        const timestampSpan = document.createElement("span");
+                        timestampSpan.classList.add("timestamp");
+                        timestampSpan.textContent = formatTimestamp(timestamp); 
+
+                        infoDiv.appendChild(nameSpan);
+                        infoDiv.appendChild(timestampSpan);
+
+                        listItem.appendChild(img);
+                        listItem.appendChild(infoDiv);
+                        participantsList.appendChild(listItem);
+                    });
+                });
+            });
+        })
+        .catch(error => {
+            document.getElementById("loadingText").textContent = "Error loading participants.";
+            console.error(error);
+        });
+}
+
+// Function to format timestamp into readable date
+function formatTimestamp(timestamp) {
+    if (!timestamp) return "Unknown time";
+    const date = new Date(timestamp);
+    return date.toLocaleString(); // Adjust format as needed
+}
+
+
+        function fetchNameByEmail(email) {
+            return db.collection("names").where("email", "==", email).get()
+                .then(querySnapshot => {
+                    let latestName = null;
+                    let lastTimestamp = 0;
+
+                    querySnapshot.forEach(doc => {
+                        const timestamp = doc.data().timestamp || 0;
+                        if (timestamp > lastTimestamp) {
+                            lastTimestamp = timestamp;
+                            latestName = doc.data().name;
+                        }
+                    });
+
+                    return latestName;
+                });
+        }
+
+        function fetchProfilePhotoByEmail(email) {
+            return db.collection("profilesphoto").where("uploaderEmail", "==", email).get()
+                .then(querySnapshot => {
+                    let latestPhotoUrl = null;
+                    let lastTimestamp = 0;
+
+                    querySnapshot.forEach(doc => {
+                        const timestamp = doc.data().timestamp || 0;
+                        if (timestamp > lastTimestamp) {
+                            lastTimestamp = timestamp;
+                            latestPhotoUrl = doc.data().downloadUrl;
+                        }
+                    });
+
+                    return latestPhotoUrl;
+                });
+        }
+
+        loadParticipants();
+    </script>
+
+</body>
+</html>
