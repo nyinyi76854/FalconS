@@ -314,6 +314,9 @@ function loadParticipantCount(hostId) {
                 .get().then(snapshot => {
                     const profileUrl = snapshot.docs[0]?.data().profileUrl;
                     profileImage.src = profileUrl || "user_1077114.png";
+                    profileImage.addEventListener("click", () => {
+                window.location.href = `participantview.html?hostId=${hostId}&hostname=${encodeURIComponent(hostname)}`;
+            });
                 });
         }
 
