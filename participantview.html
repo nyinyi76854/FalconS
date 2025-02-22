@@ -45,6 +45,54 @@
             padding: 0;
       }
      
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1000; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto; /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%; /* Could be more or less, depending on screen size */
+    max-width: 400px; /* Set a max width */
+    border-radius: 8px; /* Rounded corners */
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+button {
+    padding: 10px 20px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #ddd;
+}
 
     </style>
 </head>
@@ -56,6 +104,15 @@
     </div>
     <p class="loading" id="loadingText">Loading participants...</p>
     <ul class="participants-list" id="participantsList"></ul>
+<div id="removeDialog" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeRemoveDialog()">&times;</span>
+        <h2>Remove Participant</h2>
+        <p id="removeDialogMessage"></p>
+        <button id="confirmRemoveButton">Yes, Remove</button>
+        <button onclick="closeRemoveDialog()">Cancel</button>
+    </div>
+</div>
 
     <script>
         const firebaseConfig = {
@@ -259,10 +316,16 @@ function getHostCreator(hostId) {
         .catch(() => null);
 }
 
-// Show remove participant dialog
 function showRemoveDialog(email, name, listItem) {
-    const confirmation = confirm(`Are you sure you want to remove ${name}?`);
-    if (confirmation) {
+    const dialog = document.getElementById("removeDialog");
+    const message = document.getElementById("removeDialogMessage");
+    const confirmButton = document.getElementById("confirmRemoveButton");
+
+    message.textContent = `Are you sure you want to remove ${name}?`;
+    
+    dialog.style.display = "block"; // Show the modal
+
+    confirmButton.onclick = () => {
         db.collection("host").doc(hostId).collection("subscribers")
             .where("email", "==", email).get()
             .then(querySnapshot => {
@@ -270,8 +333,23 @@ function showRemoveDialog(email, name, listItem) {
                 listItem.remove();
             })
             .catch(() => alert("Failed to remove participant"));
-    }
+        closeRemoveDialog(); // Close the dialog after confirmation
+    };
 }
+
+function closeRemoveDialog() {
+    const dialog = document.getElementById("removeDialog");
+    dialog.style.display = "none"; // Hide the modal
+}
+
+// Close the modal when the user clicks anywhere outside of it
+window.onclick = function(event) {
+    const dialog = document.getElementById("removeDialog");
+    if (event.target === dialog) {
+        dialog.style.display = "none";
+    }
+};
+
 
 
 // Function to format timestamp into readable date
