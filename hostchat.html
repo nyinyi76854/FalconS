@@ -310,15 +310,34 @@ function loadParticipantCount(hostId) {
         });
 }
         function loadProfileImage(hostId) {
-            db.collection("host").doc(hostId).collection("hostprofile")
-                .get().then(snapshot => {
-                    const profileUrl = snapshot.docs[0]?.data().profileUrl;
-                    profileImage.src = profileUrl || "user_1077114.png";
+    db.collection("host").doc(hostId).get().then(hostDoc => {
+        if (hostDoc.exists) {
+            const creatorEmail = hostDoc.data().creator; // Get the creator's email
+            
+            // Load the profile image from the hostprofile collection
+            db.collection("host").doc(hostId).collection("hostprofile").get().then(snapshot => {
+                const profileUrl = snapshot.docs[0]?.data().profileUrl;
+                profileImage.src = profileUrl || "user_1077114.png";
+
+                // Check if the current user's email matches the creator's email
+                const currentUserEmail = firebase.auth().currentUser?.email;
+                if (currentUserEmail === creatorEmail) {
+                    // Add click event to redirect if the user is the creator
                     profileImage.addEventListener("click", () => {
-                window.location.href = `participantview.html?hostId=${hostId}&hostname=${encodeURIComponent(hostname)}`;
+                        window.location.href = `participantview.html?hostId=${hostId}&hostname=${encodeURIComponent(hostname)}`;
+                    });
+                    profileImage.style.cursor = "pointer"; // Change cursor to pointer
+                    profileImage.style.pointerEvents = "auto"; // Enable pointer events
+                } else {
+                    // If not the creator, make it non-clickable
+                    profileImage.style.cursor = "default"; // Set cursor to default
+                    profileImage.style.pointerEvents = "none"; // Disable pointer events
+                }
             });
-                });
         }
+    });
+}
+
 
         function fetchMessages() {
             db.collection("host").doc(hostId).collection("hostchat")
