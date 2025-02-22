@@ -104,7 +104,7 @@
         const urlParams = new URLSearchParams(window.location.search);
         const hostname = urlParams.get('hostname');
         const hostId = urlParams.get('hostId');
-
+const currentUserEmail = firebase.auth().currentUser?.email;
         if (hostname) {
             document.getElementById("hostname").textContent = hostname;
         }
