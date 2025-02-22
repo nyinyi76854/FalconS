@@ -347,16 +347,19 @@ document.getElementById("exploreHostBtn").addEventListener("click", function() {
         }
     });
 
-   function isImageUrl(text) {
-    // Check if URL is an image stored in Firebase Storage
-    return text.startsWith("https://firebasestorage.googleapis.com") && text.includes("/groupsentphotos%2F");
-}
 
 function isVideoUrl(text) {
     // Check if URL is a video stored in Firebase Storage
     return text.startsWith("https://firebasestorage.googleapis.com") && text.includes("/groupsentvideos%2F");
 }
-
+        
+   function isImageUrl(text) {
+    // Check if URL is an image stored in Firebase Storage
+    return text.startsWith("https://firebasestorage.googleapis.com") && text.includes("/groupsentphotos%2F");
+}
+document.getElementById('viewMembersButton').addEventListener('click', () => {
+        window.location.href = `view_members.html?groupId=${groupId}&groupName=${groupName}`;
+    });
  function loadMessages() {
     const chatContainer = document.getElementById("chatContainer");
 
@@ -454,9 +457,7 @@ function isVideoUrl(text) {
 
     loadMessages();
 
-    document.getElementById('viewMembersButton').addEventListener('click', () => {
-        window.location.href = `view_members.html?groupId=${groupId}&groupName=${groupName}`;
-    });
+    
 </script>
 
 </body>
