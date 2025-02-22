@@ -99,6 +99,7 @@ function loadParticipants() {
             align-items: center;
             padding: 10px;
             border-bottom: 1px solid #ddd;
+            cursor: pointer; /* Add pointer cursor for clickable items */
         }
         
         .profile-pic {
@@ -199,6 +200,7 @@ function loadParticipants() {
 
                     if (creatorEmail === email) {
                         ownerSpan.style.display = "inline";
+                        listItem.style.pointerEvents = "none"; // Disable all clicks for creator
                     }
 
                     if (isVerified) {
@@ -222,11 +224,12 @@ function loadParticipants() {
                     listItem.appendChild(infoDiv);
                     participantsList.appendChild(listItem);
 
-                    listItem.addEventListener("click", () => {
-                        window.location.href = `chat_layout.html?name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}`;
-                    });
+                    // Enable interaction for non-creator participants
+                    if (creatorEmail !== email) {
+                        listItem.addEventListener("click", () => {
+                            window.location.href = `chat_layout.html?name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}`;
+                        });
 
-                    if (currentUserEmail === creatorEmail && email !== creatorEmail) {
                         listItem.addEventListener("contextmenu", (event) => {
                             event.preventDefault();
                             showRemoveDialog(email, name, listItem);
@@ -240,6 +243,7 @@ function loadParticipants() {
             console.error(error);
         });
 }
+
 
 // Check if user is verified
 function checkVerification(email) {
