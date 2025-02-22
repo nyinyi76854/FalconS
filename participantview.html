@@ -113,7 +113,7 @@
             window.history.back();
         }
 
-        function loadParticipants() {
+ function loadParticipants() {
     if (!hostId) {
         document.getElementById("loadingText").textContent = "Invalid Host ID";
         return;
@@ -131,35 +131,70 @@
 
             querySnapshot.forEach(doc => {
                 const email = doc.data().email;
-                const timestamp = doc.data().timestamp || 0; // Get timestamp from subscribers
+                const timestamp = doc.data().timestamp || 0;
 
-                fetchNameByEmail(email).then(name => {
-                    fetchProfilePhotoByEmail(email).then(photoUrl => {
-                        const listItem = document.createElement("li");
-                        listItem.classList.add("participant");
+                Promise.all([
+                    fetchNameByEmail(email),
+                    fetchProfilePhotoByEmail(email),
+                    checkVerification(email),
+                    getHostCreator(hostId)
+                ]).then(([name, photoUrl, isVerified, creatorEmail]) => {
+                    const listItem = document.createElement("li");
+                    listItem.classList.add("participant");
 
-                        const img = document.createElement("img");
-                        img.classList.add("profile-pic");
-                        img.src = photoUrl || "user_1077114.png"; 
+                    const img = document.createElement("img");
+                    img.classList.add("profile-pic");
+                    img.src = photoUrl || "user_1077114.png";
 
-                        const infoDiv = document.createElement("div");
-                        infoDiv.classList.add("participant-info");
+                    const infoDiv = document.createElement("div");
+                    infoDiv.classList.add("participant-info");
 
-                        const nameSpan = document.createElement("span");
-                        nameSpan.classList.add("name");
-                        nameSpan.textContent = name || "Unknown";
+                    const nameSpan = document.createElement("span");
+                    nameSpan.classList.add("name");
+                    nameSpan.textContent = name || "Unknown";
 
-                        const timestampSpan = document.createElement("span");
-                        timestampSpan.classList.add("timestamp");
-                        timestampSpan.textContent = formatTimestamp(timestamp); 
+                    const ownerSpan = document.createElement("span");
+                    ownerSpan.classList.add("owner");
+                    ownerSpan.textContent = "Owner";
+                    ownerSpan.style.color = "blue";
+                    ownerSpan.style.display = "none"; // Initially hidden
 
-                        infoDiv.appendChild(nameSpan);
-                        infoDiv.appendChild(timestampSpan);
+                    const verificationImg = document.createElement("img");
+                    verificationImg.src = "verification.png";
+                    verificationImg.classList.add("verification-badge");
+                    verificationImg.style.display = "none"; // Initially hidden
 
-                        listItem.appendChild(img);
-                        listItem.appendChild(infoDiv);
-                        participantsList.appendChild(listItem);
+                    const timestampSpan = document.createElement("span");
+                    timestampSpan.classList.add("timestamp");
+                    timestampSpan.textContent = formatTimestamp(timestamp);
+
+                    if (creatorEmail === email) {
+                        ownerSpan.style.display = "inline";
+                    }
+
+                    if (isVerified) {
+                        verificationImg.style.display = "inline";
+                    }
+
+                    infoDiv.appendChild(nameSpan);
+                    infoDiv.appendChild(ownerSpan);
+                    infoDiv.appendChild(verificationImg);
+                    infoDiv.appendChild(timestampSpan);
+
+                    listItem.appendChild(img);
+                    listItem.appendChild(infoDiv);
+                    participantsList.appendChild(listItem);
+
+                    listItem.addEventListener("click", () => {
+                        window.location.href = `chat_layout.html?name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}`;
                     });
+
+                    if (currentUserEmail === creatorEmail && email !== creatorEmail) {
+                        listItem.addEventListener("contextmenu", (event) => {
+                            event.preventDefault();
+                            showRemoveDialog(email, name, listItem);
+                        });
+                    }
                 });
             });
         })
@@ -168,6 +203,35 @@
             console.error(error);
         });
 }
+
+// Check if user is verified
+function checkVerification(email) {
+    return db.collection("verificationbridge").where("email", "==", email).get()
+        .then(querySnapshot => !querySnapshot.empty)
+        .catch(() => false);
+}
+
+// Get host creator
+function getHostCreator(hostId) {
+    return db.collection("host").doc(hostId).get()
+        .then(doc => doc.exists ? doc.data().creator : null)
+        .catch(() => null);
+}
+
+// Show remove participant dialog
+function showRemoveDialog(email, name, listItem) {
+    const confirmation = confirm(`Are you sure you want to remove ${name}?`);
+    if (confirmation) {
+        db.collection("host").doc(hostId).collection("subscribers")
+            .where("email", "==", email).get()
+            .then(querySnapshot => {
+                querySnapshot.forEach(doc => doc.ref.delete());
+                listItem.remove();
+            })
+            .catch(() => alert("Failed to remove participant"));
+    }
+}
+
 
 // Function to format timestamp into readable date
 function formatTimestamp(timestamp) {
