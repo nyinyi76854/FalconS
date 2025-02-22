@@ -192,13 +192,11 @@ body {
 
 
     <!-- Firebase JS SDKs -->
-  <!-- Firebase JS SDKs -->
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
-
-<script>
+    <script>
     const firebaseConfig = {
         apiKey: "AIzaSyBcTEVvxXmv5N8dJav4xNDRy5hXZRjVeM4",
         authDomain: "chatflow-59776.firebaseapp.com",
@@ -209,221 +207,257 @@ body {
         appId: "1:549003131640:web:3f4a7b8cef4c0d8a2b990d",
         measurementId: "G-V2180PR5CR"
     };
-
     firebase.initializeApp(firebaseConfig);
     const firestore = firebase.firestore();
-    const storage = firebase.storage();
 
-    // Get URL parameters
     const urlParams = new URLSearchParams(window.location.search);
     const groupId = urlParams.get('groupId');
     const groupName = urlParams.get('groupName');
-
-    // Set group name in UI
     document.getElementById('groupName').textContent = groupName;
+document.getElementById("groupProfilePhoto").style.cursor = "pointer";
 
-    // Back button event
+document.getElementById("groupProfilePhoto").addEventListener("click", () => {
+    if (groupId && groupName) {
+        // Redirect to upload_group_profile.html with both groupId and groupName as query parameters
+        window.location.href = `upload_group_profile.html?groupId=${encodeURIComponent(groupId)}&groupName=${encodeURIComponent(groupName)}`;
+    } else {
+        alert("Group ID is missing!");
+    }
+});
+
+    function loadGroupProfilePhoto(groupId) {
+        const profileRef = firestore.collection("groupprofile");
+        profileRef.where("groupId", "==", groupId).get().then(querySnapshot => {
+            let latestPhotoUrl = "group.jpg";
+            let latestTimestamp = 0;
+
+            querySnapshot.forEach(doc => {
+                const timestamp = doc.get("timestamp");
+                const photoUrl = doc.get("photoUrl");
+                if (timestamp && timestamp > latestTimestamp) {
+                    latestTimestamp = timestamp;
+                    latestPhotoUrl = photoUrl;
+                }
+            });
+
+            document.getElementById("groupProfilePhoto").src = latestPhotoUrl;
+        }).catch(error => {
+            console.error("Error fetching group profile photo:", error.message);
+        });
+    }
+    loadGroupProfilePhoto(groupId);
+
     document.getElementById('backButton').addEventListener('click', () => {
         window.location.href = 'maininterface.html';
     });
+document.getElementById("exploreHostBtn").addEventListener("click", function() {
+    window.location.href = "host.html";
+});
 
-    // View members button
-    document.getElementById('viewMembersButton').addEventListener('click', () => {
-        window.location.href = `view_members.html?groupId=${groupId}&groupName=${groupName}`;
-    });
-
-    // Explore Host button
-    document.getElementById("exploreHostBtn").addEventListener("click", () => {
-        window.location.href = "host.html";
-    });
-
-    // Load group profile photo
-    function loadGroupProfilePhoto(groupId) {
-        firestore.collection("groupprofile")
-            .where("groupId", "==", groupId)
-            .get()
-            .then(snapshot => {
-                let latestPhotoUrl = "group.jpg"; // Default group image
-                let latestTimestamp = 0;
-
-                snapshot.forEach(doc => {
-                    const { timestamp, photoUrl } = doc.data();
-                    if (timestamp > latestTimestamp) {
-                        latestTimestamp = timestamp;
-                        latestPhotoUrl = photoUrl;
-                    }
-                });
-
-                document.getElementById("groupProfilePhoto").src = latestPhotoUrl;
-            })
-            .catch(error => console.error("Error fetching group profile photo:", error.message));
-    }
-
-    loadGroupProfilePhoto(groupId);
-
-    // Redirect to group profile upload
-    document.getElementById("groupProfilePhoto").addEventListener("click", () => {
-        if (groupId && groupName) {
-            window.location.href = `upload_group_profile.html?groupId=${encodeURIComponent(groupId)}&groupName=${encodeURIComponent(groupName)}`;
-        } else {
-            alert("Group ID is missing!");
-        }
-    });
-
-    // Message Input and File Upload Handling
     const folderButton = document.getElementById('folderButton');
     const messageInput = document.getElementById("messageInput");
     const sendButton = document.getElementById("sendButton");
     const fileInput = document.createElement('input');
 
     fileInput.type = 'file';
-    fileInput.accept = 'image/*, video/*';
+    fileInput.accept = 'image/*, video/*'; // Allow image and video files
 
+    // Initial visibility setup
     folderButton.style.display = 'block';
     sendButton.style.display = 'none';
 
-    // Show send button when typing, hide when input is empty
+    // Show sendButton when typing, hide when input is empty
     messageInput.addEventListener('input', () => {
-        const hasText = messageInput.value.trim() !== "";
-        sendButton.style.display = hasText ? 'block' : 'none';
-        folderButton.style.display = hasText ? 'none' : 'block';
+        if (messageInput.value.trim()) {
+            sendButton.style.display = 'block';
+            folderButton.style.display = 'none';
+        } else {
+            sendButton.style.display = 'none';
+            folderButton.style.display = 'block';
+        }
     });
 
-    folderButton.addEventListener('click', () => fileInput.click());
+    // Trigger file selection dialog when folder button is clicked
+    folderButton.addEventListener('click', () => {
+        fileInput.click();
+    });
 
-    fileInput.addEventListener('change', async (event) => {
+    // Handle file selection
+    fileInput.addEventListener('change', (event) => {
         const file = event.target.files[0];
-        if (!file) return;
-
-        const user = firebase.auth().currentUser;
-        if (!user) {
-            alert("User not authenticated");
-            return;
-        }
-
-        const filePath = file.type.startsWith('image') ? `groupsentphotos/${file.name}` : `groupsentvideos/${file.name}`;
-        const fileRef = storage.ref().child(filePath);
-
-        try {
-            const snapshot = await fileRef.put(file);
-            const url = await snapshot.ref.getDownloadURL();
-            await firestore.collection("groupchat").doc(groupId)
-                .collection("groupmessages").add({
-                    senderEmail: user.email,
-                    text: url,
-                    sentTime: Date.now(),
-                    isRead: false
+        if (file) {
+            const user = firebase.auth().currentUser;
+            if (user) {
+                const storageRef = firebase.storage().ref();
+                const fileRef = storageRef.child(file.type.startsWith('image') ? `groupsentphotos/${file.name}` : `groupsentvideos/${file.name}`);
+                
+                // Upload file to Firebase Storage
+                fileRef.put(file).then(snapshot => {
+                    snapshot.ref.getDownloadURL().then(url => {
+                        // Send the URL as a message
+                        firestore.collection("groupchat").doc(groupId)
+                            .collection("groupmessages").add({
+                                senderEmail: user.email,
+                                text: url,
+                                sentTime: Date.now(),
+                                isRead: false
+                            })
+                            .then(() => {
+                                console.log('Message sent successfully');
+                            })
+                            .catch(error => {
+                                console.error("Error sending message: ", error.message);
+                            });
+                    }).catch(error => {
+                        console.error("Error fetching URL: ", error.message);
+                    });
+                }).catch(error => {
+                    console.error("Error uploading file: ", error.message);
                 });
-            console.log('File uploaded and message sent');
-        } catch (error) {
-            console.error("Error uploading file:", error.message);
+            } else {
+                alert("User not authenticated");
+            }
         }
     });
 
-    sendButton.addEventListener("click", async () => {
+    // Send message logic
+    sendButton.addEventListener("click", () => {
         const messageText = messageInput.value.trim();
         if (!messageText) return;
 
         const user = firebase.auth().currentUser;
-        if (!user) {
-            alert("User not authenticated");
-            return;
-        }
-
-        try {
-            await firestore.collection("groupchat").doc(groupId)
+        if (user) {
+            firestore.collection("groupchat").doc(groupId)
                 .collection("groupmessages").add({
                     senderEmail: user.email,
                     text: messageText,
                     sentTime: Date.now(),
                     isRead: false
+                })
+                .then(() => {
+                    messageInput.value = "";
+                    sendButton.style.display = "none";
+                    folderButton.style.display = 'block';
+                })
+                .catch(error => {
+                    console.error("Error sending message: ", error.message);
                 });
-            messageInput.value = "";
-            sendButton.style.display = "none";
-            folderButton.style.display = 'block';
-        } catch (error) {
-            console.error("Error sending message:", error.message);
+        } else {
+            alert("User not authenticated");
         }
     });
 
-    function isVideoUrl(text) {
-        return text.includes("/groupsentvideos%2F");
-    }
+   function isImageUrl(text) {
+    // Check if URL is an image stored in Firebase Storage
+    return text.startsWith("https://firebasestorage.googleapis.com") && text.includes("/groupsentphotos%2F");
+}
 
-    function isImageUrl(text) {
-        return text.includes("/groupsentphotos%2F");
-    }
+function isVideoUrl(text) {
+    // Check if URL is a video stored in Firebase Storage
+    return text.startsWith("https://firebasestorage.googleapis.com") && text.includes("/groupsentvideos%2F");
+}
 
-    function loadMessages() {
-        const chatContainer = document.getElementById("chatContainer");
+ function loadMessages() {
+    const chatContainer = document.getElementById("chatContainer");
 
-        firestore.collection("groupchat").doc(groupId)
-            .collection("groupmessages")
-            .orderBy("sentTime")
-            .onSnapshot(snapshot => {
-                chatContainer.innerHTML = "";
+    firestore.collection("groupchat").doc(groupId)
+        .collection("groupmessages").orderBy("sentTime")
+        .onSnapshot(querySnapshot => {
+            chatContainer.innerHTML = ""; // Clear current messages
 
-                snapshot.forEach(doc => {
-                    const { senderEmail, text } = doc.data();
-                    const isCurrentUser = senderEmail === firebase.auth().currentUser?.email;
+            querySnapshot.forEach(doc => {
+                const data = doc.data();
+                const messageDiv = document.createElement("div");
+                const currentUser = firebase.auth().currentUser;
+                const isSentByCurrentUser = data.senderEmail === currentUser.email;
 
+                messageDiv.classList.add("message");
+                messageDiv.classList.add(isSentByCurrentUser ? "sent" : "received");
+
+                if (!isSentByCurrentUser) {
+                    // Create a wrapper for profile and message
                     const messageWrapper = document.createElement("div");
                     messageWrapper.classList.add("message-wrapper");
                     messageWrapper.style.display = "flex";
                     messageWrapper.style.alignItems = "center";
 
-                    if (!isCurrentUser) {
-                        const receiverProfileImg = document.createElement("img");
-                        receiverProfileImg.src = "user_1077114.png";
-                        receiverProfileImg.alt = "Profile Photo";
-                        receiverProfileImg.style.width = "40px";
-                        receiverProfileImg.style.height = "40px";
-                        receiverProfileImg.style.borderRadius = "50%";
-                        receiverProfileImg.style.marginRight = "10px";
+                    // Create profile image element
+                    const receiverProfileImg = document.createElement("img");
+                    receiverProfileImg.src = "user_1077114.png"; // Default image
+                    receiverProfileImg.alt = "Profile Photo";
+                    
+                    const receiverProfileImgCss = {
+                        width: "40px",
+                        height: "40px",
+                        borderRadius: "50%",
+                        marginRight: "10px"
+                    };
 
-                        firestore.collection("profilesphoto")
-                            .where("uploaderEmail", "==", senderEmail)
-                            .get()
-                            .then(profileSnapshot => {
-                                profileSnapshot.forEach(profileDoc => {
-                                    receiverProfileImg.src = profileDoc.data().downloadUrl;
-                                });
+                    Object.assign(receiverProfileImg.style, receiverProfileImgCss);
+
+                    // Fetch profile photo from Firestore
+                    firestore.collection("profilesphoto")
+                        .where("uploaderEmail", "==", data.senderEmail)
+                        .get()
+                        .then((querySnapshot) => {
+                            let latestPhotoUrl = "user_1077114.png"; // Default profile pic
+                            let latestTimestamp = 0;
+
+                            querySnapshot.forEach((doc) => {
+                                const timestamp = doc.data().timestamp || 0;
+                                const photoUrl = doc.data().downloadUrl;
+
+                                if (timestamp > latestTimestamp) {
+                                    latestTimestamp = timestamp;
+                                    latestPhotoUrl = photoUrl;
+                                }
                             });
+                            receiverProfileImg.src = latestPhotoUrl; // Update to latest photo
+                        });
 
-                        messageWrapper.appendChild(receiverProfileImg);
-                    }
-
-                    const messageDiv = document.createElement("div");
-                    messageDiv.classList.add("message", isCurrentUser ? "sent" : "received");
-
-                    if (isImageUrl(text)) {
-                        const img = document.createElement("img");
-                        img.src = text;
-                        img.style.maxWidth = "100%";
-                        img.style.maxHeight = "200px";
-                        messageDiv.appendChild(img);
-                    } else if (isVideoUrl(text)) {
-                        const video = document.createElement("video");
-                        video.src = text;
-                        video.controls = true;
-                        video.style.maxWidth = "100%";
-                        video.style.maxHeight = "200px";
-                        messageDiv.appendChild(video);
-                    } else {
-                        messageDiv.textContent = text;
-                    }
-
+                    messageWrapper.appendChild(receiverProfileImg);
                     messageWrapper.appendChild(messageDiv);
                     chatContainer.appendChild(messageWrapper);
-                });
+                } else {
+                    chatContainer.appendChild(messageDiv);
+                }
 
-                chatContainer.scrollTop = chatContainer.scrollHeight;
+                // Check for image or video URLs
+                if (isImageUrl(data.text)) {
+                    const img = document.createElement("img");
+                    img.src = data.text;
+                    img.alt = "Image message";
+                    img.style.maxWidth = "100%";
+                    img.style.maxHeight = "200px";
+                    img.onerror = () => {
+                        img.src = "default-image.png";
+                    };
+                    messageDiv.appendChild(img);
+                } else if (isVideoUrl(data.text)) {
+                    const video = document.createElement("video");
+                    video.src = data.text;
+                    video.controls = true;
+                    video.style.maxWidth = "100%";
+                    video.style.maxHeight = "200px";
+                    video.onerror = () => {
+                        console.error("Error loading video:", data.text);
+                    };
+                    messageDiv.appendChild(video);
+                } else {
+                    messageDiv.textContent = data.text;
+                }
             });
-    }
+
+            chatContainer.scrollTop = chatContainer.scrollHeight; // Scroll to latest message
+        });
+}
 
     loadMessages();
-</script>
 
+    document.getElementById('viewMembersButton').addEventListener('click', () => {
+        window.location.href = `view_members.html?groupId=${groupId}&groupName=${groupName}`;
+    });
+</script>
 
 </body>
 </html>
