@@ -246,13 +246,12 @@ document.getElementById("groupProfilePhoto").addEventListener("click", () => {
         });
     }
     loadGroupProfilePhoto(groupId);
+loadMessages();
 
     document.getElementById('backButton').addEventListener('click', () => {
         window.location.href = 'maininterface.html';
     });
-document.getElementById("exploreHostBtn").addEventListener("click", function() {
-    window.location.href = "host.html";
-});
+
 
     const folderButton = document.getElementById('folderButton');
     const messageInput = document.getElementById("messageInput");
@@ -357,7 +356,9 @@ function isVideoUrl(text) {
     // Check if URL is a video stored in Firebase Storage
     return text.startsWith("https://firebasestorage.googleapis.com") && text.includes("/groupsentvideos%2F");
 }
-
+document.getElementById('viewMembersButton').addEventListener('click', () => {
+        window.location.href = `view_members.html?groupId=${groupId}&groupName=${groupName}`;
+    });
  function loadMessages() {
     const chatContainer = document.getElementById("chatContainer");
 
@@ -453,11 +454,8 @@ function isVideoUrl(text) {
         });
 }
 
-    loadMessages();
-
-    document.getElementById('viewMembersButton').addEventListener('click', () => {
-        window.location.href = `view_members.html?groupId=${groupId}&groupName=${groupName}`;
-    });
+    
+    
 </script>
 
 </body>
