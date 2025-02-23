@@ -266,16 +266,17 @@ document.getElementById("exploreHostBtn").addEventListener("click", function() {
     folderButton.style.display = 'block';
     sendButton.style.display = 'none';
 
-    // Show sendButton when typing, hide when input is empty
-    messageInput.addEventListener('input', () => {
-        if (messageInput.value.trim()) {
-            sendButton.style.display = 'block';
-            folderButton.style.display = 'none';
-        } else {
-            sendButton.style.display = 'none';
-            folderButton.style.display = 'block';
-        }
-    });
+   messageInput.addEventListener('input', () => {
+    console.log("Input changed:", messageInput.value);  // Debugging
+    if (messageInput.value.trim()) {
+        sendButton.style.display = 'block';
+        folderButton.style.display = 'none';
+    } else {
+        sendButton.style.display = 'none';
+        folderButton.style.display = 'block';
+    }
+});
+
 
     // Trigger file selection dialog when folder button is clicked
     folderButton.addEventListener('click', () => {
