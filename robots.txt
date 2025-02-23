@@ -1,0 +1,4 @@
+User-agent: *
+Disallow:
+
+Sitemap: https://falcons-egw.pages.dev/sitemap.xml
